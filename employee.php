@@ -105,7 +105,7 @@ $nextCoopID = generateNextCoopID($conn);
         <div class="flex items-center space-x-4">
             <button onclick="openAddModal()"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
-                <i class="fas fa-plus mr-2"></i>Add Employee
+                <i class="fas fa-plus mr-2"></i>Add Member
             </button>
         </div>
     </div>
@@ -119,7 +119,7 @@ $nextCoopID = generateNextCoopID($conn);
                 <i class="fas fa-users text-2xl"></i>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Total Employees</p>
+                <p class="text-sm font-medium text-gray-600">Total Members</p>
                 <p class="text-2xl font-bold text-gray-900"><?= $total_records ?></p>
             </div>
         </div>
@@ -341,7 +341,7 @@ $nextCoopID = generateNextCoopID($conn);
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Add New Employee</h3>
+                <h3 class="text-lg font-semibold text-gray-900">Add New Member</h3>
             </div>
             <form id="addEmployeeForm" class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -527,6 +527,7 @@ class EmployeeManager {
 
     async addEmployee() {
         const formData = new FormData(document.getElementById('addEmployeeForm'));
+        formData.append('action', 'create');
 
         try {
             const response = await fetch('api/employee.php', {
@@ -551,10 +552,11 @@ class EmployeeManager {
 
     async updateEmployee() {
         const formData = new FormData(document.getElementById('editEmployeeForm'));
+        formData.append('action', 'update');
 
         try {
             const response = await fetch('api/employee.php', {
-                method: 'PUT',
+                method: 'POST',
                 body: formData
             });
 
