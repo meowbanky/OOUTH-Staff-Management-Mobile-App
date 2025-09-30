@@ -1,5 +1,5 @@
 <?php
-ini_set('max_execution_time', '300');
+ini_set('max_execution_time', '600'); // Increased to 10 minutes for bulk operations
 require_once('../Connections/coop.php');
 include_once('../classes/model.php');
 
@@ -60,9 +60,10 @@ function deleteRecords() {
     }
 
     $records = $_POST['records'];
-    $deletedCount = 0;
+    $validRecords = [];
     $errors = [];
 
+    // Validate all records first
     foreach ($records as $record) {
         $parts = explode(',', $record);
         if (count($parts) !== 2) {
@@ -78,48 +79,66 @@ function deleteRecords() {
             continue;
         }
 
-        try {
-            // Start transaction
-            $conn->beginTransaction();
-
-            // Delete from all related tables
-            $tables = [
-                'tbl_shares' => ['coopid', 'SharesPeriod'],
-                'tbl_savings' => ['coopid', 'deductionperiod'],
-                'tbl_commodityrepayment' => ['coopid', 'paymentperiod'],
-                'tbl_loans' => ['coopid', 'loanperiod'],
-                'tbl_loanrepayment' => ['coopid', 'loanrepaymentPeriod'],
-                'tbl_entryfee' => ['coopid', 'deductionperiod'],
-                'tbl_stationery' => ['coopid', 'stationeryperiod'],
-                'tbl_mastertransact' => ['coopid', 'TransactionPeriod']
-            ];
-
-            foreach ($tables as $table => $columns) {
-                $sql = "DELETE FROM $table WHERE {$columns[0]} = ? AND {$columns[1]} = ?";
-                $query = $conn->prepare($sql);
-                $query->execute([$coopId, $period]);
-            }
-
-            // Commit transaction
-            $conn->commit();
-            $deletedCount++;
-
-        } catch (Exception $e) {
-            // Rollback transaction
-            $conn->rollback();
-            $errors[] = "Failed to delete record $coopId, $period: " . $e->getMessage();
-        }
+        $validRecords[] = [$coopId, $period];
     }
 
-    if ($deletedCount > 0) {
+    if (empty($validRecords)) {
+        throw new Exception('No valid records to delete. Errors: ' . implode(', ', $errors));
+    }
+
+    try {
+        // Start single transaction for all deletions
+        $conn->beginTransaction();
+
+        // Prepare placeholders for bulk delete
+        $placeholders = str_repeat('(?,?),', count($validRecords));
+        $placeholders = rtrim($placeholders, ',');
+
+        // Flatten the records array for the query
+        $params = [];
+        foreach ($validRecords as $record) {
+            $params[] = $record[0]; // coopId
+            $params[] = $record[1]; // period
+        }
+
+        // Delete from all related tables in bulk
+        $tables = [
+            'tbl_shares' => ['coopid', 'SharesPeriod'],
+            'tbl_savings' => ['coopid', 'deductionperiod'],
+            'tbl_commodityrepayment' => ['coopid', 'paymentperiod'],
+            'tbl_loans' => ['coopid', 'loanperiod'],
+            'tbl_loanrepayment' => ['coopid', 'loanrepaymentPeriod'],
+            'tbl_entryfee' => ['coopid', 'deductionperiod'],
+            'tbl_stationery' => ['coopid', 'stationeryperiod'],
+            'tbl_mastertransact' => ['coopid', 'TransactionPeriod']
+        ];
+
+        $totalDeleted = 0;
+        foreach ($tables as $table => $columns) {
+            $sql = "DELETE FROM $table WHERE ({$columns[0]}, {$columns[1]}) IN ($placeholders)";
+            $query = $conn->prepare($sql);
+            $result = $query->execute($params);
+            
+            if ($result) {
+                $totalDeleted += $query->rowCount();
+            }
+        }
+
+        // Commit transaction
+        $conn->commit();
+
         echo json_encode([
             'success' => true,
-            'message' => "Successfully deleted $deletedCount records",
-            'deleted_count' => $deletedCount,
+            'message' => "Successfully deleted records for " . count($validRecords) . " member-period combinations",
+            'deleted_count' => count($validRecords),
+            'total_rows_deleted' => $totalDeleted,
             'errors' => $errors
         ]);
-    } else {
-        throw new Exception('No records were deleted. Errors: ' . implode(', ', $errors));
+
+    } catch (Exception $e) {
+        // Rollback transaction
+        $conn->rollback();
+        throw new Exception('Failed to delete records: ' . $e->getMessage());
     }
 }
 
