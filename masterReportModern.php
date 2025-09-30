@@ -12,219 +12,219 @@ include 'includes/header.php';
 $today = date('Y-m-d');
 ?>
 <!-- Additional styles for this page -->
-    <style>
-    .fade-in {
-        animation: fadeIn 0.5s ease-in;
+<style>
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.ui-menu-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ui-menu-item:hover {
+    background-color: #f3f4f6;
+}
+
+.ui-state-active {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+.table-container {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f9fafb;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
 
-    .gradient-bg {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.dropdown-item.active {
+    background-color: #dbeafe;
+    border-left: 3px solid #3b82f6;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+/* Loading Modal Animations */
+#loading-modal {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#loading-modal:not(.hidden) {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#loading-modal .bg-white {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
 
-    .ui-autocomplete {
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Spinner Animation */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
     }
 
-    .ui-menu-item {
-        padding: 8px 12px;
-        border-bottom: 1px solid #e5e7eb;
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Bounce Animation */
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
     }
 
-    .ui-menu-item:hover {
-        background-color: #f3f4f6;
+    50% {
+        transform: translateY(-10px);
     }
-
-    .ui-state-active {
-        background-color: #3b82f6 !important;
-        color: white !important;
-    }
-
-    .table-container {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-
-    .sticky-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: #f9fafb;
-    }
-
-    .loading-spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    .dropdown-item.active {
-        background-color: #dbeafe;
-        border-left: 3px solid #3b82f6;
-    }
-
-    .dropdown-item:hover {
-        background-color: #f3f4f6;
-    }
-
-    /* Loading Modal Animations */
-    #loading-modal {
-        transition: opacity 0.3s ease-in-out;
-    }
-
-    #loading-modal:not(.hidden) {
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    #loading-modal .bg-white {
-        animation: slideInUp 0.3s ease-out;
-    }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Spinner Animation */
-    .animate-spin {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Bounce Animation */
-    .animate-bounce {
-        animation: bounce 1s infinite;
-    }
-
-    @keyframes bounce {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-10px);
-        }
-    }
-    </style>
+}
+</style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-<!-- Page Header -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Master Report System</h1>
-            <p class="text-gray-600 mt-2">Generate comprehensive reports and analytics</p>
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Master Report System</h1>
+                <p class="text-gray-600 mt-2">Generate comprehensive reports and analytics</p>
+            </div>
         </div>
     </div>
-</div>
-        <!-- Page Header -->
-        <div class="mb-8 fade-in">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">
-                        <i class="fas fa-chart-line text-blue-600 mr-3"></i>Master Report
-                    </h2>
-                    <p class="text-gray-600">Comprehensive financial report for all members</p>
-                </div>
+    <!-- Page Header -->
+    <div class="mb-8 fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                    <i class="fas fa-chart-line text-blue-600 mr-3"></i>Master Report
+                </h2>
+                <p class="text-gray-600">Comprehensive financial report for all members</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6 fade-in">
+        <ol class="flex items-center space-x-2 text-sm">
+            <li><a href="home.php" class="text-blue-600 hover:text-blue-800"><i
+                        class="fas fa-home mr-1"></i>Dashboard</a></li>
+            <li><i class="fas fa-chevron-right text-gray-400"></i></li>
+            <li class="text-gray-500">Master Report</li>
+        </ol>
+    </nav>
+
+    <!-- Action Bar -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8 fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-search text-blue-600 mr-3"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Search & Filter</h3>
             </div>
         </div>
 
-        <!-- Breadcrumb -->
-        <nav class="mb-6 fade-in">
-            <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="home.php" class="text-blue-600 hover:text-blue-800"><i
-                            class="fas fa-home mr-1"></i>Dashboard</a></li>
-                <li><i class="fas fa-chevron-right text-gray-400"></i></li>
-                <li class="text-gray-500">Master Report</li>
-            </ol>
-        </nav>
-
-        <!-- Action Bar -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 fade-in">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center">
-                    <i class="fas fa-search text-blue-600 mr-3"></i>
-                    <h3 class="text-lg font-semibold text-gray-900">Search & Filter</h3>
-                </div>
-            </div>
-
-            <form id="master-report-form" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Staff Search -->
+        <form id="master-report-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Staff Search -->
+                <div class="relative">
+                    <label for="staff-search" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-1"></i>Staff Member
+                    </label>
                     <div class="relative">
-                        <label for="staff-search" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-user mr-1"></i>Staff Member
-                        </label>
-                        <div class="relative">
-                            <input type="text" id="staff-search" name="staff_search"
-                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Enter staff name or ID...">
-                            <button type="button" id="clear-staff-search"
-                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div id="staff-loader" class="hidden mt-2">
-                            <div class="loading-spinner"></div>
-                            <span class="ml-2 text-sm text-gray-500">Searching...</span>
-                        </div>
+                        <input type="text" id="staff-search" name="staff_search"
+                            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter staff name or ID...">
+                        <button type="button" id="clear-staff-search"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                    <div id="staff-loader" class="hidden mt-2">
+                        <div class="loading-spinner"></div>
+                        <span class="ml-2 text-sm text-gray-500">Searching...</span>
+                    </div>
+                </div>
 
-                    <!-- Period From -->
-                    <div>
-                        <label for="period-from" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-alt mr-1"></i>Period From
-                        </label>
-                        <select id="period-from" name="period_from"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Select Start Period</option>
-                            <?php  
+                <!-- Period From -->
+                <div>
+                    <label for="period-from" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt mr-1"></i>Period From
+                    </label>
+                    <select id="period-from" name="period_from"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Start Period</option>
+                        <?php  
                             $query = $conn->prepare('SELECT * FROM tbpayrollperiods ORDER BY id DESC');
                             $res = $query->execute();
                             $out = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -232,18 +232,18 @@ $today = date('Y-m-d');
                                 echo('<option value="' . $row['id'] . '">' . $row['PayrollPeriod'] . '</option>');
                             }
                             ?>
-                        </select>
-                    </div>
+                    </select>
+                </div>
 
-                    <!-- Period To -->
-                    <div>
-                        <label for="period-to" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-calendar-alt mr-1"></i>Period To
-                        </label>
-                        <select id="period-to" name="period_to"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Select End Period</option>
-                            <?php  
+                <!-- Period To -->
+                <div>
+                    <label for="period-to" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt mr-1"></i>Period To
+                    </label>
+                    <select id="period-to" name="period_to"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select End Period</option>
+                        <?php  
                             $query = $conn->prepare('SELECT * FROM tbpayrollperiods ORDER BY id DESC');
                             $res = $query->execute();
                             $out = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -251,178 +251,160 @@ $today = date('Y-m-d');
                                 echo('<option value="' . $row['id'] . '">' . $row['PayrollPeriod'] . '</option>');
                             }
                             ?>
-                        </select>
-                    </div>
-
-                    <!-- Records Per Page -->
-                    <div>
-                        <label for="records-per-page" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-list mr-1"></i>Records Per Page
-                        </label>
-                        <select id="records-per-page" name="records_per_page"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="100">100 Records</option>
-                            <option value="250">250 Records</option>
-                            <option value="500">500 Records</option>
-                            <option value="1000">1000 Records</option>
-                        </select>
-                    </div>
+                    </select>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="flex items-center space-x-3">
-                        <button type="button" id="generate-report"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-search mr-2"></i>Generate Report
-                        </button>
-                        <button type="button" id="clear-filters"
-                            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-undo mr-2"></i>Clear Filters
-                        </button>
-                    </div>
-
-                    <div class="flex items-center space-x-3">
-                        <button type="button" id="export-excel"
-                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-file-excel mr-2"></i>Export Excel
-                        </button>
-                        <button type="button" id="print-report"
-                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-print mr-2"></i>Print
-                        </button>
-                    </div>
+                <!-- Records Per Page -->
+                <div>
+                    <label for="records-per-page" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-list mr-1"></i>Records Per Page
+                    </label>
+                    <select id="records-per-page" name="records_per_page"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="100">100 Records</option>
+                        <option value="250">250 Records</option>
+                        <option value="500">500 Records</option>
+                        <option value="1000">1000 Records</option>
+                    </select>
                 </div>
-            </form>
-        </div>
-
-        <!-- Selected Staff Info -->
-        <div id="staff-info" class="card p-6 mb-6 hidden">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                <i class="fas fa-user-circle mr-2"></i>Selected Staff Information
-            </h3>
-            <div id="staff-details" class="text-gray-600">
-                <!-- Staff details will be loaded here -->
             </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <button type="button" id="generate-report"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-search mr-2"></i>Generate Report
+                    </button>
+                    <button type="button" id="clear-filters"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-undo mr-2"></i>Clear Filters
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button type="button" id="export-excel"
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-file-excel mr-2"></i>Export Excel
+                    </button>
+                    <button type="button" id="print-report"
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-print mr-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Selected Staff Info -->
+    <div id="staff-info" class="card p-6 mb-6 hidden">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            <i class="fas fa-user-circle mr-2"></i>Selected Staff Information
+        </h3>
+        <div id="staff-details" class="text-gray-600">
+            <!-- Staff details will be loaded here -->
         </div>
+    </div>
 
-        <!-- Report Table -->
-        <div id="report-container" class="hidden">
-            <div class="bg-white rounded-xl shadow-lg fade-in">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-table mr-2"></i>Master Report Data
-                    </h3>
-                    <div class="flex items-center space-x-3">
-                        <span id="total-records" class="text-sm text-gray-500"></span>
-                        <button type="button" id="delete-selected"
-                            class="btn-secondary px-4 py-2 rounded-lg disabled:opacity-50">
-                            <i class="fas fa-trash mr-2"></i>Delete Selected
-                        </button>
-                    </div>
+    <!-- Report Table -->
+    <div id="report-container" class="hidden">
+        <div class="bg-white rounded-xl shadow-lg fade-in">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-table mr-2"></i>Master Report Data
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <span id="total-records" class="text-sm text-gray-500"></span>
+                    <button type="button" id="delete-selected"
+                        class="btn-secondary px-4 py-2 rounded-lg disabled:opacity-50">
+                        <i class="fas fa-trash mr-2"></i>Delete Selected
+                    </button>
                 </div>
+            </div>
 
-                <!-- Progress Bar -->
-                <div id="progress-container" class="hidden mb-4">
-                    <div class="bg-gray-200 rounded-full h-2">
-                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style="width: 0%"></div>
-                    </div>
-                    <div id="progress-text" class="text-sm text-gray-600 mt-2"></div>
+            <!-- Progress Bar -->
+            <div id="progress-container" class="hidden mb-4">
+                <div class="bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style="width: 0%"></div>
                 </div>
+                <div id="progress-text" class="text-sm text-gray-600 mt-2"></div>
+            </div>
 
-                <!-- Table Container -->
-                <div class="table-container">
-                    <table id="master-report-table" class="min-w-full divide-y divide-gray-200">
-                        <thead class="sticky-header bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left">
-                                    <input type="checkbox" id="select-all"
-                                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                </th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    S/N</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Period</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Coop No</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Share Amt</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Share Bal</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Sav Amt</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Sav Bal</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Interest</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Dev Levy</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Stationery</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Entry Fee</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Loan</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Loan Pay</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Loan Bal</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Commodity</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Comdty Pay</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Comdty Bal</th>
-                                <th
-                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="report-tbody" class="bg-white divide-y divide-gray-200">
-                            <!-- Report data will be loaded here -->
-                        </tbody>
-                        <tfoot id="report-tfoot" class="bg-gray-50">
-                            <!-- Summary totals will be loaded here -->
-                        </tfoot>
-                    </table>
+            <!-- Table Container -->
+            <div class="table-container">
+                <table id="master-report-table" class="min-w-full divide-y divide-gray-200">
+                    <thead class="sticky-header bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left">
+                                <input type="checkbox" id="select-all"
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                S/N</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Period</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Coop No</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Share Amt</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Share Bal</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sav Amt</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sav Bal</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Interest</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dev Levy</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Stationery</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Entry Fee</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Loan</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Loan Pay</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Loan Bal</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Commodity</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Comdty Pay</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Comdty Bal</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tbody" class="bg-white divide-y divide-gray-200">
+                        <!-- Report data will be loaded here -->
+                    </tbody>
+                    <tfoot id="report-tfoot" class="bg-gray-50">
+                        <!-- Summary totals will be loaded here -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="mt-6 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-700">Showing</span>
+                    <select id="page-size" class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                        <option value="100">100</option>
+                        <option value="250">250</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                    </select>
+                    <span class="text-sm text-gray-700">records per page</span>
                 </div>
-
-                <!-- Pagination -->
-                <div id="pagination-container" class="mt-6 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-700">Showing</span>
-                        <select id="page-size" class="px-3 py-1 border border-gray-300 rounded-md text-sm">
-                            <option value="100">100</option>
-                            <option value="250">250</option>
-                            <option value="500">500</option>
-                            <option value="1000">1000</option>
-                        </select>
-                        <span class="text-sm text-gray-700">records per page</span>
-                    </div>
-                    <div id="pagination" class="flex items-center space-x-1">
-                        <!-- Pagination buttons will be generated here -->
-                    </div>
+                <div id="pagination" class="flex items-center space-x-1">
+                    <!-- Pagination buttons will be generated here -->
                 </div>
             </div>
         </div>
+    </div>
     </main>
 
     <!-- Loading Modal -->
@@ -434,7 +416,7 @@ $today = date('Y-m-d');
                     <div class="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600 mx-auto">
                     </div>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                        <i id="modal-icon" class="fas fa-chart-line text-blue-600 text-xl"></i>
                     </div>
                 </div>
 
@@ -888,6 +870,9 @@ $today = date('Y-m-d');
                 records.push($(this).val());
             });
 
+            // Show loading state
+            this.showDeleteLoading(records.length);
+
             $.ajax({
                 url: 'api/masterReport.php',
                 method: 'POST',
@@ -896,6 +881,7 @@ $today = date('Y-m-d');
                     records: records
                 },
                 success: (response) => {
+                    this.hideDeleteLoading();
                     if (response.success) {
                         this.showSuccess(`${records.length} records deleted successfully`);
                         this.generateReport();
@@ -903,8 +889,10 @@ $today = date('Y-m-d');
                         this.showError(response.message);
                     }
                 },
-                error: () => {
-                    this.showError('Failed to delete records');
+                error: (xhr, status, error) => {
+                    this.hideDeleteLoading();
+                    console.error('Delete Error:', xhr.responseText);
+                    this.showError('Failed to delete records: ' + (xhr.responseText || error));
                 }
             });
         }
@@ -1046,6 +1034,51 @@ $today = date('Y-m-d');
                 text: message
             });
         }
+
+        showDeleteLoading(recordCount) {
+            // Disable delete button and show loading state
+            $('#delete-selected').prop('disabled', true).html(`
+                <i class="fas fa-spinner fa-spin mr-2"></i>Deleting ${recordCount} records...
+            `);
+
+            // Show loading modal with delete-specific content
+            $('#loading-modal').removeClass('hidden');
+            $('#modal-progress-bar').css('width', '0%');
+            
+            // Update modal content for delete operation
+            $('#modal-icon').removeClass('fa-chart-line').addClass('fa-trash text-red-600');
+            $('#loading-modal h3').text('Deleting Records');
+            $('#loading-modal p').text(`Deleting ${recordCount} selected records. Please wait...`);
+            
+            // Simulate progress for delete operation
+            let progress = 0;
+            this.deleteProgressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90; // Don't complete until actual completion
+                $('#modal-progress-bar').css('width', progress + '%');
+            }, 200);
+        }
+
+        hideDeleteLoading() {
+            // Clear progress interval
+            if (this.deleteProgressInterval) {
+                clearInterval(this.deleteProgressInterval);
+                this.deleteProgressInterval = null;
+            }
+
+            // Hide loading modal
+            $('#loading-modal').addClass('hidden');
+            
+            // Reset modal icon back to default
+            $('#modal-icon').removeClass('fa-trash text-red-600').addClass('fa-chart-line text-blue-600');
+            $('#loading-modal h3').text('Loading Report');
+            $('#loading-modal p').text('Please wait while we fetch the data...');
+            
+            // Reset delete button
+            $('#delete-selected').prop('disabled', false).html(`
+                <i class="fas fa-trash mr-2"></i>Delete Selected
+            `);
+        }
     }
 
     // Initialize when document is ready
@@ -1069,4 +1102,4 @@ $today = date('Y-m-d');
     });
     </script>
 
-<?php include 'includes/footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
