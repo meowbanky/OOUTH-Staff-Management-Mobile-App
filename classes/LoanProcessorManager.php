@@ -47,7 +47,7 @@ class LoanProcessorManager {
             while ($row = mysqli_fetch_assoc($result)) {
                 $employees[] = [
                     'coop_id' => $row['CoopID'],
-                    'full_name' => trim($row['FullName']),
+                    'full_name' => trim($row['FullName'] ?? ''),
                     'first_name' => $row['FirstName'],
                     'middle_name' => $row['MiddleName'],
                     'last_name' => $row['LastName']
@@ -90,7 +90,7 @@ class LoanProcessorManager {
             while ($row = mysqli_fetch_assoc($result)) {
                 $employees[] = [
                     'coop_id' => $row['CoopID'],
-                    'full_name' => trim($row['FullName']),
+                    'full_name' => trim($row['FullName'] ?? ''),
                     'first_name' => $row['FirstName'],
                     'middle_name' => $row['MiddleName'],
                     'last_name' => $row['LastName']
