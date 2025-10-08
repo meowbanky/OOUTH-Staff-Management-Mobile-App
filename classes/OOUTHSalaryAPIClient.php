@@ -29,47 +29,37 @@ class OOUTHSalaryAPIClient {
     
     /**
      * Authenticate and get JWT token
+     * Following OOUTH Salary API Signature Generation Guide
+     * 
+     * Signature Formula:
+     * Step 1: Signature String = API_KEY + TIMESTAMP (no spaces!)
+     * Step 2: HMAC Signature = hash_hmac('sha256', Signature String, API_SECRET)
+     * 
      * @return bool Success status
      */
     public function authenticate() {
         try {
-            // Try simple authentication first (just API key)
-            if ($this->debug) {
-                error_log("OOUTH API: Attempting simple authentication with API key");
-            }
-            
-            $response = $this->request('POST', '/auth/token', null, []);
-            
-            if ($response && isset($response['success']) && $response['success']) {
-                $this->jwtToken = $response['data']['access_token'];
-                $this->tokenExpiry = time() + ($response['data']['expires_in'] ?? 900);
-                
-                if ($this->debug) {
-                    error_log("OOUTH API: Simple authentication successful");
-                }
-                
-                return true;
-            }
-            
-            // If simple auth fails, try with signature
-            if ($this->debug) {
-                error_log("OOUTH API: Simple auth failed, trying with signature");
-            }
-            
+            // Step 1: Get current Unix timestamp (seconds, not milliseconds)
             $timestamp = time();
+            
+            // Step 2: Build signature string (API Key + Timestamp, NO spaces)
             $signatureString = $this->apiKey . $timestamp;
+            
+            // Step 3: Calculate HMAC-SHA256 signature
             $signature = hash_hmac('sha256', $signatureString, $this->apiSecret);
             
             if ($this->debug) {
-                error_log("OOUTH API: Signature string: " . $signatureString);
-                error_log("OOUTH API: Generated signature: " . $signature);
+                error_log("OOUTH API: ===== Authentication Attempt =====");
+                error_log("OOUTH API: API Key: " . $this->apiKey);
+                error_log("OOUTH API: Timestamp: " . $timestamp);
+                error_log("OOUTH API: Signature String: " . $signatureString);
+                error_log("OOUTH API: Generated Signature: " . $signature);
+                error_log("OOUTH API: Secret Length: " . strlen($this->apiSecret) . " chars");
             }
             
-            $response = $this->request('POST', '/auth/token', [
-                'api_key' => $this->apiKey,
-                'timestamp' => $timestamp,
-                'signature' => $signature
-            ], [
+            // Step 4: Make request with required headers
+            // All three headers are REQUIRED: X-API-Key, X-Timestamp, X-Signature
+            $response = $this->request('POST', '/auth/token', null, [
                 'X-Timestamp' => $timestamp,
                 'X-Signature' => $signature
             ]);
@@ -79,21 +69,42 @@ class OOUTHSalaryAPIClient {
                 $this->tokenExpiry = time() + ($response['data']['expires_in'] ?? 900);
                 
                 if ($this->debug) {
-                    error_log("OOUTH API: Signature authentication successful");
+                    error_log("OOUTH API: ✅ Authentication successful!");
+                    error_log("OOUTH API: Token expires in: " . ($response['data']['expires_in'] ?? 900) . " seconds");
                 }
                 
                 return true;
             }
             
             if ($this->debug) {
-                error_log("OOUTH API: Authentication failed - " . json_encode($response));
+                error_log("OOUTH API: ❌ Authentication failed");
+                error_log("OOUTH API: Response: " . json_encode($response));
+                
+                // Provide troubleshooting hints
+                if (isset($response['error']['code'])) {
+                    $errorCode = $response['error']['code'];
+                    error_log("OOUTH API: Error Code: " . $errorCode);
+                    
+                    switch ($errorCode) {
+                        case 'INVALID_SIGNATURE':
+                            error_log("OOUTH API: TIP: Check that API secret is correct (should be 64 chars)");
+                            error_log("OOUTH API: TIP: Verify signature string has no spaces: apiKey + timestamp");
+                            break;
+                        case 'INVALID_API_KEY':
+                            error_log("OOUTH API: TIP: Verify API key is correct");
+                            break;
+                        case 'TIMESTAMP_OUT_OF_RANGE':
+                            error_log("OOUTH API: TIP: Check system clock - should be ±5 minutes from server time");
+                            break;
+                    }
+                }
             }
             
             return false;
             
         } catch (Exception $e) {
             if ($this->debug) {
-                error_log("OOUTH API: Authentication error - " . $e->getMessage());
+                error_log("OOUTH API: ❌ Authentication error - " . $e->getMessage());
             }
             return false;
         }
