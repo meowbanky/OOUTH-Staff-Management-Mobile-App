@@ -7,6 +7,9 @@
 config/database.php
 config/config.php
 
+# API Configuration (contains sensitive keys)
+config/api_config.php
+
 # Firebase and API keys
 auth_api/admin/index2.php
 **/firebase-config.js

@@ -335,6 +335,24 @@ include 'includes/header.php';
     </div>
     <?php endif; ?>
 
+    <!-- API Upload (Admin Only) -->
+    <?php if ($userRole == 'Admin'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                <i class="fas fa-cloud-download-alt text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">API Upload</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Fetch and upload data from OOUTH Salary API.</p>
+        <a href="api_upload.php"
+            class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            API Upload
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Process Deduction (Admin Only) -->
     <?php if ($userRole == 'Admin'): ?>
     <div class="bg-white rounded-lg shadow-lg p-6 card-hover">

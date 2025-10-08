@@ -405,7 +405,7 @@ $today = date('Y-m-d');
             </div>
         </div>
     </div>
-    </main>
+    <!-- </main> -->
 
     <!-- Loading Modal -->
     <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
@@ -1044,12 +1044,12 @@ $today = date('Y-m-d');
             // Show loading modal with delete-specific content
             $('#loading-modal').removeClass('hidden');
             $('#modal-progress-bar').css('width', '0%');
-            
+
             // Update modal content for delete operation
             $('#modal-icon').removeClass('fa-chart-line').addClass('fa-trash text-red-600');
             $('#loading-modal h3').text('Deleting Records');
             $('#loading-modal p').text(`Deleting ${recordCount} selected records. Please wait...`);
-            
+
             // Simulate progress for delete operation
             let progress = 0;
             this.deleteProgressInterval = setInterval(() => {
@@ -1068,12 +1068,12 @@ $today = date('Y-m-d');
 
             // Hide loading modal
             $('#loading-modal').addClass('hidden');
-            
+
             // Reset modal icon back to default
             $('#modal-icon').removeClass('fa-trash text-red-600').addClass('fa-chart-line text-blue-600');
             $('#loading-modal h3').text('Loading Report');
             $('#loading-modal p').text('Please wait while we fetch the data...');
-            
+
             // Reset delete button
             $('#delete-selected').prop('disabled', false).html(`
                 <i class="fas fa-trash mr-2"></i>Delete Selected

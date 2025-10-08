@@ -25,9 +25,9 @@ $term = mysqli_real_escape_string($coop, $term);
 mysqli_select_db($coop, $database);
 $query = "SELECT
     tblemployees.CoopID, 
-    CONCAT(tblemployees.FirstName, ' ', tblemployees.MiddleName, ' ', tblemployees.LastName) AS FullName, 
+    CONCAT(tblemployees.FirstName, ' ', IFNULL(tblemployees.MiddleName,''), ' ', tblemployees.LastName) AS FullName, 
     tblemployees.FirstName,
-    tblemployees.MiddleName,
+    IFNULL(tblemployees.MiddleName,'') AS MiddleName,
     tblemployees.LastName,
     IFNULL(tblaccountno.Bank,'') AS Bank, 
     IFNULL(tblaccountno.AccountNo,'') AS AccountNo, 
