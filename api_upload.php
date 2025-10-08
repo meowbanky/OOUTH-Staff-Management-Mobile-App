@@ -612,19 +612,64 @@ async function uploadData() {
             resultsDiv.classList.remove('hidden');
 
             if (result.success) {
+                let notFoundHTML = '';
+                
+                // Display not found staff if any
+                if (result.data && result.data.not_found_list && result.data.not_found_list.length > 0) {
+                    notFoundHTML = `
+                        <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p class="text-yellow-800 font-semibold mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                ${result.data.not_found_count} Staff Not Found in Database
+                            </p>
+                            <div class="max-h-40 overflow-y-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-yellow-100 sticky top-0">
+                                        <tr>
+                                            <th class="px-2 py-1 text-left">Staff ID</th>
+                                            <th class="px-2 py-1 text-left">Name</th>
+                                            <th class="px-2 py-1 text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-yellow-900">
+                                        ${result.data.not_found_list.map(staff => `
+                                            <tr class="border-b border-yellow-200">
+                                                <td class="px-2 py-1">${staff.staff_id}</td>
+                                                <td class="px-2 py-1">${staff.name}</td>
+                                                <td class="px-2 py-1 text-right">₦${parseFloat(staff.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-xs text-yellow-700 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                These staff members were not found in the tblemployees table
+                            </p>
+                        </div>
+                    `;
+                }
+                
                 resultsDiv.innerHTML = `
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center">
                             <i class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
-                            <div>
+                            <div class="flex-1">
                                 <p class="text-green-800 font-semibold">Upload Successful!</p>
                                 <p class="text-sm text-green-700 mt-1">${result.message}</p>
                                 ${result.details ? `<p class="text-xs text-green-600 mt-2">${result.details}</p>` : ''}
                             </div>
                         </div>
+                        ${notFoundHTML}
                     </div>
                 `;
-                Swal.fire('Success!', result.message, 'success');
+                
+                // Show SweetAlert with summary
+                let alertMessage = result.message;
+                if (result.data && result.data.not_found_count > 0) {
+                    alertMessage += `\n\n⚠️ ${result.data.not_found_count} staff not found in database (see details below)`;
+                }
+                Swal.fire('Success!', alertMessage, 'success');
             } else {
                 resultsDiv.innerHTML = `
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4">

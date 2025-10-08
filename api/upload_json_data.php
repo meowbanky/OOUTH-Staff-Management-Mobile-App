@@ -161,7 +161,13 @@ try {
                 mysqli_stmt_close($stmt);
             }
         } else {
-            $notFound[] = "{$staffId} - {$amount}";
+            // Staff not found - include name from API data if available
+            $staffName = $record['name'] ?? 'Unknown';
+            $notFound[] = [
+                'staff_id' => $staffId,
+                'name' => $staffName,
+                'amount' => $amount
+            ];
             $errorCount++;
         }
     }
@@ -203,7 +209,18 @@ try {
     if ($successCount > 0 && $errorCount < ($successCount / 2)) {
         mysqli_commit($coop);
         
-        $displayNF = !empty($notFound) ? 'Staff not found: ' . implode(', ', $notFound) : 'All records processed successfully.';
+        // Format not found staff with names
+        $displayNF = 'All records processed successfully.';
+        $notFoundDetails = [];
+        
+        if (!empty($notFound)) {
+            $notFoundList = [];
+            foreach ($notFound as $staff) {
+                $notFoundList[] = "{$staff['staff_id']} ({$staff['name']}) - ₦" . number_format($staff['amount'], 2);
+                $notFoundDetails[] = $staff;
+            }
+            $displayNF = 'Staff not found in database: ' . implode(', ', $notFoundList);
+        }
         
         echo json_encode([
             'success' => true,
@@ -215,6 +232,7 @@ try {
                 'success' => $successCount,
                 'errors' => $errorCount,
                 'not_found_count' => count($notFound),
+                'not_found_list' => $notFoundDetails,
                 'error_messages' => $errors
             ]
         ]);
