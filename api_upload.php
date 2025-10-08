@@ -61,17 +61,31 @@ require_once('classes/OOUTHSalaryAPIClient.php');
                     <i class="fas fa-sliders-h mr-2"></i>Controls
                 </h2>
 
-                <!-- Period Selection -->
+                <!-- API Period Selection (Source) -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-calendar-alt mr-2"></i>Select Period
+                        <i class="fas fa-cloud mr-2 text-indigo-600"></i>API Period (Source)
                     </label>
                     <select id="apiPeriodSelect"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">Loading periods...</option>
+                        <option value="">Loading periods from API...</option>
                     </select>
                     <p class="text-xs text-gray-500 mt-2">
-                        <i class="fas fa-info-circle mr-1"></i>Select a period to fetch data
+                        <i class="fas fa-info-circle mr-1"></i>Period to fetch data from
+                    </p>
+                </div>
+
+                <!-- Local DB Period Selection (Destination) -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-database mr-2 text-green-600"></i>Local Period (Destination)
+                    </label>
+                    <select id="localPeriodSelect"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Loading local periods...</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-2">
+                        <i class="fas fa-info-circle mr-1"></i>Period to save data to
                     </p>
                 </div>
 
@@ -260,18 +274,21 @@ let apiData = [];
 let filteredData = [];
 let currentPage = 1;
 let recordsPerPage = 50;
-let selectedPeriodId = null;
-let selectedPeriodInfo = null;
+let selectedApiPeriodId = null;
+let selectedApiPeriodInfo = null;
+let selectedLocalPeriodId = null;
+let selectedLocalPeriodInfo = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('API Upload page initialized');
-    loadPeriods();
+    loadApiPeriods();
+    loadLocalPeriods();
     setupEventListeners();
 });
 
-// Load periods from API
-async function loadPeriods() {
+// Load periods from API (Source)
+async function loadApiPeriods() {
     try {
         showApiStatus('connecting', 'Connecting to API...');
 
@@ -279,7 +296,7 @@ async function loadPeriods() {
         const result = await response.json();
 
         const periodSelect = document.getElementById('apiPeriodSelect');
-        periodSelect.innerHTML = '<option value="">Select a period...</option>';
+        periodSelect.innerHTML = '<option value="">Select API period...</option>';
 
         if (result.success && result.data) {
             showApiStatus('connected', 'Connected');
@@ -293,13 +310,39 @@ async function loadPeriods() {
                 periodSelect.appendChild(option);
             });
         } else {
-            showApiStatus('error', result.message || 'Failed to load periods');
+            showApiStatus('error', result.message || 'Failed to load API periods');
             Swal.fire('Error', result.message || 'Failed to load periods from API', 'error');
         }
     } catch (error) {
-        console.error('Error loading periods:', error);
+        console.error('Error loading API periods:', error);
         showApiStatus('error', 'Connection failed');
         Swal.fire('Error', 'Failed to connect to API: ' + error.message, 'error');
+    }
+}
+
+// Load local periods from database (Destination)
+async function loadLocalPeriods() {
+    try {
+        const response = await fetch('api/fetch_api_data.php?action=get_local_periods');
+        const result = await response.json();
+
+        const periodSelect = document.getElementById('localPeriodSelect');
+        periodSelect.innerHTML = '<option value="">Select local period...</option>';
+
+        if (result.success && result.data) {
+            result.data.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.textContent = `${period.PayrollPeriod} (${period.PhysicalYear})`;
+                option.dataset.periodInfo = JSON.stringify(period);
+                periodSelect.appendChild(option);
+            });
+        } else {
+            Swal.fire('Error', result.message || 'Failed to load local periods', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading local periods:', error);
+        Swal.fire('Error', 'Failed to load local periods: ' + error.message, 'error');
     }
 }
 
@@ -330,17 +373,29 @@ function showApiStatus(status, message) {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Period selection
+    // API Period selection (Source)
     document.getElementById('apiPeriodSelect').addEventListener('change', function() {
-        selectedPeriodId = this.value;
+        selectedApiPeriodId = this.value;
         const selectedOption = this.options[this.selectedIndex];
-        selectedPeriodInfo = selectedOption.dataset.periodInfo ? JSON.parse(selectedOption.dataset.periodInfo) :
-            null;
+        selectedApiPeriodInfo = selectedOption.dataset.periodInfo ? JSON.parse(selectedOption.dataset
+            .periodInfo) : null;
 
-        document.getElementById('fetchDataBtn').disabled = !selectedPeriodId;
+        // Enable fetch button if API period is selected
+        document.getElementById('fetchDataBtn').disabled = !selectedApiPeriodId;
 
         // Clear previous data
         clearData();
+    });
+
+    // Local Period selection (Destination)
+    document.getElementById('localPeriodSelect').addEventListener('change', function() {
+        selectedLocalPeriodId = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+        selectedLocalPeriodInfo = selectedOption.dataset.periodInfo ? JSON.parse(selectedOption.dataset
+            .periodInfo) : null;
+
+        // Enable upload button only if both periods are selected AND we have data
+        updateUploadButtonState();
     });
 
     // Fetch data button
@@ -365,10 +420,17 @@ function setupEventListeners() {
     document.getElementById('nextPageBtn').addEventListener('click', () => changePage(1));
 }
 
+// Update upload button state
+function updateUploadButtonState() {
+    const hasData = apiData.length > 0;
+    const hasLocalPeriod = selectedLocalPeriodId !== null;
+    document.getElementById('uploadDataBtn').disabled = !(hasData && hasLocalPeriod);
+}
+
 // Fetch data from API
 async function fetchData() {
-    if (!selectedPeriodId) {
-        Swal.fire('Error', 'Please select a period', 'error');
+    if (!selectedApiPeriodId) {
+        Swal.fire('Error', 'Please select an API period', 'error');
         return;
     }
 
@@ -379,7 +441,7 @@ async function fetchData() {
     document.getElementById('fetchDataBtn').disabled = true;
 
     try {
-        const response = await fetch(`api/fetch_api_data.php?action=get_data&period=${selectedPeriodId}`);
+        const response = await fetch(`api/fetch_api_data.php?action=get_data&period=${selectedApiPeriodId}`);
         const result = await response.json();
 
         if (result.success && result.data) {
@@ -393,7 +455,7 @@ async function fetchData() {
             displayData();
 
             // Enable controls
-            document.getElementById('uploadDataBtn').disabled = false;
+            updateUploadButtonState(); // Check if local period is also selected
             document.getElementById('clearDataBtn').disabled = false;
             document.getElementById('searchInput').disabled = false;
             document.getElementById('exportBtn').disabled = false;
@@ -495,9 +557,16 @@ async function uploadData() {
         return;
     }
 
+    if (!selectedLocalPeriodId) {
+        Swal.fire('Error', 'Please select a local period to save data', 'error');
+        return;
+    }
+
     const result = await Swal.fire({
         title: 'Confirm Upload',
-        html: `Upload <strong>${apiData.length}</strong> records to database?<br><small class="text-gray-600">Period: ${selectedPeriodInfo.description} ${selectedPeriodInfo.year}</small>`,
+        html: `Upload <strong>${apiData.length}</strong> records to database?<br>
+               <small class="text-gray-600">From API: ${selectedApiPeriodInfo.description} ${selectedApiPeriodInfo.year}</small><br>
+               <small class="text-gray-600">To Local: ${selectedLocalPeriodInfo.PayrollPeriod} (${selectedLocalPeriodInfo.PhysicalYear})</small>`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Yes, Upload',
@@ -517,8 +586,10 @@ async function uploadData() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                period: selectedPeriodId,
-                period_info: selectedPeriodInfo,
+                api_period: selectedApiPeriodId,
+                api_period_info: selectedApiPeriodInfo,
+                local_period: selectedLocalPeriodId,
+                local_period_info: selectedLocalPeriodInfo,
                 resource_type: '<?php echo OOUTH_RESOURCE_TYPE; ?>',
                 resource_id: '<?php echo OOUTH_RESOURCE_ID; ?>',
                 resource_name: '<?php echo OOUTH_RESOURCE_NAME; ?>',

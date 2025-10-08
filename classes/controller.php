@@ -5,7 +5,7 @@ use PHPMailer\PHPMailer\SMTP;
 session_start();
 ini_set('max_execution_time', '0');
 $connect = mysqli_connect("localhost", "emmaggic_root", "Oluwaseyi", "emmaggic_coop");
-include_once('functions.php');
+// include_once('functions.php');
 include_once('model.php');
 include_once('sendsms.php');
 

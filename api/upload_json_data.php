@@ -2,6 +2,7 @@
 /**
  * Upload JSON Data Endpoint
  * Processes and uploads data from OOUTH Salary API to database
+ * Follows import_office.php logic for tbl_monthlycontribution and tbl_loansavings
  */
 
 // Start output buffering
@@ -35,12 +36,13 @@ try {
     }
     
     // Validate required fields
-    if (!isset($request['period']) || !isset($request['data']) || !is_array($request['data'])) {
-        throw new Exception('Missing required fields: period and data');
+    if (!isset($request['local_period']) || !isset($request['data']) || !is_array($request['data'])) {
+        throw new Exception('Missing required fields: local_period and data');
     }
     
-    $periodId = $request['period'];
-    $periodInfo = $request['period_info'] ?? null;
+    $localPeriodId = (int)$request['local_period']; // Period ID for tbpayrollperiods
+    $apiPeriodInfo = $request['api_period_info'] ?? null;
+    $localPeriodInfo = $request['local_period_info'] ?? null;
     $resourceType = $request['resource_type'] ?? 'deduction';
     $resourceId = $request['resource_id'] ?? null;
     $resourceName = $request['resource_name'] ?? 'Unknown';
@@ -48,6 +50,10 @@ try {
     
     if (empty($data)) {
         throw new Exception('No data to upload');
+    }
+    
+    if ($localPeriodId <= 0) {
+        throw new Exception('Invalid local period ID');
     }
     
     // Select database
@@ -58,69 +64,138 @@ try {
     
     $successCount = 0;
     $errorCount = 0;
+    $notFound = [];
+    $processedStaffIds = [];
     $errors = [];
     
-    // Determine which table to update based on resource type
-    // This is a simplified example - adjust based on your actual database schema
-    $tableName = ($resourceType === 'allowance') ? 'tblallowances' : 'tbldeductions';
-    $fieldName = ($resourceType === 'allowance') ? 'AllowanceAmount' : 'DeductionAmount';
-    
-    // Process each record
+    // Process each record (following import_office.php logic)
     foreach ($data as $record) {
-        $staffId = mysqli_real_escape_string($coop, $record['staff_id']);
-        $name = mysqli_real_escape_string($coop, $record['name']);
+        $staffId = trim((string)$record['staff_id']);
         $amount = floatval($record['amount']);
         
-        // Check if record exists for this staff and period
-        $checkQuery = "SELECT * FROM {$tableName} 
-                      WHERE CoopID = '{$staffId}' 
-                      AND Period = {$periodId} 
-                      AND " . ($resourceType === 'allowance' ? "AllowanceID" : "DeductionID") . " = '{$resourceId}'";
+        // Skip invalid or non-numeric IDs
+        if (!is_numeric($staffId) || $staffId <= 0) {
+            continue;
+        }
         
-        $checkResult = mysqli_query($coop, $checkQuery);
+        // Get employee info from database
+        $sqlStaff = "SELECT tblemployees.StaffID, tblemployees.status, tblemployees.CoopID, 
+                     IFNULL(tbl_extra.Amount, 0) AS savings 
+                     FROM tblemployees 
+                     LEFT JOIN tbl_extra ON tblemployees.CoopID = tbl_extra.COOPID 
+                     WHERE StaffID = ?";
+        $stmt = mysqli_prepare($coop, $sqlStaff);
+        mysqli_stmt_bind_param($stmt, "s", $staffId);
+        mysqli_stmt_execute($stmt);
+        $staffResult = mysqli_stmt_get_result($stmt);
+        $staffRow = mysqli_fetch_assoc($staffResult);
+        $staffFound = mysqli_num_rows($staffResult) > 0;
+        mysqli_stmt_close($stmt);
         
-        if ($checkResult && mysqli_num_rows($checkResult) > 0) {
-            // Update existing record
-            $updateQuery = "UPDATE {$tableName} 
-                           SET {$fieldName} = {$amount},
-                               UpdatedAt = NOW(),
-                               UpdatedBy = '{$_SESSION['SESS_MEMBER_ID']}',
-                               Source = 'API'
-                           WHERE CoopID = '{$staffId}' 
-                           AND Period = {$periodId}
-                           AND " . ($resourceType === 'allowance' ? "AllowanceID" : "DeductionID") . " = '{$resourceId}'";
+        if ($staffFound) {
+            $coopId = $staffRow['CoopID'];
+            $loanSavings = floatval($staffRow['savings']);
+            $newValue = $amount - $loanSavings;
             
-            if (mysqli_query($coop, $updateQuery)) {
-                $successCount++;
+            $processedStaffIds[] = $staffId;
+            
+            // 1. Update/Insert tbl_monthlycontribution
+            $checkSql = "SELECT COUNT(*) AS count FROM tbl_monthlycontribution WHERE coopID = ? AND period = ?";
+            $checkStmt = mysqli_prepare($coop, $checkSql);
+            mysqli_stmt_bind_param($checkStmt, "si", $coopId, $localPeriodId);
+            mysqli_stmt_execute($checkStmt);
+            mysqli_stmt_bind_result($checkStmt, $count);
+            mysqli_stmt_fetch($checkStmt);
+            mysqli_stmt_close($checkStmt);
+            
+            if ($count > 0) {
+                // Update existing record
+                $sql = "UPDATE tbl_monthlycontribution 
+                        SET MonthlyContribution = ? 
+                        WHERE coopID = ? AND period = ?";
+                $stmt = mysqli_prepare($coop, $sql);
+                mysqli_stmt_bind_param($stmt, "dsi", $newValue, $coopId, $localPeriodId);
+            } else {
+                // Insert new record
+                $sql = "INSERT INTO tbl_monthlycontribution (coopID, MonthlyContribution, period) 
+                        VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($coop, $sql);
+                mysqli_stmt_bind_param($stmt, "sdi", $coopId, $newValue, $localPeriodId);
+            }
+            
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                
+                // 2. Update/Insert tbl_loansavings
+                $checkSql2 = "SELECT COUNT(*) AS count FROM tbl_loansavings WHERE COOPID = ? AND period = ?";
+                $checkStmt2 = mysqli_prepare($coop, $checkSql2);
+                mysqli_stmt_bind_param($checkStmt2, "si", $coopId, $localPeriodId);
+                mysqli_stmt_execute($checkStmt2);
+                mysqli_stmt_bind_result($checkStmt2, $count2);
+                mysqli_stmt_fetch($checkStmt2);
+                mysqli_stmt_close($checkStmt2);
+                
+                if ($count2 > 0) {
+                    $sql2 = "UPDATE tbl_loansavings 
+                            SET Amount = ? 
+                            WHERE COOPID = ? AND period = ?";
+                    $stmt2 = mysqli_prepare($coop, $sql2);
+                    mysqli_stmt_bind_param($stmt2, "dsi", $loanSavings, $coopId, $localPeriodId);
+                } else {
+                    $sql2 = "INSERT INTO tbl_loansavings (COOPID, Amount, period) 
+                            VALUES (?, ?, ?)";
+                    $stmt2 = mysqli_prepare($coop, $sql2);
+                    mysqli_stmt_bind_param($stmt2, "sdi", $coopId, $loanSavings, $localPeriodId);
+                }
+                
+                if (mysqli_stmt_execute($stmt2)) {
+                    $successCount++;
+                } else {
+                    $errorCount++;
+                    $errors[] = "Failed to update loan savings for {$staffId}: " . mysqli_stmt_error($stmt2);
+                }
+                mysqli_stmt_close($stmt2);
             } else {
                 $errorCount++;
-                $errors[] = "Failed to update {$staffId}: " . mysqli_error($coop);
+                $errors[] = "Failed to update monthly contribution for {$staffId}: " . mysqli_stmt_error($stmt);
+                mysqli_stmt_close($stmt);
             }
         } else {
-            // Insert new record
-            $insertQuery = "INSERT INTO {$tableName} 
-                           (CoopID, 
-                            Period, 
-                            " . ($resourceType === 'allowance' ? "AllowanceID" : "DeductionID") . ",
-                            {$fieldName},
-                            CreatedAt,
-                            CreatedBy,
-                            Source)
-                           VALUES 
-                           ('{$staffId}',
-                            {$periodId},
-                            '{$resourceId}',
-                            {$amount},
-                            NOW(),
-                            '{$_SESSION['SESS_MEMBER_ID']}',
-                            'API')";
+            $notFound[] = "{$staffId} - {$amount}";
+            $errorCount++;
+        }
+    }
+    
+    // Update records not in the uploaded data to 0 (following import_office.php logic)
+    if (!empty($processedStaffIds)) {
+        $src = implode(',', array_filter($processedStaffIds, 'is_numeric'));
+        
+        if (!empty($src)) {
+            // Update MonthlyContribution for non-matching StaffIDs
+            $update1 = "UPDATE tbl_monthlycontribution 
+                       SET MonthlyContribution = 0 
+                       WHERE period = ? AND CoopID IN (
+                           SELECT tblemployees.CoopID 
+                           FROM tblemployees 
+                           WHERE StaffID NOT IN ($src)
+                       )";
+            $stmt1 = mysqli_prepare($coop, $update1);
+            mysqli_stmt_bind_param($stmt1, "i", $localPeriodId);
+            mysqli_stmt_execute($stmt1);
+            mysqli_stmt_close($stmt1);
             
-            if (mysqli_query($coop, $insertQuery)) {
-                $successCount++;
-            } else {
-                $errorCount++;
-                $errors[] = "Failed to insert {$staffId}: " . mysqli_error($coop);
-            }
+            // Update LoanSavings for non-matching StaffIDs
+            $update2 = "UPDATE tbl_loansavings 
+                        SET Amount = 0 
+                        WHERE period = ? AND COOPID IN (
+                            SELECT tblemployees.CoopID 
+                            FROM tblemployees 
+                            WHERE StaffID NOT IN ($src)
+                        )";
+            $stmt2 = mysqli_prepare($coop, $update2);
+            mysqli_stmt_bind_param($stmt2, "i", $localPeriodId);
+            mysqli_stmt_execute($stmt2);
+            mysqli_stmt_close($stmt2);
         }
     }
     
@@ -128,25 +203,18 @@ try {
     if ($successCount > 0 && $errorCount < ($successCount / 2)) {
         mysqli_commit($coop);
         
-        // Log the upload activity
-        $logQuery = "INSERT INTO tblapi_upload_log 
-                    (Period, ResourceType, ResourceID, ResourceName, 
-                     RecordsProcessed, RecordsSuccess, RecordsError, 
-                     UploadedBy, UploadedAt, Source)
-                    VALUES 
-                    ({$periodId}, '{$resourceType}', '{$resourceId}', '{$resourceName}',
-                     " . count($data) . ", {$successCount}, {$errorCount},
-                     '{$_SESSION['SESS_MEMBER_ID']}', NOW(), 'API')";
-        mysqli_query($coop, $logQuery); // Non-critical, ignore if fails
+        $displayNF = !empty($notFound) ? 'Staff not found: ' . implode(', ', $notFound) : 'All records processed successfully.';
         
         echo json_encode([
             'success' => true,
             'message' => "Upload completed: {$successCount} records processed successfully",
             'details' => "{$successCount} succeeded, {$errorCount} failed",
+            'not_found' => $displayNF,
             'data' => [
                 'total' => count($data),
                 'success' => $successCount,
                 'errors' => $errorCount,
+                'not_found_count' => count($notFound),
                 'error_messages' => $errors
             ]
         ]);
@@ -176,4 +244,3 @@ if (isset($coop)) {
 }
 
 ob_end_flush();
-

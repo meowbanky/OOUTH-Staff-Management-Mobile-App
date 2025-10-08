@@ -48,20 +48,20 @@ class OOUTHSalaryAPIClient {
             // Step 3: Calculate HMAC-SHA256 signature
             $signature = hash_hmac('sha256', $signatureString, $this->apiSecret);
             
-            if ($this->debug) {
+            // if ($this->debug) {
                 error_log("OOUTH API: ===== Authentication Attempt =====");
                 error_log("OOUTH API: API Key: " . $this->apiKey);
                 error_log("OOUTH API: Timestamp: " . $timestamp);
                 error_log("OOUTH API: Signature String: " . $signatureString);
                 error_log("OOUTH API: Generated Signature: " . $signature);
                 error_log("OOUTH API: Secret Length: " . strlen($this->apiSecret) . " chars");
-            }
+            // }
             
             // Step 4: Make request with required headers
-            // All three headers are REQUIRED: X-API-Key, X-Timestamp, X-Signature
+            // FIXED: Pass the SAME timestamp and signature we just calculated
             $response = $this->request('POST', '/auth/token', null, [
-                'X-Timestamp' => $timestamp,
-                'X-Signature' => $signature
+                'X-Timestamp' => $timestamp,      // ✅ Use the timestamp we calculated
+                'X-Signature' => $signature       // ✅ Use the signature we calculated
             ]);
             
             if ($response && isset($response['success']) && $response['success']) {
@@ -93,8 +93,9 @@ class OOUTHSalaryAPIClient {
                         case 'INVALID_API_KEY':
                             error_log("OOUTH API: TIP: Verify API key is correct");
                             break;
-                        case 'TIMESTAMP_OUT_OF_RANGE':
+                        case 'INVALID_TIMESTAMP':
                             error_log("OOUTH API: TIP: Check system clock - should be ±5 minutes from server time");
+                            error_log("OOUTH API: TIP: Verify timestamp and signature are generated together");
                             break;
                     }
                 }
@@ -222,7 +223,7 @@ class OOUTHSalaryAPIClient {
             $headers[] = 'Authorization: Bearer ' . $this->jwtToken;
         }
         
-        // Add extra headers
+        // Add extra headers (this is where X-Timestamp and X-Signature come in)
         foreach ($extraHeaders as $key => $value) {
             $headers[] = "{$key}: {$value}";
         }
@@ -240,8 +241,8 @@ class OOUTHSalaryAPIClient {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);  // ✅ Enable SSL verification (production)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);     // ✅ Verify hostname
         
         if ($body) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));

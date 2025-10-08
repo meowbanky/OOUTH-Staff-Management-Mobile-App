@@ -21,10 +21,12 @@ This integration allows you to fetch deduction/allowance data from the OOUTH Sal
 ### Step 1: Get API Credentials
 
 Contact OOUTH Salary System Administrator:
+
 - **Email:** api-support@oouth.edu.ng
 - **Provide:** Organization name, contact email, phone, resource needed
 
 You will receive:
+
 - API Key (e.g., `oouth_005_deduc_48_a1b2c3d4e5f6g7h8`)
 - API Secret (64-character string) **⚠️ Keep this secret!**
 - Organization ID (e.g., `005`)
@@ -39,9 +41,9 @@ You will receive:
    ```
 3. Edit `config/api_config.php` and update:
    ```php
-   define('OOUTH_API_KEY', 'your_actual_api_key_here');
-   define('OOUTH_API_SECRET', 'your_64_character_secret_here');
-   define('OOUTH_ORGANIZATION_ID', 'XXX'); // e.g., 005
+   define('OOUTH_API_KEY', 'oouth_005_deduc_48_ed7dee3ccb995727');
+   define('OOUTH_API_SECRET', '4e85095ce0bfdf69ce4aa231d809d59156a8493171abba20add75d1ebc4e8ff7');
+   define('OOUTH_ORGANIZATION_ID', '005'); // e.g., 005
    define('OOUTH_RESOURCE_TYPE', 'deduction'); // or 'allowance'
    define('OOUTH_RESOURCE_ID', '48'); // e.g., 48 for Pension
    define('OOUTH_RESOURCE_NAME', 'PENSION');
@@ -51,28 +53,32 @@ You will receive:
 
 1. Log in to your admin dashboard
 2. Click on **"API Upload"** card (purple icon with cloud download)
-3. Or navigate directly to: `https://yourdomain.com/api_upload.php`
+3. Or navigate directly to: `https://emmaggi.com/coop_admin/api_upload.php`
 
 ## 🎨 How to Use
 
 ### Workflow:
 
 1. **Select Period**
+
    - Choose a payroll period from the dropdown
    - Periods are automatically loaded from the API
 
 2. **Fetch Data**
+
    - Click "Fetch Data from API" button
    - Wait for data to load (shows progress indicator)
    - Data appears in the table below
 
 3. **Review Data**
+
    - Use search box to filter staff
    - Check staff ID, names, and amounts
    - Use pagination to browse through records
    - Export to CSV if needed
 
 4. **Upload to Database**
+
    - Click "Upload to Database" button
    - Confirm the upload action
    - Watch progress bar
@@ -142,6 +148,7 @@ The JSON upload endpoint updates these tables (adjust based on your schema):
   - Fields: `CoopID`, `Period`, `AllowanceID`, `AllowanceAmount`
 
 Upload log table (optional, will be created if doesn't exist):
+
 ```sql
 CREATE TABLE tblapi_upload_log (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -161,42 +168,50 @@ CREATE TABLE tblapi_upload_log (
 ## 🐛 Troubleshooting
 
 ### Problem: "Authentication failed"
+
 **Solution:** Check your API key and secret in `config/api_config.php`
 
 ### Problem: "Failed to fetch periods"
-**Solution:** 
+
+**Solution:**
+
 - Check internet connection
 - Verify API base URL is correct
 - Contact OOUTH admin to verify API key status
 
 ### Problem: "Upload failed: Too many errors"
+
 **Solution:**
+
 - Check database table names match your schema
 - Verify period ID exists in database
 - Check resource ID matches your configuration
 
 ### Problem: "Unauthorized" error
+
 **Solution:** Make sure you're logged in as Admin
 
 ## 📞 Support
 
 For API-related issues:
+
 - **Email:** api-support@oouth.edu.ng
 - **Documentation:** Full API guide included in the integration package
 
 For system issues:
+
 - Contact your system administrator
 
 ## 🎯 Advantages over Excel Upload
 
-| Feature | Excel Upload | API Upload |
-|---------|-------------|------------|
-| Data Source | Manual file | Automated API |
-| Setup Time | Upload file each time | One-time configuration |
-| Error Prone | Manual data entry | Automated, validated |
-| Real-time | No | Yes |
-| Efficiency | Medium | High |
-| Data Accuracy | Depends on file | Direct from source |
+| Feature       | Excel Upload          | API Upload             |
+| ------------- | --------------------- | ---------------------- |
+| Data Source   | Manual file           | Automated API          |
+| Setup Time    | Upload file each time | One-time configuration |
+| Error Prone   | Manual data entry     | Automated, validated   |
+| Real-time     | No                    | Yes                    |
+| Efficiency    | Medium                | High                   |
+| Data Accuracy | Depends on file       | Direct from source     |
 
 ## 📝 Version History
 
@@ -209,4 +224,3 @@ For system issues:
 ---
 
 **Built with ❤️ for OOUTH COOP Admin System**
-

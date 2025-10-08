@@ -85,6 +85,34 @@ try {
             }
             break;
             
+        case 'get_local_periods':
+            // Get local payroll periods from database
+            require_once(__DIR__ . '/../Connections/coop.php');
+            mysqli_select_db($coop, $database);
+            
+            $query = "SELECT id, PayrollPeriod, PhysicalYear, PhysicalMonth 
+                     FROM tbpayrollperiods 
+                     ORDER BY id DESC";
+            $result = mysqli_query($coop, $query);
+            
+            if ($result) {
+                $periods = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $periods[] = $row;
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'data' => $periods,
+                    'message' => 'Local periods loaded successfully'
+                ]);
+            } else {
+                throw new Exception('Failed to fetch local periods: ' . mysqli_error($coop));
+            }
+            
+            mysqli_close($coop);
+            break;
+            
         case 'test_connection':
             // Test API connection
             if ($apiClient->authenticate()) {
@@ -117,4 +145,3 @@ try {
 }
 
 ob_end_flush();
-
