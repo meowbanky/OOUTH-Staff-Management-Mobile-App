@@ -33,9 +33,37 @@ class OOUTHSalaryAPIClient {
      */
     public function authenticate() {
         try {
+            // Try simple authentication first (just API key)
+            if ($this->debug) {
+                error_log("OOUTH API: Attempting simple authentication with API key");
+            }
+            
+            $response = $this->request('POST', '/auth/token', null, []);
+            
+            if ($response && isset($response['success']) && $response['success']) {
+                $this->jwtToken = $response['data']['access_token'];
+                $this->tokenExpiry = time() + ($response['data']['expires_in'] ?? 900);
+                
+                if ($this->debug) {
+                    error_log("OOUTH API: Simple authentication successful");
+                }
+                
+                return true;
+            }
+            
+            // If simple auth fails, try with signature
+            if ($this->debug) {
+                error_log("OOUTH API: Simple auth failed, trying with signature");
+            }
+            
             $timestamp = time();
             $signatureString = $this->apiKey . $timestamp;
             $signature = hash_hmac('sha256', $signatureString, $this->apiSecret);
+            
+            if ($this->debug) {
+                error_log("OOUTH API: Signature string: " . $signatureString);
+                error_log("OOUTH API: Generated signature: " . $signature);
+            }
             
             $response = $this->request('POST', '/auth/token', [
                 'api_key' => $this->apiKey,
@@ -48,10 +76,10 @@ class OOUTHSalaryAPIClient {
             
             if ($response && isset($response['success']) && $response['success']) {
                 $this->jwtToken = $response['data']['access_token'];
-                $this->tokenExpiry = time() + $response['data']['expires_in'];
+                $this->tokenExpiry = time() + ($response['data']['expires_in'] ?? 900);
                 
                 if ($this->debug) {
-                    error_log("OOUTH API: Authentication successful");
+                    error_log("OOUTH API: Signature authentication successful");
                 }
                 
                 return true;
@@ -188,12 +216,21 @@ class OOUTHSalaryAPIClient {
             $headers[] = "{$key}: {$value}";
         }
         
+        if ($this->debug) {
+            error_log("OOUTH API: Request URL - {$url}");
+            error_log("OOUTH API: Request Headers - " . print_r($headers, true));
+            if ($body) {
+                error_log("OOUTH API: Request Body - " . json_encode($body));
+            }
+        }
+        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for testing
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         
         if ($body) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
@@ -213,6 +250,7 @@ class OOUTHSalaryAPIClient {
         
         if ($this->debug) {
             error_log("OOUTH API: {$method} {$endpoint} - HTTP {$httpCode}");
+            error_log("OOUTH API: Response - " . substr($response, 0, 500)); // Log first 500 chars
         }
         
         $data = json_decode($response, true);
