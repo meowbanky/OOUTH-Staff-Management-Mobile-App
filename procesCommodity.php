@@ -455,17 +455,42 @@ $(document).ready(function() {
             },
             function(data) {
                 $(' #cont').html(data);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: "Member's Commodity Saved Successfully",
-                    confirmButtonColor: '#10b981'
-                });
+                
+                // Check if response contains error
+                if (data.includes('error') || data.includes('Error')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.replace(/<[^>]*>/g, ''), // Strip HTML tags
+                        confirmButtonColor: '#ef4444'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: "Member's Commodity Saved Successfully",
+                        confirmButtonColor: '#10b981'
+                    });
 
-                // Refresh commodities table if it's visible
-                if (window.commodityManager && window.commodityManager.currentPeriod) {
-                    window.commodityManager.loadCommodities();
+                    // Refresh commodities table if it's visible
+                    if (window.commodityManager && window.commodityManager.currentPeriod) {
+                        window.commodityManager.loadCommodities();
+                    }
+                    
+                    // Clear form after successful save
+                    $('#Commodity').val('');
+                    $('#amount').val('');
+                    $('#CommodityType').val('1');
+                    $('#period').val('0');
                 }
+            })
+            .fail(function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to save commodity: ' + error,
+                    confirmButtonColor: '#ef4444'
+                });
             });
 
     });
@@ -802,13 +827,27 @@ class CommodityManager {
         const period = $('#period').val();
         const coopID = $('#coopid').val() || this.currentEmployee;
 
-        if (!commodity || !amount || !period) {
-            this.showError('Please fill in all required fields');
+        // Comprehensive validation
+        if (!coopID) {
+            this.showError('Please select an employee first');
             return;
         }
 
-        if (!coopID) {
-            this.showError('Please select an employee first');
+        if (!commodity || commodity.trim() === '') {
+            this.showError('Please enter commodity name');
+            $('#Commodity').focus();
+            return;
+        }
+
+        if (!amount || amount <= 0) {
+            this.showError('Please enter a valid amount');
+            $('#amount').focus();
+            return;
+        }
+
+        if (!period || period == '0') {
+            this.showError('Please select a period');
+            $('#period').focus();
             return;
         }
 
@@ -831,7 +870,7 @@ class CommodityManager {
                     Swal.showLoading();
                 }
             });
-            
+
             formData.action = 'edit_commodity';
             formData.commodity_id = this.editingCommodityId;
 
@@ -868,12 +907,22 @@ class CommodityManager {
             // Creating new commodity
             $.post('getCommodityProcessing.php', formData)
                 .done((data) => {
-                    this.showSuccess("Member's Commodity Saved Successfully");
-                    this.clearForm();
+                    // Check if response contains error
+                    if (data.includes('error') || data.includes('Error')) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.replace(/<[^>]*>/g, ''), // Strip HTML tags
+                            confirmButtonColor: '#ef4444'
+                        });
+                    } else {
+                        this.showSuccess("Member's Commodity Saved Successfully");
+                        this.clearForm();
 
-                    // Refresh commodities table if it's visible
-                    if (this.currentPeriod) {
-                        this.loadCommodities();
+                        // Refresh commodities table if it's visible
+                        if (this.currentPeriod) {
+                            this.loadCommodities();
+                        }
                     }
                 })
                 .fail((xhr, status, error) => {
