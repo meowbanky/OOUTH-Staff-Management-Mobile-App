@@ -257,7 +257,17 @@ $userRole = $_SESSION['role'] ?? 'Admin';
                 <h3 class="text-lg font-semibold text-gray-800">
                     <i class="fas fa-list mr-2"></i>Commodities for Selected Period
                 </h3>
-                <div class="text-sm text-gray-500" id="period-info"></div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500" id="period-info"></div>
+                    <div class="bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                        <span class="text-xs text-gray-600 mr-2">Total Amount:</span>
+                        <span id="total-amount" class="text-sm font-bold text-blue-600">₦0.00</span>
+                    </div>
+                    <div class="bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+                        <span class="text-xs text-gray-600 mr-2">Total Records:</span>
+                        <span id="total-records" class="text-sm font-bold text-green-600">0</span>
+                    </div>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -660,11 +670,16 @@ class CommodityManager {
                             </td>
                         </tr>
                     `);
+            $('#total-amount').text('₦0.00');
+            $('#total-records').text('0');
             return;
         }
 
         let html = '';
+        let totalAmount = 0;
+        
         commodities.forEach(commodity => {
+            totalAmount += parseFloat(commodity.amount) || 0;
             const typeText = commodity.CommodityType == 1 ? 'Commodity' : 'Non-Commodity';
             const typeClass = commodity.CommodityType == 1 ? 'bg-green-100 text-green-800' :
                 'bg-blue-100 text-blue-800';
@@ -708,6 +723,10 @@ class CommodityManager {
         });
 
         $('#commodities-tbody').html(html);
+        
+        // Update totals
+        $('#total-amount').text('₦' + totalAmount.toLocaleString('en-NG', {minimumFractionDigits: 2}));
+        $('#total-records').text(commodities.length);
     }
 
     editCommodity(commodityId) {
