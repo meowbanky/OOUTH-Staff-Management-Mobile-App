@@ -175,23 +175,34 @@ function deleteCommodity() {
     $commodity_id = $_POST['commodity_id'] ?? '';
     
     if (empty($commodity_id)) {
-        $responseHandler->error('Commodity ID is required');
-        return;
+        echo json_encode(['success' => false, 'message' => 'Commodity ID is required']);
+        exit();
     }
     
     try {
         $query = $conn->prepare("DELETE FROM tbl_commodity WHERE commodity_id = ?");
         $result = $query->execute([$commodity_id]);
         
-        if ($result) {
-            $responseHandler->success('Commodity deleted successfully');
+        if ($result && $query->rowCount() > 0) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Commodity deleted successfully'
+            ]);
         } else {
-            $responseHandler->error('Failed to delete commodity');
+            echo json_encode([
+                'success' => false,
+                'message' => 'Commodity not found or already deleted'
+            ]);
         }
+        exit();
         
     } catch (PDOException $e) {
         error_log("Delete Commodity Error: " . $e->getMessage());
-        $responseHandler->error('Failed to delete commodity');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to delete commodity: ' . $e->getMessage()
+        ]);
+        exit();
     }
 }
 ?>
