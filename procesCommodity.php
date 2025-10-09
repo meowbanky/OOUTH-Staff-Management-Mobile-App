@@ -264,16 +264,18 @@ $userRole = $_SESSION['role'] ?? 'Admin';
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Coop ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Member</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Commodity</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Amount</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions</th>
                         </tr>
                     </thead>
@@ -652,7 +654,7 @@ class CommodityManager {
         if (commodities.length === 0) {
             $('#commodities-tbody').html(`
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                 <i class="fas fa-inbox text-2xl mb-2"></i>
                                 <p>No commodities found for this period</p>
                             </td>
@@ -669,6 +671,9 @@ class CommodityManager {
 
             html += `
                         <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                                ${commodity.coopID || commodity.CoopID || 'N/A'}
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 ${commodity.member_name || 'Unknown'}
                             </td>
@@ -680,19 +685,21 @@ class CommodityManager {
                                     ${typeText}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                ₦${parseFloat(commodity.amount).toLocaleString()}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-semibold">
+                                ₦${parseFloat(commodity.amount).toLocaleString('en-NG', {minimumFractionDigits: 2})}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 ${commodity.dateOfInsertion}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
                                 <button onclick="commodityManager.editCommodity(${commodity.commodity_id})" 
-                                        class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                        class="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors"
+                                        title="Edit Commodity">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button onclick="commodityManager.deleteCommodity(${commodity.commodity_id})" 
-                                        class="text-red-600 hover:text-red-900">
+                                        class="text-red-600 hover:text-red-900 transition-colors"
+                                        title="Delete Commodity">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
