@@ -264,7 +264,68 @@ require_once('classes/OOUTHSalaryAPIClient.php');
         transform: translateY(0);
     }
 }
+
+#uploadProgressModal.flex .modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
 </style>
+
+<!-- Upload Progress Modal -->
+<div id="uploadProgressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all modal-content">
+        <!-- Modal Header -->
+        <div class="text-center mb-6">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
+                <div class="animate-pulse">
+                    <i class="fas fa-cloud-upload-alt text-blue-600 text-3xl"></i>
+                </div>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900">Uploading Data</h3>
+            <p class="text-sm text-gray-600 mt-2">Please wait while we process your data...</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Progress</span>
+                <span id="modalProgressPercent" class="text-sm font-bold text-blue-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div id="modalProgressBar"
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Status Text -->
+        <div class="bg-blue-50 rounded-lg p-4 text-center">
+            <p id="modalProgressText" class="text-sm font-medium text-blue-800">
+                <i class="fas fa-spinner fa-spin mr-2"></i>Preparing upload...
+            </p>
+        </div>
+
+        <!-- Record Count -->
+        <div class="mt-4 text-center">
+            <p class="text-xs text-gray-500">
+                <i class="fas fa-database mr-1"></i>
+                Processing <span id="modalRecordCount" class="font-semibold">0</span> records
+            </p>
+        </div>
+    </div>
+</div>
 
 <?php include 'includes/footer.php'; ?>
 
@@ -581,11 +642,15 @@ async function uploadData() {
     uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
     uploadBtn.disabled = true;
 
-    // Show progress
-    document.getElementById('uploadProgress').classList.remove('hidden');
-    document.getElementById('uploadProgressBar').style.width = '0%';
-    document.getElementById('uploadPercent').textContent = '0%';
-    document.getElementById('uploadText').textContent = 'Preparing upload...';
+    // Show modal progress
+    const modal = document.getElementById('uploadProgressModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('modalProgressBar').style.width = '0%';
+    document.getElementById('modalProgressPercent').textContent = '0%';
+    document.getElementById('modalProgressText').innerHTML =
+        '<i class="fas fa-spinner fa-spin mr-2"></i>Preparing upload...';
+    document.getElementById('modalRecordCount').textContent = apiData.length;
 
     // Simulate progress animation
     let progress = 0;
@@ -593,15 +658,18 @@ async function uploadData() {
         if (progress < 90) {
             progress += Math.random() * 10;
             if (progress > 90) progress = 90;
-            document.getElementById('uploadProgressBar').style.width = progress + '%';
-            document.getElementById('uploadPercent').textContent = Math.round(progress) + '%';
-            
+            document.getElementById('modalProgressBar').style.width = progress + '%';
+            document.getElementById('modalProgressPercent').textContent = Math.round(progress) + '%';
+
             if (progress < 30) {
-                document.getElementById('uploadText').textContent = 'Processing staff records...';
+                document.getElementById('modalProgressText').innerHTML =
+                    '<i class="fas fa-spinner fa-spin mr-2"></i>Processing staff records...';
             } else if (progress < 60) {
-                document.getElementById('uploadText').textContent = 'Updating monthly contributions...';
+                document.getElementById('modalProgressText').innerHTML =
+                    '<i class="fas fa-spinner fa-spin mr-2"></i>Updating monthly contributions...';
             } else {
-                document.getElementById('uploadText').textContent = 'Saving loan savings...';
+                document.getElementById('modalProgressText').innerHTML =
+                    '<i class="fas fa-spinner fa-spin mr-2"></i>Saving loan savings...';
             }
         }
     }, 200);
@@ -630,20 +698,22 @@ async function uploadData() {
         clearInterval(progressInterval);
 
         // Update progress to 100%
-        document.getElementById('uploadProgressBar').style.width = '100%';
-        document.getElementById('uploadPercent').textContent = '100%';
-        document.getElementById('uploadText').textContent = 'Upload completed!';
+        document.getElementById('modalProgressBar').style.width = '100%';
+        document.getElementById('modalProgressPercent').textContent = '100%';
+        document.getElementById('modalProgressText').innerHTML =
+            '<i class="fas fa-check-circle mr-2 text-green-600"></i>Upload completed!';
 
-        // Show results
+        // Hide modal and show results
         setTimeout(() => {
-            document.getElementById('uploadProgress').classList.add('hidden');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
 
             const resultsDiv = document.getElementById('uploadResults');
             resultsDiv.classList.remove('hidden');
 
             if (result.success) {
                 let notFoundHTML = '';
-                
+
                 // Display not found staff if any
                 if (result.data && result.data.not_found_list && result.data.not_found_list.length > 0) {
                     notFoundHTML = `
@@ -679,7 +749,7 @@ async function uploadData() {
                         </div>
                     `;
                 }
-                
+
                 resultsDiv.innerHTML = `
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center">
@@ -693,11 +763,12 @@ async function uploadData() {
                         ${notFoundHTML}
                     </div>
                 `;
-                
+
                 // Show SweetAlert with summary
                 let alertMessage = result.message;
                 if (result.data && result.data.not_found_count > 0) {
-                    alertMessage += `\n\n⚠️ ${result.data.not_found_count} staff not found in database (see details below)`;
+                    alertMessage +=
+                        `\n\n⚠️ ${result.data.not_found_count} staff not found in database (see details below)`;
                 }
                 Swal.fire('Success!', alertMessage, 'success');
             } else {
@@ -717,18 +788,20 @@ async function uploadData() {
         }, 500);
     } catch (error) {
         console.error('Upload error:', error);
-        
+
         // Clear progress interval on error
         if (typeof progressInterval !== 'undefined') {
             clearInterval(progressInterval);
         }
-        
-        document.getElementById('uploadProgress').classList.add('hidden');
-        
+
+        // Hide modal
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
         // Restore button
         uploadBtn.innerHTML = originalBtnHTML;
         uploadBtn.disabled = false;
-        
+
         Swal.fire('Error', 'Failed to upload data: ' + error.message, 'error');
     } finally {
         // Restore button after a short delay
