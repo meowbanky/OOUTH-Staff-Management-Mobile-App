@@ -12,6 +12,9 @@ try {
         case 'get_commodities':
             getCommodities();
             break;
+        case 'get_commodity_details':
+            getCommodityDetails();
+            break;
         case 'edit_commodity':
             editCommodity();
             break;
@@ -87,13 +90,57 @@ function getCommodities() {
     }
 }
 
+function getCommodityDetails() {
+    global $responseHandler, $conn;
+    
+    $commodity_id = $_POST['commodity_id'] ?? '';
+    
+    if (empty($commodity_id)) {
+        echo json_encode(['success' => false, 'message' => 'Commodity ID is required']);
+        exit();
+    }
+    
+    try {
+        $query = $conn->prepare("
+            SELECT 
+                c.*,
+                CONCAT(e.FirstName, ' ', e.LastName) as member_name,
+                e.CoopID,
+                p.PayrollPeriod
+            FROM tbl_commodity c
+            LEFT JOIN tblemployees e ON c.coopID = e.CoopID
+            LEFT JOIN tbpayrollperiods p ON c.Period = p.id
+            WHERE c.commodity_id = ?
+        ");
+        
+        $query->execute([$commodity_id]);
+        $commodity = $query->fetch(PDO::FETCH_ASSOC);
+        
+        if ($commodity) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Commodity details loaded',
+                'data' => $commodity
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Commodity not found']);
+        }
+        exit();
+        
+    } catch (PDOException $e) {
+        error_log("Get Commodity Details Error: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Failed to load commodity details']);
+        exit();
+    }
+}
+
 function editCommodity() {
     global $responseHandler, $conn;
     
     $commodity_id = $_POST['commodity_id'] ?? '';
-    $commodity = $_POST['commodity'] ?? '';
+    $commodity = $_POST['Commodity'] ?? '';
     $amount = $_POST['amount'] ?? '';
-    $commodity_type = $_POST['commodity_type'] ?? '';
+    $commodity_type = $_POST['CommodityType'] ?? '';
     $period = $_POST['period'] ?? '';
     
     if (empty($commodity_id) || empty($commodity) || empty($amount) || empty($period)) {

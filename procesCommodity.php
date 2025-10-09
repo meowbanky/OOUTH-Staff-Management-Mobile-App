@@ -396,14 +396,62 @@ $(document).ready(function() {
 
 
     $('#btnAddemp').click(function() {
+        // Validate fields before submitting
+        const coopID = $('#coopid').val();
+        const commodity = $('#Commodity').val();
+        const amount = $('#amount').val();
+        const period = $('#period').val();
+        const commodityType = $('#CommodityType').val();
+
+        if (!coopID) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please select an employee first',
+                confirmButtonColor: '#ef4444'
+            });
+            return;
+        }
+
+        if (!commodity) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please enter commodity name',
+                confirmButtonColor: '#ef4444'
+            });
+            $('#Commodity').focus();
+            return;
+        }
+
+        if (!amount || amount <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please enter a valid amount',
+                confirmButtonColor: '#ef4444'
+            });
+            $('#amount').focus();
+            return;
+        }
+
+        if (!period || period == '0') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please select a period',
+                confirmButtonColor: '#ef4444'
+            });
+            $('#period').focus();
+            return;
+        }
 
         $.post('getCommodityProcessing.php', {
-                item: $('#coopid').val(),
-                Commodity: $('#Commodity').val(),
-                amount: $('#amount').val(),
-                period: $('#period').val(),
-                CommodityType: $('#CommodityType').val(),
-
+                item: coopID,
+                Commodity: commodity,
+                amount: amount,
+                period: period,
+                CommodityType: commodityType
             },
             function(data) {
                 $(' #cont').html(data);
@@ -631,35 +679,62 @@ class CommodityManager {
     }
 
     editCommodity(commodityId) {
-        // Find the commodity in the current data by looking at the table
-        const row = $(`button[onclick*="${commodityId}"]`).closest('tr');
-        const commodity = row.find('td:nth-child(2)').text().trim();
-        const typeText = row.find('td:nth-child(3) span').text().trim();
-        const type = typeText === 'Commodity' ? '1' : '2';
-        const amount = row.find('td:nth-child(4)').text().replace('₦', '').replace(/,/g, '').trim();
+        console.log('Edit commodity clicked:', commodityId);
 
-        console.log('Editing commodity:', {
-            commodity,
-            type,
-            amount,
-            commodityId
-        });
+        // Get commodity data from the API
+        $.post('api/commodity.php', {
+                action: 'get_commodity_details',
+                commodity_id: commodityId
+            })
+            .done((response) => {
+                if (response.success && response.data) {
+                    const commodity = response.data;
 
-        // Populate the form
-        $('#Commodity').val(commodity);
-        $('#CommodityType').val(type);
-        $('#amount').val(amount);
-        $('#period').val(this.currentPeriod);
+                    console.log('Editing commodity:', commodity);
 
-        this.editingCommodityId = commodityId;
+                    // Set the employee first
+                    $("#item").val(commodity.CoopID);
+                    $("#coopid").val(commodity.coopID);
+                    this.currentEmployee = commodity.coopID;
 
-        // Show the form if it's hidden
-        $('#commodity-form').show();
+                    // Load employee info
+                    $.post('getNamee.php', {
+                        item: commodity.CoopID
+                    }, function(data) {
+                        $('#namee').html(data);
+                        $('#employee-info').fadeIn(300);
+                    });
 
-        // Scroll to form
-        $('#commodity-form')[0].scrollIntoView({
-            behavior: 'smooth'
-        });
+                    // Populate the form
+                    $('#Commodity').val(commodity.Commodity);
+                    $('#CommodityType').val(commodity.CommodityType);
+                    $('#amount').val(commodity.amount);
+                    $('#period').val(commodity.Period);
+
+                    this.editingCommodityId = commodityId;
+
+                    // Show the form if it's hidden
+                    $('#commodity-form').fadeIn(300);
+
+                    // Scroll to form
+                    $('html, body').animate({
+                        scrollTop: $('#commodity-form').offset().top - 100
+                    }, 500);
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Edit Mode',
+                        text: 'Commodity loaded for editing',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    this.showError('Failed to load commodity details');
+                }
+            })
+            .fail(() => {
+                this.showError('Failed to load commodity for editing');
+            });
     }
 
     deleteCommodity(commodityId) {
@@ -673,20 +748,46 @@ class CommodityManager {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show deleting indicator
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 $.post('api/commodity.php', {
                         action: 'delete_commodity',
                         commodity_id: commodityId
                     })
                     .done((response) => {
                         if (response.success) {
-                            this.showSuccess('Commodity deleted successfully');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Commodity has been deleted successfully',
+                                confirmButtonColor: '#10b981'
+                            });
                             this.loadCommodities(); // Refresh the table
                         } else {
-                            this.showError(response.message);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message || 'Failed to delete commodity',
+                                confirmButtonColor: '#ef4444'
+                            });
                         }
                     })
-                    .fail(() => {
-                        this.showError('Failed to delete commodity');
+                    .fail((xhr, status, error) => {
+                        console.error('Delete error:', xhr, status, error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete commodity: ' + error,
+                            confirmButtonColor: '#ef4444'
+                        });
                     });
             }
         });
@@ -721,21 +822,47 @@ class CommodityManager {
 
         // If editing, use the API to update
         if (this.editingCommodityId) {
+            // Show saving indicator
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
             formData.action = 'edit_commodity';
             formData.commodity_id = this.editingCommodityId;
 
             $.post('api/commodity.php', formData)
                 .done((response) => {
                     if (response.success) {
-                        this.showSuccess('Commodity updated successfully');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Commodity updated successfully',
+                            confirmButtonColor: '#10b981'
+                        });
                         this.clearForm();
                         this.loadCommodities();
                     } else {
-                        this.showError(response.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to update commodity',
+                            confirmButtonColor: '#ef4444'
+                        });
                     }
                 })
-                .fail(() => {
-                    this.showError('Failed to update commodity');
+                .fail((xhr, status, error) => {
+                    console.error('Update error:', xhr, status, error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update commodity: ' + error,
+                        confirmButtonColor: '#ef4444'
+                    });
                 });
         } else {
             // Creating new commodity
@@ -749,8 +876,14 @@ class CommodityManager {
                         this.loadCommodities();
                     }
                 })
-                .fail(() => {
-                    this.showError('Failed to save commodity');
+                .fail((xhr, status, error) => {
+                    console.error('Save error:', xhr, status, error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to save commodity: ' + error,
+                        confirmButtonColor: '#ef4444'
+                    });
                 });
         }
     }
