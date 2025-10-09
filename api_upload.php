@@ -575,9 +575,36 @@ async function uploadData() {
 
     if (!result.isConfirmed) return;
 
+    // Show loading indicator on button
+    const uploadBtn = document.getElementById('uploadDataBtn');
+    const originalBtnHTML = uploadBtn.innerHTML;
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+    uploadBtn.disabled = true;
+
     // Show progress
     document.getElementById('uploadProgress').classList.remove('hidden');
-    document.getElementById('uploadDataBtn').disabled = true;
+    document.getElementById('uploadProgressBar').style.width = '0%';
+    document.getElementById('uploadPercent').textContent = '0%';
+    document.getElementById('uploadText').textContent = 'Preparing upload...';
+
+    // Simulate progress animation
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 10;
+            if (progress > 90) progress = 90;
+            document.getElementById('uploadProgressBar').style.width = progress + '%';
+            document.getElementById('uploadPercent').textContent = Math.round(progress) + '%';
+            
+            if (progress < 30) {
+                document.getElementById('uploadText').textContent = 'Processing staff records...';
+            } else if (progress < 60) {
+                document.getElementById('uploadText').textContent = 'Updating monthly contributions...';
+            } else {
+                document.getElementById('uploadText').textContent = 'Saving loan savings...';
+            }
+        }
+    }, 200);
 
     try {
         const response = await fetch('api/upload_json_data.php', {
@@ -599,7 +626,10 @@ async function uploadData() {
 
         const result = await response.json();
 
-        // Update progress
+        // Clear progress interval
+        clearInterval(progressInterval);
+
+        // Update progress to 100%
         document.getElementById('uploadProgressBar').style.width = '100%';
         document.getElementById('uploadPercent').textContent = '100%';
         document.getElementById('uploadText').textContent = 'Upload completed!';
@@ -687,10 +717,25 @@ async function uploadData() {
         }, 500);
     } catch (error) {
         console.error('Upload error:', error);
+        
+        // Clear progress interval on error
+        if (typeof progressInterval !== 'undefined') {
+            clearInterval(progressInterval);
+        }
+        
         document.getElementById('uploadProgress').classList.add('hidden');
+        
+        // Restore button
+        uploadBtn.innerHTML = originalBtnHTML;
+        uploadBtn.disabled = false;
+        
         Swal.fire('Error', 'Failed to upload data: ' + error.message, 'error');
     } finally {
-        document.getElementById('uploadDataBtn').disabled = false;
+        // Restore button after a short delay
+        setTimeout(() => {
+            uploadBtn.innerHTML = originalBtnHTML;
+            uploadBtn.disabled = false;
+        }, 1000);
     }
 }
 
