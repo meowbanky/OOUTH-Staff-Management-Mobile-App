@@ -199,16 +199,20 @@ $today = date('Y-m-d');
                 <!-- Staff Search -->
                 <div class="relative">
                     <label for="staff-search" class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="fas fa-user mr-1"></i>Staff Member
+                        <i class="fas fa-users mr-1"></i>Staff Members (Multi-select
                     </label>
                     <div class="relative">
                         <input type="text" id="staff-search" name="staff_search"
                             class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Enter staff name or ID...">
+                            placeholder="Type to search and add members...">
                         <button type="button" id="clear-staff-search"
                             class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden">
                             <i class="fas fa-times"></i>
                         </button>
+                    </div>
+                    <!-- Selected Staff Tags -->
+                    <div id="selected-staff-tags" class="flex flex-wrap gap-2 mt-2 empty:hidden">
+                        <!-- Selected staff will appear here as tags -->
                     </div>
                     <div id="staff-loader" class="hidden mt-2">
                         <div class="loading-spinner"></div>
@@ -297,12 +301,17 @@ $today = date('Y-m-d');
     </div>
 
     <!-- Selected Staff Info -->
-    <div id="staff-info" class="card p-6 mb-6 hidden">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-            <i class="fas fa-user-circle mr-2"></i>Selected Staff Information
-        </h3>
-        <div id="staff-details" class="text-gray-600">
-            <!-- Staff details will be loaded here -->
+    <div id="staff-info" class="bg-white rounded-xl shadow-lg p-6 mb-6 hidden fade-in">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">
+                <i class="fas fa-users mr-2"></i>Selected Staff (<span id="selected-count">0</span>)
+            </h3>
+            <button type="button" id="clear-all-staff" class="text-sm text-red-600 hover:text-red-700 font-medium">
+                <i class="fas fa-times-circle mr-1"></i>Clear All
+            </button>
+        </div>
+        <div id="staff-details" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Staff cards will be loaded here -->
         </div>
     </div>
 
@@ -447,7 +456,8 @@ $today = date('Y-m-d');
             this.currentPage = 1;
             this.totalPages = 1;
             this.recordsPerPage = 100;
-            this.selectedStaff = null;
+            this.selectedStaff = []; // Changed to array for multiple selection
+            this.staffDetails = {}; // Store staff details by ID
             this.reportData = [];
             this.init();
         }
@@ -472,6 +482,7 @@ $today = date('Y-m-d');
 
             // Search clear button
             $('#clear-staff-search').click(() => this.clearStaffSearch());
+            $('#clear-all-staff').click(() => this.clearAllStaff());
             $('#staff-search').on('input', () => this.toggleClearButton());
 
             // Pagination
@@ -510,8 +521,10 @@ $today = date('Y-m-d');
                 minLength: 1,
                 delay: 300,
                 select: (event, ui) => {
-                    this.selectedStaff = ui.item.value;
-                    this.loadStaffInfo(ui.item.value);
+                    event.preventDefault();
+                    this.addStaff(ui.item.value, ui.item.label, ui.item.full_name);
+                    $('#staff-search').val(''); // Clear input after selection
+                    return false;
                 }
             });
         }
@@ -608,9 +621,8 @@ $today = date('Y-m-d');
                         `);
 
                             $item.on('click', () => {
-                                $('#staff-search').val(item.value);
-                                this.selectedStaff = item.value;
-                                this.loadStaffInfo(item.value);
+                                this.addStaff(item.value, item.label, item.full_name);
+                                $('#staff-search').val(''); // Clear input after selection
                                 $dropdown.hide();
                             });
 
@@ -635,23 +647,111 @@ $today = date('Y-m-d');
                 });
         }
 
-        loadStaffInfo(staffId) {
-            $.post('getNamee.php', {
-                    item: staffId
-                })
-                .done((data) => {
-                    $('#staff-details').html(data);
-                    $('#staff-info').removeClass('hidden').addClass('fade-in');
-                })
-                .fail(() => {
-                    this.showError('Failed to load staff information');
+        addStaff(staffId, coopId, fullName) {
+            // Check if already selected
+            if (this.selectedStaff.includes(staffId)) {
+                this.showError(`${coopId} is already selected`);
+                return;
+            }
+
+            // Add to selected array
+            this.selectedStaff.push(staffId);
+            this.staffDetails[staffId] = {
+                coopId: coopId,
+                fullName: fullName
+            };
+
+            // Update UI
+            this.updateSelectedStaffDisplay();
+            this.updateStaffTags();
+        }
+
+        removeStaff(staffId) {
+            const index = this.selectedStaff.indexOf(staffId);
+            if (index > -1) {
+                this.selectedStaff.splice(index, 1);
+                delete this.staffDetails[staffId];
+                this.updateSelectedStaffDisplay();
+                this.updateStaffTags();
+            }
+        }
+
+        updateSelectedStaffDisplay() {
+            const container = $('#staff-details');
+            const count = this.selectedStaff.length;
+
+            $('#selected-count').text(count);
+
+            if (count === 0) {
+                $('#staff-info').addClass('hidden');
+                return;
+            }
+
+            container.empty();
+            $('#staff-info').removeClass('hidden').addClass('fade-in');
+
+            this.selectedStaff.forEach(staffId => {
+                const staff = this.staffDetails[staffId];
+                const card = $(`
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-user text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900 text-sm">${staff.coopId}</div>
+                                <div class="text-xs text-gray-600">${staff.fullName}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-staff text-red-500 hover:text-red-700 transition-colors" data-staff-id="${staffId}">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                `);
+
+                card.find('.remove-staff').on('click', () => {
+                    this.removeStaff(staffId);
                 });
+
+                container.append(card);
+            });
+        }
+
+        updateStaffTags() {
+            const container = $('#selected-staff-tags');
+            container.empty();
+
+            if (this.selectedStaff.length === 0) {
+                container.addClass('empty:hidden');
+                return;
+            }
+
+            container.removeClass('empty:hidden');
+
+            this.selectedStaff.forEach(staffId => {
+                const staff = this.staffDetails[staffId];
+                const tag = $(`
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                        <i class="fas fa-user mr-1"></i>
+                        ${staff.coopId}
+                        <button type="button" class="remove-tag ml-2 text-blue-600 hover:text-blue-800" data-staff-id="${staffId}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </span>
+                `);
+
+                tag.find('.remove-tag').on('click', () => {
+                    this.removeStaff(staffId);
+                });
+
+                container.append(tag);
+            });
         }
 
         generateReport(page = null) {
             const periodFrom = $('#period-from').val();
             const periodTo = $('#period-to').val();
-            const staffId = this.selectedStaff || '';
+            const staffIds = this.selectedStaff.length > 0 ? this.selectedStaff.join(',') : '';
 
             if (!periodFrom || !periodTo) {
                 this.showError('Please select both start and end periods');
@@ -671,7 +771,7 @@ $today = date('Y-m-d');
             const data = {
                 period_from: parseInt(periodFrom),
                 period_to: parseInt(periodTo),
-                staff_id: staffId,
+                staff_ids: staffIds, // Changed to staff_ids (plural) for multiple
                 records_per_page: parseInt(this.recordsPerPage),
                 page: parseInt(this.currentPage)
             };
@@ -908,7 +1008,7 @@ $today = date('Y-m-d');
             // Get current form data
             const periodFrom = $('#period-from').val();
             const periodTo = $('#period-to').val();
-            const staffId = this.selectedStaff || '';
+            const staffIds = this.selectedStaff.length > 0 ? this.selectedStaff.join(',') : '';
 
             if (!periodFrom || !periodTo) {
                 this.hideLoading();
@@ -920,7 +1020,7 @@ $today = date('Y-m-d');
             const params = new URLSearchParams({
                 period_from: periodFrom,
                 period_to: periodTo,
-                staff_id: staffId,
+                staff_ids: staffIds, // Changed to staff_ids
                 export: 'true'
             });
 
@@ -945,16 +1045,22 @@ $today = date('Y-m-d');
             $('#period-from').val('');
             $('#period-to').val('');
             $('#records-per-page').val('100');
-            this.selectedStaff = null;
-            $('#staff-info').addClass('hidden');
+            this.clearAllStaff();
             $('#report-container').addClass('hidden');
             this.toggleClearButton();
         }
 
         clearStaffSearch() {
             $('#staff-search').val('');
-            this.selectedStaff = null;
+            this.toggleClearButton();
+        }
+
+        clearAllStaff() {
+            this.selectedStaff = [];
+            this.staffDetails = {};
+            $('#staff-search').val('');
             $('#staff-info').addClass('hidden');
+            $('#selected-staff-tags').empty().addClass('empty:hidden');
             this.toggleClearButton();
         }
 

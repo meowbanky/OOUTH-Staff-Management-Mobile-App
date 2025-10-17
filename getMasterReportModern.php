@@ -27,12 +27,20 @@ try {
                   (isset($_GET['period_from']) ? (int)$_GET['period_from'] : -1);
     $periodTo = isset($_POST['period_to']) ? (int)$_POST['period_to'] : 
                 (isset($_GET['period_to']) ? (int)$_GET['period_to'] : -1);
-    $staffId = isset($_POST['staff_id']) ? trim($_POST['staff_id']) : 
-               (isset($_GET['staff_id']) ? trim($_GET['staff_id']) : '');
+    
+    // Handle both staff_id (old single) and staff_ids (new multiple)
+    $staffIds = isset($_POST['staff_ids']) ? trim($_POST['staff_ids']) : 
+                (isset($_GET['staff_ids']) ? trim($_GET['staff_ids']) : 
+                (isset($_POST['staff_id']) ? trim($_POST['staff_id']) : 
+                (isset($_GET['staff_id']) ? trim($_GET['staff_id']) : '')));
+    
     $recordsPerPage = isset($_POST['records_per_page']) ? (int)$_POST['records_per_page'] : 
                       (isset($_GET['records_per_page']) ? (int)$_GET['records_per_page'] : 100);
     $page = isset($_POST['page']) ? (int)$_POST['page'] : 
             (isset($_GET['page']) ? (int)$_GET['page'] : 1);
+    
+    // Convert comma-separated staff IDs to array
+    $staffIdArray = !empty($staffIds) ? array_map('trim', explode(',', $staffIds)) : [];
 
     // Validate parameters
     if ($periodFrom === -1 || $periodTo === -1) {
@@ -52,7 +60,7 @@ try {
     $page = max(1, (int)$page);
     
     // Debug logging
-    error_log("Master Report Debug - Period From: $periodFrom, Period To: $periodTo, Staff ID: $staffId, Records Per Page: $recordsPerPage, Page: $page, Offset: $offset");
+    error_log("Master Report Debug - Period From: $periodFrom, Period To: $periodTo, Staff IDs: $staffIds, Count: " . count($staffIdArray) . ", Records Per Page: $recordsPerPage, Page: $page, Offset: $offset");
     
     // Test database connection
     if (!$conn) {
@@ -66,18 +74,21 @@ try {
         throw new Exception('Table tbl_mastertransact does not exist');
     }
 
-    // Build the query based on whether staff ID is provided
-    if (!empty($staffId)) {
-        // Query for specific staff member
-        $countSql = 'SELECT COUNT(DISTINCT tbl_mastertransact.TransactionPeriod) as Total
+    // Build the query based on whether staff IDs are provided
+    if (!empty($staffIdArray)) {
+        // Query for specific staff members (one or multiple)
+        $placeholders = implode(',', array_fill(0, count($staffIdArray), '?'));
+        
+        $countSql = 'SELECT COUNT(DISTINCT CONCAT(tbl_mastertransact.COOPID, "-", tbl_mastertransact.TransactionPeriod)) as Total
                      FROM tbl_mastertransact
                      INNER JOIN tblemployees ON tblemployees.CoopID = tbl_mastertransact.COOPID
                      INNER JOIN tbpayrollperiods ON tbl_mastertransact.TransactionPeriod = tbpayrollperiods.id
-                     WHERE tbl_mastertransact.COOPID = ? 
+                     WHERE tbl_mastertransact.COOPID IN (' . $placeholders . ')
                      AND tbl_mastertransact.TransactionPeriod BETWEEN ? AND ?';
 
         $countQuery = $conn->prepare($countSql);
-        $countQuery->execute([$staffId, $periodFrom, $periodTo]);
+        $countParams = array_merge($staffIdArray, [$periodFrom, $periodTo]);
+        $countQuery->execute($countParams);
         $totalRecords = $countQuery->fetch(PDO::FETCH_ASSOC)['Total'];
 
         $sql = 'SELECT
@@ -99,14 +110,14 @@ try {
                 FROM tbl_mastertransact
                 INNER JOIN tblemployees ON tblemployees.CoopID = tbl_mastertransact.COOPID
                 INNER JOIN tbpayrollperiods ON tbl_mastertransact.TransactionPeriod = tbpayrollperiods.id
-                WHERE tbl_mastertransact.COOPID = ? 
+                WHERE tbl_mastertransact.COOPID IN (' . $placeholders . ')
                 AND tbl_mastertransact.TransactionPeriod BETWEEN ? AND ?
-                GROUP BY tbl_mastertransact.TransactionPeriod 
-                ORDER BY tbl_mastertransact.TransactionPeriod ASC
+                GROUP BY tbl_mastertransact.COOPID, tbl_mastertransact.TransactionPeriod 
+                ORDER BY tbl_mastertransact.COOPID, tbl_mastertransact.TransactionPeriod ASC
                 LIMIT ' . (int)$recordsPerPage . ' OFFSET ' . (int)$offset;
 
         $query = $conn->prepare($sql);
-        $params = [$staffId, $periodFrom, $periodTo];
+        $params = array_merge($staffIdArray, [$periodFrom, $periodTo]);
         error_log("SQL Query: " . $sql);
         error_log("SQL Params: " . json_encode($params));
         $query->execute($params);
@@ -240,11 +251,11 @@ try {
     ];
 
     // Calculate grand totals for ALL records (not just current page)
-    $grandTotals = calculateGrandTotals($periodFrom, $periodTo, $staffId);
+    $grandTotals = calculateGrandTotals($periodFrom, $periodTo, $staffIdArray);
 
     // Handle export request
     if ($isExport) {
-        exportToExcel($processedData, $totals, $grandTotals, $periodFrom, $periodTo, $staffId);
+        exportToExcel($processedData, $totals, $grandTotals, $periodFrom, $periodTo, $staffIds);
         exit;
     }
 
@@ -489,12 +500,14 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
 }
 
 // Function to calculate grand totals for all records
-function calculateGrandTotals($periodFrom, $periodTo, $staffId) {
+function calculateGrandTotals($periodFrom, $periodTo, $staffIdArray) {
     global $conn;
     
     try {
-        if (!empty($staffId)) {
-            // Query for specific staff member - all records
+        if (!empty($staffIdArray)) {
+            // Query for specific staff members - all records
+            $placeholders = implode(',', array_fill(0, count($staffIdArray), '?'));
+            
             $sql = 'SELECT
                         SUM(tbl_mastertransact.savingsAmount) as savingsAmount,
                         SUM(tbl_mastertransact.sharesAmount) as sharesAmount,
@@ -509,11 +522,12 @@ function calculateGrandTotals($periodFrom, $periodTo, $staffId) {
                     FROM tbl_mastertransact
                     INNER JOIN tblemployees ON tblemployees.CoopID = tbl_mastertransact.COOPID
                     INNER JOIN tbpayrollperiods ON tbl_mastertransact.TransactionPeriod = tbpayrollperiods.id
-                    WHERE tbl_mastertransact.COOPID = ? 
+                    WHERE tbl_mastertransact.COOPID IN (' . $placeholders . ')
                     AND tbl_mastertransact.TransactionPeriod BETWEEN ? AND ?';
 
             $query = $conn->prepare($sql);
-            $query->execute([$staffId, $periodFrom, $periodTo]);
+            $params = array_merge($staffIdArray, [$periodFrom, $periodTo]);
+            $query->execute($params);
         } else {
             // Query for all staff members - all records
             $sql = 'SELECT
