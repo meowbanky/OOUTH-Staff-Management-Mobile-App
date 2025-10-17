@@ -356,6 +356,8 @@ $today = date('Y-m-d');
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Coop No</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Share Amt</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Share Bal</th>
@@ -821,7 +823,7 @@ $today = date('Y-m-d');
             if (data.length === 0) {
                 tbody.html(`
                         <tr>
-                            <td colspan="19" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="20" class="px-4 py-8 text-center text-gray-500">
                                 <i class="fas fa-inbox text-4xl mb-4"></i>
                                 <p>No data found for the selected criteria</p>
                             </td>
@@ -840,6 +842,7 @@ $today = date('Y-m-d');
                             <td class="px-4 py-3 text-sm text-gray-900">${index + 1}</td>
                             <td class="px-4 py-3 text-sm text-gray-900">${row.period_display}</td>
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">${row.coopid}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900">${row.name || 'N/A'}</td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-right">₦${this.formatNumber(row.shares_amount)}</td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-right">₦${this.formatNumber(row.shares_balance)}</td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-right">₦${this.formatNumber(row.savings_amount)}</td>
@@ -864,7 +867,7 @@ $today = date('Y-m-d');
             if (grandTotals) {
                 const grandTotalsRow = `
                     <tr class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t-4 border-blue-500 font-bold">
-                        <td colspan="4" class="px-4 py-4 text-sm text-gray-900 text-center">
+                        <td colspan="5" class="px-4 py-4 text-sm text-gray-900 text-center">
                             <i class="fas fa-calculator mr-2 text-blue-600"></i>GRAND TOTALS (ALL PAGES)
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-900 text-right">₦${this.formatNumber(grandTotals.shares_amount)}</td>

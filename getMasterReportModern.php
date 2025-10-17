@@ -389,7 +389,7 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
     echo "<table border='1'>";
     
     // Title
-    echo "<tr><td colspan='19' style='text-align:center; font-weight:bold; font-size:16px; background-color:#f0f0f0;'>";
+    echo "<tr><td colspan='20' style='text-align:center; font-weight:bold; font-size:16px; background-color:#f0f0f0;'>";
     echo "MASTER REPORT - {$periodFromName} TO {$periodToName}";
     if ($staffId) {
         echo " (STAFF: {$staffId})";
@@ -397,13 +397,14 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
     echo "</td></tr>";
     
     // Empty row
-    echo "<tr><td colspan='19'>&nbsp;</td></tr>";
+    echo "<tr><td colspan='20'>&nbsp;</td></tr>";
     
     // Headers
     echo "<tr style='background-color:#e0e0e0; font-weight:bold;'>";
     echo "<td>S/N</td>";
     echo "<td>Period</td>";
     echo "<td>Coop No</td>";
+    echo "<td>Name</td>";
     echo "<td>Share Amt</td>";
     echo "<td>Share Bal</td>";
     echo "<td>Sav Amt</td>";
@@ -427,6 +428,7 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
         echo "<td>" . ($index + 1) . "</td>";
         echo "<td>" . htmlspecialchars($row['period_display']) . "</td>";
         echo "<td>" . htmlspecialchars($row['coopid']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['name'] ?? 'N/A') . "</td>";
         echo "<td>" . number_format($row['shares_amount'], 2) . "</td>";
         echo "<td>" . number_format($row['shares_balance'], 2) . "</td>";
         echo "<td>" . number_format($row['savings_amount'], 2) . "</td>";
@@ -446,11 +448,11 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
     }
     
     // Empty row
-    echo "<tr><td colspan='19'>&nbsp;</td></tr>";
+    echo "<tr><td colspan='20'>&nbsp;</td></tr>";
     
     // Totals row
     echo "<tr style='background-color:#f0f0f0; font-weight:bold;'>";
-    echo "<td colspan='3'>TOTALS (CURRENT PAGE)</td>";
+    echo "<td colspan='4'>TOTALS (CURRENT PAGE)</td>";
     echo "<td>" . number_format($totals['shares_amount'], 2) . "</td>";
     echo "<td>-</td>";
     echo "<td>" . number_format($totals['savings_amount'], 2) . "</td>";
@@ -471,7 +473,7 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
     // Grand totals row
     if ($grandTotals) {
         echo "<tr style='background-color:#e6f3ff; font-weight:bold; border-top:3px solid #0066cc;'>";
-        echo "<td colspan='3'>GRAND TOTALS (ALL PAGES)</td>";
+        echo "<td colspan='4'>GRAND TOTALS (ALL PAGES)</td>";
         echo "<td>" . number_format($grandTotals['shares_amount'], 2) . "</td>";
         echo "<td>-</td>";
         echo "<td>" . number_format($grandTotals['savings_amount'], 2) . "</td>";
@@ -491,8 +493,8 @@ function exportToExcel($data, $totals, $grandTotals, $periodFrom, $periodTo, $st
     }
     
     // Footer
-    echo "<tr><td colspan='19'>&nbsp;</td></tr>";
-    echo "<tr><td colspan='19' style='text-align:center; font-size:12px; color:#666;'>";
+    echo "<tr><td colspan='20'>&nbsp;</td></tr>";
+    echo "<tr><td colspan='20' style='text-align:center; font-size:12px; color:#666;'>";
     echo "Generated on: " . date('Y-m-d H:i:s') . " | Total Records: " . count($data);
     echo "</td></tr>";
     
