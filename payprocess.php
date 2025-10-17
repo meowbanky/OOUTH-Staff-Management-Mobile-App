@@ -157,12 +157,12 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                         </div>
 
                         <div>
-                            <label for="PeriodID" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="fas fa-calendar mr-1"></i>Period
+                            <label for="period_from" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt mr-1"></i>Period From
                             </label>
-                            <select id="PeriodID" name="PeriodID"
+                            <select id="period_from" name="period_from"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">Select Period</option>
+                                <option value="">Select Start Period</option>
                                 <?php 
                                 $query = $conn->prepare('SELECT * FROM tbpayrollperiods ORDER BY id DESC');
                                 $res = $query->execute();
@@ -175,6 +175,38 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                                 }
                                 ?>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="period_to" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt mr-1"></i>Period To
+                            </label>
+                            <select id="period_to" name="period_to"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select End Period</option>
+                                <?php 
+                                $query = $conn->prepare('SELECT * FROM tbpayrollperiods ORDER BY id DESC');
+                                $res = $query->execute();
+                                $out = $query->fetchAll(PDO::FETCH_ASSOC);
+                                
+                                while ($row = array_shift($out)) {
+                                    echo '<option value="' . htmlspecialchars($row['id']) . '">';
+                                    echo htmlspecialchars($row['PayrollPeriod']);
+                                    echo '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="flex items-end">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 w-full">
+                                <p class="text-xs text-blue-800">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Select the same period for both fields to process a single period, or different periods for batch processing.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -245,7 +277,8 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
             e.preventDefault();
 
             const memberId = $('#member_id').val();
-            const periodId = $('#PeriodID').val();
+            const periodFrom = $('#period_from').val();
+            const periodTo = $('#period_to').val();
 
             if (!memberId) {
                 this.showError('Please select type of process');
@@ -253,22 +286,52 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                 return false;
             }
 
-            if (!periodId) {
-                this.showError('Please select period to process');
-                $('#PeriodID').focus();
+            if (!periodFrom) {
+                this.showError('Please select start period to process');
+                $('#period_from').focus();
                 return false;
             }
 
-            const periodText = $('#PeriodID option:selected').text();
-            this.showConfirmation(memberId, periodId, periodText);
+            if (!periodTo) {
+                this.showError('Please select end period to process');
+                $('#period_to').focus();
+                return false;
+            }
+
+            // Validate period range
+            if (parseInt(periodFrom) > parseInt(periodTo)) {
+                this.showError('Start period cannot be greater than end period');
+                $('#period_from').focus();
+                return false;
+            }
+
+            const periodFromText = $('#period_from option:selected').text();
+            const periodToText = $('#period_to option:selected').text();
+            
+            this.showConfirmation(memberId, periodFrom, periodTo, periodFromText, periodToText);
         }
 
-        showConfirmation(memberId, periodId, periodText) {
+        showConfirmation(memberId, periodFrom, periodTo, periodFromText, periodToText) {
+            const isSinglePeriod = periodFrom === periodTo;
+            const periodDisplay = isSinglePeriod 
+                ? `<strong>${periodFromText}</strong>` 
+                : `<strong>${periodFromText}</strong> to <strong>${periodToText}</strong>`;
+            
+            const periodCount = Math.abs(parseInt(periodTo) - parseInt(periodFrom)) + 1;
+            
             Swal.fire({
                 title: 'Confirm Deductions Processing',
                 html: `
                         <div class="text-left">
-                            <p class="mb-2">Are you sure you want to run <strong>${periodText}</strong> processing?</p>
+                            <p class="mb-2">Are you sure you want to process ${periodDisplay}?</p>
+                            ${!isSinglePeriod ? `
+                                <div class="bg-blue-50 border border-blue-200 rounded p-3 mt-3 mb-3">
+                                    <p class="text-sm text-blue-800">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        This will process <strong>${periodCount} periods</strong> sequentially.
+                                    </p>
+                                </div>
+                            ` : ''}
                             <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mt-3">
                                 <p class="text-sm text-yellow-800">
                                     <i class="fas fa-exclamation-triangle mr-1"></i>
@@ -281,18 +344,25 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                 showCancelButton: true,
                 confirmButtonColor: '#3b82f6',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, Process Payroll',
+                confirmButtonText: isSinglePeriod ? 'Yes, Process Payroll' : `Yes, Process ${periodCount} Periods`,
                 cancelButtonText: 'Cancel',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.startProcessing(memberId, periodId);
+                    this.startProcessing(memberId, periodFrom, periodTo);
                 }
             });
         }
 
-        startProcessing(memberId, periodId) {
+        startProcessing(memberId, periodFrom, periodTo) {
             this.isProcessing = true;
+            this.currentPeriod = parseInt(periodFrom);
+            this.endPeriod = parseInt(periodTo);
+            this.totalPeriods = Math.abs(this.endPeriod - this.currentPeriod) + 1;
+            this.processedPeriods = 0;
+            this.memberId = memberId;
+            this.allResults = [];
+            
             this.showLoadingModal();
             this.updateProgress(0, 'Initializing processing...');
 
@@ -300,28 +370,88 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
             $('#processBtn').prop('disabled', true);
             $('#processBtn').html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
 
-            // Start AJAX request
+            // Start processing the first period
+            this.processNextPeriod();
+        }
+
+        processNextPeriod() {
+            if (this.currentPeriod > this.endPeriod) {
+                // All periods processed
+                this.handleAllPeriodsComplete();
+                return;
+            }
+
+            const overallProgress = (this.processedPeriods / this.totalPeriods) * 100;
+            this.updateProgress(overallProgress, 
+                `Processing period ${this.processedPeriods + 1} of ${this.totalPeriods}...`);
+
+            // Start AJAX request for current period
             $.ajax({
                 type: "GET",
-                url: `classes/process.php?PeriodID=${periodId}&member_id=${memberId}`,
+                url: `classes/process.php?PeriodID=${this.currentPeriod}&member_id=${this.memberId}`,
                 xhrFields: {
                     onprogress: (e) => {
-                        this.handleProgress(e);
+                        this.handleProgress(e, this.processedPeriods + 1);
                     }
                 },
                 success: (response, message) => {
-                    this.handleSuccess(response, message);
+                    this.handlePeriodSuccess(response);
                 },
                 error: (xhr, status, error) => {
-                    this.handleError(xhr, status, error);
+                    this.handlePeriodError(xhr, status, error);
                 }
             });
         }
 
-        handleProgress(e) {
-            const responseText = e.target.responseText;
-            // console.log('Progress Response:', responseText);
+        handlePeriodSuccess(response) {
+            this.allResults.push({
+                period: this.currentPeriod,
+                response: response,
+                success: !response.includes('ERROR:')
+            });
+            
+            this.processedPeriods++;
+            this.currentPeriod++;
+            
+            // Process next period
+            this.processNextPeriod();
+        }
 
+        handlePeriodError(xhr, status, error) {
+            this.allResults.push({
+                period: this.currentPeriod,
+                response: `ERROR: ${error}`,
+                success: false
+            });
+            
+            this.processedPeriods++;
+            this.currentPeriod++;
+            
+            // Continue with next period even if one fails
+            this.processNextPeriod();
+        }
+
+        handleAllPeriodsComplete() {
+            this.isProcessing = false;
+            this.hideLoadingModal();
+            
+            // Count successes and failures
+            const successCount = this.allResults.filter(r => r.success).length;
+            const failureCount = this.allResults.filter(r => !r.success).length;
+            
+            if (failureCount === 0) {
+                this.showSuccess(`Successfully processed all ${this.totalPeriods} periods!`);
+            } else {
+                this.showWarning(`Processed ${successCount} periods successfully, ${failureCount} failed.`);
+            }
+            
+            this.showBatchResults(this.allResults);
+            this.resetForm();
+        }
+
+        handleProgress(e, periodNumber) {
+            const responseText = e.target.responseText;
+            
             // Look for progress data lines
             const lines = responseText.split('\n');
             let lastProgressLine = '';
@@ -329,11 +459,8 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
             for (const line of lines) {
                 if (line.includes('PROGRESS_DATA:')) {
                     lastProgressLine = line;
-                    // console.log('Found progress line:', line);
                 }
             }
-
-            // console.log('Last progress line:', lastProgressLine);
 
             if (lastProgressLine) {
                 // Extract progress information from the clean format
@@ -345,17 +472,22 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                     const total = parseInt(progressMatch[3]);
                     const percentage = parseInt(progressMatch[4]);
 
-                    // console.log(`Progress: ${current}/${total} = ${percentage}% for ${coopId}`);
+                    // Calculate overall progress
+                    const periodProgress = percentage / 100;
+                    const overallProgress = ((this.processedPeriods + periodProgress) / this.totalPeriods) * 100;
 
                     // Update progress bar
-                    $('#progressBar').css('width', percentage + '%');
-                    $('#progressText').text(`Processing ${coopId} (${current} of ${total} employees)`);
-                    $('#progressDetails').text(`Progress: ${percentage}%`);
+                    $('#progressBar').css('width', overallProgress + '%');
+                    $('#progressText').text(
+                        `Period ${periodNumber}/${this.totalPeriods}: Processing ${coopId} (${current} of ${total} employees)`
+                    );
+                    $('#progressDetails').text(`Overall Progress: ${Math.round(overallProgress)}%`);
 
                     // Also update the loading modal progress
-                    $('#loadingModal #progressBar').css('width', percentage + '%');
+                    $('#loadingModal #progressBar').css('width', overallProgress + '%');
                     $('#loadingModal #progressText').text(
-                        `Processing ${coopId} (${current} of ${total} employees)`);
+                        `Period ${periodNumber}/${this.totalPeriods}: Processing ${coopId} (${current} of ${total})`
+                    );
                 } else {
                     // Handle initialization message
                     const initMatch = lastProgressLine.match(/PROGRESS_DATA:\s+(.+?)\s+-\s+(\d+)%/);
@@ -363,16 +495,15 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                         const message = initMatch[1];
                         const percentage = parseInt(initMatch[2]);
 
-                        // console.log(`Initialization: ${message} - ${percentage}%`);
+                        const periodProgress = percentage / 100;
+                        const overallProgress = ((this.processedPeriods + periodProgress) / this.totalPeriods) * 100;
 
-                        // Update progress bar
-                        $('#progressBar').css('width', percentage + '%');
-                        $('#progressText').text(message);
-                        $('#progressDetails').text(`Progress: ${percentage}%`);
+                        $('#progressBar').css('width', overallProgress + '%');
+                        $('#progressText').text(`Period ${periodNumber}/${this.totalPeriods}: ${message}`);
+                        $('#progressDetails').text(`Overall Progress: ${Math.round(overallProgress)}%`);
 
-                        // Also update the loading modal progress
-                        $('#loadingModal #progressBar').css('width', percentage + '%');
-                        $('#loadingModal #progressText').text(message);
+                        $('#loadingModal #progressBar').css('width', overallProgress + '%');
+                        $('#loadingModal #progressText').text(`Period ${periodNumber}/${this.totalPeriods}: ${message}`);
                     }
                 }
             } else {
@@ -380,15 +511,10 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                 const percentMatch = responseText.match(/(\d+)%/);
                 if (percentMatch) {
                     const progress = parseInt(percentMatch[1]);
-                    $('#progressBar').css('width', progress + '%');
-                    $('#loadingModal #progressBar').css('width', progress + '%');
-                }
-
-                // Update text with raw response (but clean it up)
-                const cleanText = responseText.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').trim();
-                if (cleanText) {
-                    $('#progressText').text(cleanText);
-                    $('#loadingModal #progressText').text(cleanText);
+                    const periodProgress = progress / 100;
+                    const overallProgress = ((this.processedPeriods + periodProgress) / this.totalPeriods) * 100;
+                    $('#progressBar').css('width', overallProgress + '%');
+                    $('#loadingModal #progressBar').css('width', overallProgress + '%');
                 }
             }
         }
@@ -468,6 +594,59 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
             $('#resultsContainer').removeClass('hidden').addClass('fade-in');
         }
 
+        showBatchResults(results) {
+            let html = '<div class="space-y-4">';
+            
+            // Summary
+            const successCount = results.filter(r => r.success).length;
+            const failureCount = results.filter(r => !r.success).length;
+            
+            html += `
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">
+                        <i class="fas fa-chart-pie mr-2"></i>Processing Summary
+                    </h4>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600">${results.length}</div>
+                            <div class="text-xs text-gray-600">Total Periods</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">${successCount}</div>
+                            <div class="text-xs text-gray-600">Successful</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-red-600">${failureCount}</div>
+                            <div class="text-xs text-gray-600">Failed</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Individual period results
+            html += '<div class="space-y-2">';
+            results.forEach((result, index) => {
+                const statusClass = result.success ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700';
+                const statusIcon = result.success ? 'fa-check-circle' : 'fa-exclamation-triangle';
+                
+                html += `
+                    <div class="border ${statusClass} rounded-lg p-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas ${statusIcon}"></i>
+                                <span class="font-medium">Period ${index + 1} (ID: ${result.period})</span>
+                            </div>
+                            <span class="text-xs">${result.success ? 'Success' : 'Failed'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+            
+            $('#resultsContent').html(html);
+            $('#resultsContainer').removeClass('hidden').addClass('fade-in');
+        }
+
         resetForm() {
             $('#processBtn').prop('disabled', false);
             $('#processBtn').html('<i class="fas fa-cogs mr-2"></i>Process Monthly Payroll');
@@ -489,6 +668,15 @@ $userRole = $_SESSION['SESS_ROLE'] ?? 'Administrator';
                 text: message,
                 icon: 'error',
                 confirmButtonColor: '#ef4444'
+            });
+        }
+
+        showWarning(message) {
+            Swal.fire({
+                title: 'Warning!',
+                text: message,
+                icon: 'warning',
+                confirmButtonColor: '#f59e0b'
             });
         }
     }
