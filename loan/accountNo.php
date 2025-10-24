@@ -113,7 +113,7 @@ function getXMLHTTP() { //fuction to return the xml http object
 <body>
 <form id="eduEntry" name="eduEntry" method="post" action="">
 <label>
-<div id="BankAccountNo"><input type="text"  class="innerBox" id="txtBankAccountNo" value="<?php echo $row_accountNo['AccountNo']; ?>" size="60" readonly="true" name="txtBankAccountNo" onMouseOver="getBankCode(document.forms[0].txtBankName.value)"> 
+<div id="BankAccountNo"><input type="text"  class="innerBox" id="txtBankAccountNo" value="<?php echo $row_accountNo['AccountNo'] ?? ''; ?>" size="60" readonly="true" name="txtBankAccountNo" onMouseOver="getBankCode(document.forms[0].txtBankName.value)"> 
   
   <input name="hiddenField" type="hidden" />
 </div>

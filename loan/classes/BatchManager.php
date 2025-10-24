@@ -125,14 +125,17 @@ class BatchManager {
             $sql = "SELECT 
                         count(BeneficiaryCode) AS transaction_count,
                         tbl_batch.Batch AS batch_number,
-                        any_value(tbl_batch.batchid) AS batch_id
+                        MAX(tbl_batch.batchid) AS batch_id
                     FROM tbl_batch 
                     LEFT JOIN excel ON tbl_batch.batch = excel.Batch 
                     GROUP BY tbl_batch.Batch 
-                    ORDER BY batchid DESC";
+                    ORDER BY batch_id DESC";
+            
+            error_log("BatchManager: Executing query: " . $sql);
             
             $result = mysqli_query($this->connection, $sql);
             if (!$result) {
+                error_log("BatchManager: Query failed with error: " . mysqli_error($this->connection));
                 throw new Exception("Query failed: " . mysqli_error($this->connection));
             }
             
@@ -140,6 +143,9 @@ class BatchManager {
             while ($row = mysqli_fetch_assoc($result)) {
                 $batches[] = $row;
             }
+            
+            error_log("BatchManager: Found " . count($batches) . " batches");
+            error_log("BatchManager: Batches data: " . print_r($batches, true));
             
             mysqli_free_result($result);
             return $batches;

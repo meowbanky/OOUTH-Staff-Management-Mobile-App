@@ -26,7 +26,7 @@ if (isset($_GET['logout'])) {
     $_SESSION['logout_success'] = true;
     
     // Redirect to login page to prevent resubmission
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 ?>

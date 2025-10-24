@@ -255,7 +255,7 @@ function sendsms($coopid, $period)
 
             $query_contribution = "SELECT tbl_mastertransact.COOPID,
 				(SUM(tbl_mastertransact.savingsAmount) + SUM(tbl_mastertransact.sharesAmount) + SUM(tbl_mastertransact.InterestPaid) + SUM(tbl_mastertransact.DevLevy) + SUM(tbl_mastertransact.Stationery) + SUM(tbl_mastertransact.EntryFee) + SUM(tbl_mastertransact.CommodityRepayment) + SUM(tbl_mastertransact.loanRepayment)) as contribution ,SUM(tbl_mastertransact.InterestPaid),SUM(tbl_mastertransact.loanRepayment),
-				any_value(tbl_mastertransact.Commodity) as Commodity, any_value(tbl_mastertransact.loan) as loan, SUM(tbl_mastertransact.CommodityRepayment) FROM
+				MAX(tbl_mastertransact.Commodity) as Commodity, MAX(tbl_mastertransact.loan) as loan, SUM(tbl_mastertransact.CommodityRepayment) FROM
 				tbl_mastertransact
 				WHERE
 				tbl_mastertransact.COOPID = '" . $row_coopid2['CoopID'] . "' AND
