@@ -131,13 +131,21 @@ class BatchManager {
                     GROUP BY tbl_batch.Batch 
                     ORDER BY batch_id DESC";
             
-            error_log("BatchManager: Executing query: " . $sql);
+            // Log the exact SQL query being executed
+            error_log("========================================");
+            error_log("BatchManager::getAllBatches() - SQL Query:");
+            error_log($sql);
+            error_log("========================================");
             
             $result = mysqli_query($this->connection, $sql);
             if (!$result) {
-                error_log("BatchManager: Query failed with error: " . mysqli_error($this->connection));
+                error_log("BatchManager: Query FAILED!");
+                error_log("MySQL Error: " . mysqli_error($this->connection));
+                error_log("MySQL Error Number: " . mysqli_errno($this->connection));
                 throw new Exception("Query failed: " . mysqli_error($this->connection));
             }
+            
+            error_log("BatchManager: Query executed successfully!");
             
             $batches = [];
             while ($row = mysqli_fetch_assoc($result)) {
@@ -145,12 +153,17 @@ class BatchManager {
             }
             
             error_log("BatchManager: Found " . count($batches) . " batches");
-            error_log("BatchManager: Batches data: " . print_r($batches, true));
+            if (count($batches) > 0) {
+                error_log("BatchManager: First batch sample: " . print_r($batches[0], true));
+            }
+            error_log("========================================");
             
             mysqli_free_result($result);
             return $batches;
         } catch (Exception $e) {
+            error_log("========================================");
             error_log("Error fetching batches: " . $e->getMessage());
+            error_log("========================================");
             return [];
         }
     }
