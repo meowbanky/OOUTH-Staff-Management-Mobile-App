@@ -1,9 +1,4 @@
 <?php
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit;
-}
 
 require_once('Connections/coop.php');
 require_once('libs/services/AccountingEngine.php');
