@@ -137,6 +137,127 @@ include 'includes/header.php';
     </div>
 </div>
 
+<!-- Accounting Financial Widgets (if accounting tables exist) -->
+<?php
+// Check if accounting tables exist
+$accountsExist = mysqli_query($coop, "SHOW TABLES LIKE 'coop_accounts'");
+if ($accountsExist && mysqli_num_rows($accountsExist) > 0) {
+    // Get current period
+    $currentPeriodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC LIMIT 1";
+    $currentPeriodResult = mysqli_query($coop, $currentPeriodQuery);
+    $currentPeriod = mysqli_fetch_assoc($currentPeriodResult);
+    $currentPeriodId = $currentPeriod['id'] ?? 0;
+    
+    if ($currentPeriodId > 0) {
+        require_once('libs/services/AccountBalanceCalculator.php');
+        $calculator = new AccountBalanceCalculator($coop, $database);
+        
+        try {
+            // Get account balances
+            $cashData = $calculator->getAccountBalance(4, $currentPeriodId);  // Bank Account
+            $cashBalance = $cashData['balance'] ?? 0;
+            
+            $loansData = $calculator->getAccountBalance(6, $currentPeriodId);  // Member Loans
+            $loansBalance = $loansData['balance'] ?? 0;
+            
+            $savingsData = $calculator->getAccountBalance(37, $currentPeriodId);  // Ordinary Savings
+            $savingsBalance = $savingsData['balance'] ?? 0;
+            
+            $sharesData = $calculator->getAccountBalance(33, $currentPeriodId);  // Ordinary Shares
+            $sharesBalance = $sharesData['balance'] ?? 0;
+            
+            // Check trial balance
+            $trialBalance = $calculator->getTrialBalance($currentPeriodId);
+            $trialBalanced = abs($trialBalance['total_debit'] - $trialBalance['total_credit']) < 0.01;
+            $totalAssets = $cashBalance + $loansBalance;
+            $memberEquity = $savingsBalance + $sharesBalance;
+            ?>
+
+<div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 mb-8 text-white">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h3 class="text-lg font-bold flex items-center">
+                <i class="fas fa-balance-scale mr-2"></i>
+                Accounting System - Real-time Financial Data
+            </h3>
+            <p class="text-sm opacity-90 mt-1">Period: <?= htmlspecialchars($currentPeriod['PayrollPeriod']) ?></p>
+        </div>
+        <div>
+            <div class="inline-flex items-center px-4 py-2 rounded-lg <?= $trialBalanced ? 'bg-green-500' : 'bg-yellow-500' ?> shadow-md">
+                <i class="fas fa-<?= $trialBalanced ? 'check-circle' : 'exclamation-triangle' ?> mr-2"></i>
+                <span class="font-bold"><?= $trialBalanced ? 'Trial Balance: Balanced' : 'Trial Balance: Review Needed' ?></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Cash & Bank Widget -->
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-university text-2xl mr-2"></i>
+                <h4 class="font-semibold text-sm">Cash & Bank</h4>
+            </div>
+            <p class="text-2xl font-bold">₦<?= number_format($cashBalance, 2) ?></p>
+            <p class="text-xs opacity-75 mt-1">Main Account Balance</p>
+        </div>
+        
+        <!-- Member Loans Widget -->
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-hand-holding-usd text-2xl mr-2"></i>
+                <h4 class="font-semibold text-sm">Member Loans</h4>
+            </div>
+            <p class="text-2xl font-bold">₦<?= number_format($loansBalance, 2) ?></p>
+            <p class="text-xs opacity-75 mt-1">Outstanding Loans</p>
+        </div>
+        
+        <!-- Member Savings Widget -->
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-piggy-bank text-2xl mr-2"></i>
+                <h4 class="font-semibold text-sm">Member Savings</h4>
+            </div>
+            <p class="text-2xl font-bold">₦<?= number_format($savingsBalance, 2) ?></p>
+            <p class="text-xs opacity-75 mt-1">Ordinary Savings</p>
+        </div>
+        
+        <!-- Member Shares Widget -->
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-certificate text-2xl mr-2"></i>
+                <h4 class="font-semibold text-sm">Member Shares</h4>
+            </div>
+            <p class="text-2xl font-bold">₦<?= number_format($sharesBalance, 2) ?></p>
+            <p class="text-xs opacity-75 mt-1">Share Capital</p>
+        </div>
+    </div>
+    
+    <!-- Additional Summary Row -->
+    <div class="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-white/20">
+        <div class="text-center">
+            <p class="text-xs opacity-75">Total Assets</p>
+            <p class="text-lg font-bold">₦<?= number_format($totalAssets, 2) ?></p>
+        </div>
+        <div class="text-center">
+            <p class="text-xs opacity-75">Member Equity</p>
+            <p class="text-lg font-bold">₦<?= number_format($memberEquity, 2) ?></p>
+        </div>
+        <div class="text-center">
+            <a href="coop_trial_balance.php" class="text-sm font-semibold hover:underline opacity-90 hover:opacity-100">
+                View Full Trial Balance →
+            </a>
+        </div>
+    </div>
+</div>
+
+<?php
+        } catch (Exception $e) {
+            error_log("Failed to fetch accounting widgets data: " . $e->getMessage());
+        }
+    }
+}
+?>
+
 <!-- Main Navigation Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
     <!-- Process Loan -->
