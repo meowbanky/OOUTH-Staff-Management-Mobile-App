@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/services/BankReconciliationService.php');
 
 try {
@@ -21,7 +21,7 @@ try {
         'outstanding_withdrawals' => floatval($_POST['outstanding_withdrawals'] ?? 0),
         'bank_charges' => floatval($_POST['bank_charges'] ?? 0),
         'bank_interest' => floatval($_POST['bank_interest'] ?? 0),
-        'reconciled_by' => intval($_POST['reconciled_by'] ?? $_SESSION['UserID']),
+        'reconciled_by' => intval($_POST['reconciled_by'] ?? $_SESSION['user_id']),
         'notes' => trim($_POST['notes'] ?? '')
     ];
     
@@ -29,7 +29,7 @@ try {
         throw new Exception('Period and bank account are required');
     }
     
-    $service = new BankReconciliationService($cov, $database_cov);
+    $service = new BankReconciliationService($coop, $database_cov);
     $result = $service->createReconciliation($reconciliation_data);
     
     if ($result['success']) {

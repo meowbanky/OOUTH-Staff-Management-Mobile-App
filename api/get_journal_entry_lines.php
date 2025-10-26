@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 
 $entry_id = isset($_GET['entry_id']) ? intval($_GET['entry_id']) : 0;
 
@@ -26,7 +26,7 @@ try {
             WHERE jel.journal_entry_id = ?
             ORDER BY jel.line_number";
     
-    $stmt = mysqli_prepare($cov, $sql);
+    $stmt = mysqli_prepare($coop, $sql);
     mysqli_stmt_bind_param($stmt, "i", $entry_id);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);

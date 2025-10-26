@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/services/PeriodClosingProcessor.php');
 
 try {
@@ -35,8 +35,8 @@ try {
     $appropriation['retained_earnings'] = $appropriation['surplus_amount'] - $total_appropriated;
     
     // Close period
-    $processor = new PeriodClosingProcessor($cov, $database_cov);
-    $result = $processor->closePeriod($periodid, $_SESSION['UserID'], $appropriation);
+    $processor = new PeriodClosingProcessor($coop, $database_cov);
+    $result = $processor->closePeriod($periodid, $_SESSION['user_id'], $appropriation);
     
     if ($result['success']) {
         echo json_encode([

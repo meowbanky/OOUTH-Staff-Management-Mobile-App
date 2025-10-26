@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/services/AccountingEngine.php');
 
 try {
@@ -18,7 +18,7 @@ try {
         throw new Exception('Invalid member or period ID');
     }
     
-    $engine = new AccountingEngine($cov, $database_cov);
+    $engine = new AccountingEngine($coop, $database_cov);
     
     // Find all journal entries for this member/period
     $sql = "SELECT id, entry_number, source_document, description, total_amount
@@ -28,7 +28,7 @@ try {
             AND status = 'posted'
             ORDER BY id ASC";
     
-    $stmt = mysqli_prepare($cov, $sql);
+    $stmt = mysqli_prepare($coop, $sql);
     $contrib_pattern = "CONTRIB-{$memberid}-%";
     $loan_pattern = "LOAN-{$memberid}-%";
     mysqli_stmt_bind_param($stmt, "iss", $periodid, $contrib_pattern, $loan_pattern);
@@ -55,7 +55,7 @@ try {
     $errors = [];
     
     foreach ($entries_to_reverse as $entry) {
-        $result = $engine->reverseEntry($entry['id'], $_SESSION['UserID'], "Reversal for transaction correction");
+        $result = $engine->reverseEntry($entry['id'], $_SESSION['user_id'], "Reversal for transaction correction");
         
         if ($result['success']) {
             $reversed_count++;

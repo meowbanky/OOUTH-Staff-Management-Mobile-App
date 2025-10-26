@@ -1,10 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     die('Unauthorized');
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/reports/IncomeExpenditureStatement.php');
 require_once('../libs/reports/BalanceSheet.php');
 require_once('../libs/reports/CashflowStatement.php');
@@ -18,7 +18,7 @@ if ($periodid <= 0) {
 
 // Get period name
 $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE Periodid = ?";
-$stmt = mysqli_prepare($cov, $periodQuery);
+$stmt = mysqli_prepare($coop, $periodQuery);
 mysqli_stmt_bind_param($stmt, "i", $periodid);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
@@ -32,17 +32,17 @@ $data = null;
 $filename = '';
 
 if ($type == 'income') {
-    $generator = new IncomeExpenditureStatement($cov, $database_cov);
+    $generator = new IncomeExpenditureStatement($coop, $database_cov);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Income_Expenditure_' . str_replace(' ', '_', $periodName);
 } elseif ($type == 'balance') {
-    $generator = new BalanceSheet($cov, $database_cov);
+    $generator = new BalanceSheet($coop, $database_cov);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Balance_Sheet_' . str_replace(' ', '_', $periodName);
 } elseif ($type == 'cashflow') {
-    $generator = new CashflowStatement($cov, $database_cov);
+    $generator = new CashflowStatement($coop, $database_cov);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Cashflow_Statement_' . str_replace(' ', '_', $periodName);

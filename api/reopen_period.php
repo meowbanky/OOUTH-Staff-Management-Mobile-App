@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/services/PeriodClosingProcessor.php');
 
 try {
@@ -24,8 +24,8 @@ try {
         throw new Exception('Reason for reopening is required');
     }
     
-    $processor = new PeriodClosingProcessor($cov, $database_cov);
-    $result = $processor->reopenPeriod($periodid, $_SESSION['UserID'], $reason);
+    $processor = new PeriodClosingProcessor($coop, $database_cov);
+    $result = $processor->reopenPeriod($periodid, $_SESSION['user_id'], $reason);
     
     echo json_encode($result);
     

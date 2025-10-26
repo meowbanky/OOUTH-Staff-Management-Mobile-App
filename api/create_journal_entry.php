@@ -2,12 +2,12 @@
 session_start();
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
 
-require_once('../Connections/cov.php');
+require_once('../Connections/coop.php');
 require_once('../libs/services/AccountingEngine.php');
 
 try {
@@ -21,7 +21,7 @@ try {
     $entry_type = $_POST['entry_type'] ?? 'manual';
     $description = trim($_POST['description']);
     $source_document = !empty($_POST['source_document']) ? trim($_POST['source_document']) : null;
-    $created_by = $_SESSION['UserID'];
+    $created_by = $_SESSION['user_id'];
     
     // Parse journal lines
     $lines = [];
@@ -49,7 +49,7 @@ try {
     }
     
     // Create accounting engine
-    $accountingEngine = new AccountingEngine($cov, $database_cov);
+    $accountingEngine = new AccountingEngine($coop, $database_cov);
     
     // Create journal entry
     $result = $accountingEngine->createJournalEntry(
