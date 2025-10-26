@@ -319,21 +319,22 @@ class MemberAccountManager {
      * @return array|null Member data
      */
     private function getMemberDetails($memberid) {
-        $sql = "SELECT memberid, 
-                CONCAT(Lname, ', ', Fname, ' ', IFNULL(Mname, '')) as full_name,
-                EmailAddress
-                FROM tbl_personalinfo
-                WHERE memberid = ?";
+        $sql = "SELECT CoopID as memberid, 
+                CONCAT(LastName, ', ', FirstName, ' ', IFNULL(MiddleName, '')) as full_name,
+                EmailAddress,
+                MobileNumber as Phone
+                FROM tblemployees
+                WHERE CoopID = ?";
         
         $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $memberid);
+        mysqli_stmt_bind_param($stmt, "s", $memberid);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $member = mysqli_fetch_assoc($result);
         mysqli_stmt_close($stmt);
         
         // Add empty phone if not set
-        if ($member) {
+        if ($member && empty($member['Phone'])) {
             $member['Phone'] = '';
         }
 
@@ -350,14 +351,14 @@ class MemberAccountManager {
     public function getAllMemberBalances($periodid, $account_type = null) {
         $sql = "SELECT 
                     ma.memberid,
-                    CONCAT(p.Lname, ', ', p.Fname, ' ', IFNULL(p.Mname, '')) as member_name,
+                    CONCAT(e.LastName, ', ', e.FirstName, ' ', IFNULL(e.MiddleName, '')) as member_name,
                     ma.account_type,
                     ma.opening_balance,
                     ma.debit_amount,
                     ma.credit_amount,
                     ma.closing_balance
                 FROM coop_member_accounts ma
-                JOIN tbl_personalinfo p ON ma.memberid = p.memberid
+                JOIN tblemployees e ON ma.memberid = e.CoopID
                 WHERE ma.periodid = ?";
         
         if ($account_type) {

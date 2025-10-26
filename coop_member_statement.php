@@ -23,10 +23,10 @@ if ($periodResult) {
 }
 
 // Get members for search
-$membersQuery = "SELECT memberid, CONCAT(Lname, ', ', Fname, ' ', IFNULL(Mname, '')) as full_name 
-                 FROM tbl_personalinfo 
-                 WHERE status = 'Active'
-                 ORDER BY memberid";
+$membersQuery = "SELECT CoopID as memberid, CONCAT(LastName, ', ', FirstName, ' ', IFNULL(MiddleName, '')) as full_name 
+                 FROM tblemployees 
+                 WHERE Status = 'Active'
+                 ORDER BY CoopID";
 $membersResult = mysqli_query($coop, $membersQuery);
 $members = [];
 if ($membersResult) {

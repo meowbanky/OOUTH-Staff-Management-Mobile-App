@@ -598,8 +598,8 @@ WHERE fa.status = 'active';
 -- View: Member Account Summary
 CREATE OR REPLACE VIEW vw_member_account_summary AS
 SELECT 
-  p.memberid,
-  CONCAT(p.Lname, ', ', p.Fname, ' ', IFNULL(p.Mname, '')) AS member_name,
+  e.CoopID AS memberid,
+  CONCAT(e.LastName, ', ', e.FirstName, ' ', IFNULL(e.MiddleName, '')) AS member_name,
   ma.periodid,
   pp.PayrollPeriod,
   SUM(CASE WHEN ma.account_type = 'shares' THEN ma.closing_balance ELSE 0 END) AS shares_balance,
@@ -607,9 +607,9 @@ SELECT
   SUM(CASE WHEN ma.account_type = 'special_savings' THEN ma.closing_balance ELSE 0 END) AS special_savings_balance,
   SUM(CASE WHEN ma.account_type = 'loan' THEN ma.closing_balance ELSE 0 END) AS loan_balance
 FROM coop_member_accounts ma
-JOIN tbl_personalinfo p ON ma.memberid = p.memberid
-JOIN tbpayrollperiods pp ON ma.periodid = pp.Periodid
-GROUP BY p.memberid, ma.periodid;
+JOIN tblemployees e ON ma.memberid = e.CoopID
+JOIN tbpayrollperiods pp ON ma.periodid = pp.id
+GROUP BY e.CoopID, ma.periodid;
 
 -- ============================================================================
 -- TRIGGERS FOR DATA INTEGRITY

@@ -17,10 +17,10 @@ class EmailTemplateService {
      */
     public function generateTransactionSummaryEmail($memberId, $periodId) {
         // Get member information
-        $memberQuery = "SELECT memberid, CONCAT(Lname, ', ', Fname, ' ', IFNULL(Mname, '')) as name, EmailAddress 
-                       FROM tbl_personalinfo WHERE memberid = ?";
+        $memberQuery = "SELECT CoopID as memberid, CONCAT(LastName, ', ', FirstName, ' ', IFNULL(MiddleName, '')) as name, EmailAddress 
+                       FROM tblemployees WHERE CoopID = ?";
         $stmt = mysqli_prepare($this->db, $memberQuery);
-        mysqli_stmt_bind_param($stmt, "i", $memberId);
+        mysqli_stmt_bind_param($stmt, "s", $memberId);
         mysqli_stmt_execute($stmt);
         $member = mysqli_stmt_get_result($stmt)->fetch_assoc();
         mysqli_stmt_close($stmt);

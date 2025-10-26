@@ -57,8 +57,8 @@ class NotificationService {
 
     private function getTransactionDetails($memberId, $periodId) {
         $query = "SELECT tlb_mastertransaction.memberid,tbpayrollperiods.Periodid,
-CONCAT(tbl_personalinfo.Lname, ' , ', tbl_personalinfo.Fname, ' ', IFNULL(tbl_personalinfo.Mname, '')) AS namess,
-    tbl_personalinfo.MobilePhone,
+CONCAT(tblemployees.LastName, ' , ', tblemployees.FirstName, ' ', IFNULL(tblemployees.MiddleName, '')) AS namess,
+    tblemployees.MobileNumber as MobilePhone,
     tbpayrollperiods.PayrollPeriod,
     SUM(tlb_mastertransaction.entryFee) as entryFee,
     SUM(tlb_mastertransaction.savings) as savingsAmount,
@@ -101,9 +101,9 @@ CONCAT(tbl_personalinfo.Lname, ' , ', tbl_personalinfo.Fname, ' ', IFNULL(tbl_pe
         tlb_mastertransaction.interestPaid + 
         tlb_mastertransaction.loanRepayment + 
         tlb_mastertransaction.repayment_bank ) as total
-FROM tlb_mastertransaction INNER JOIN tbl_personalinfo on tlb_mastertransaction.memberid = tbl_personalinfo.memberid
+FROM tlb_mastertransaction INNER JOIN tblemployees on tlb_mastertransaction.memberid = tblemployees.CoopID
 LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.Periodid 
-        WHERE tbl_personalinfo.memberid = '" . mysqli_real_escape_string($this->db, $memberId) . "' 
+        WHERE tblemployees.CoopID = '" . mysqli_real_escape_string($this->db, $memberId) . "' 
         AND tlb_mastertransaction.periodid = " . (int)$periodId . "
         GROUP BY tbpayrollperiods.Periodid ORDER BY tbpayrollperiods.Periodid DESC LIMIT 1";
 
