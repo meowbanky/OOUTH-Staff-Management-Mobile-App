@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
 }
@@ -374,7 +374,7 @@ document.getElementById('reconForm').addEventListener('submit', async function(e
     e.preventDefault();
     
     const formData = new FormData(this);
-    formData.append('reconciled_by', <?php echo $_SESSION['UserID']; ?>);
+    formData.append('reconciled_by', <?php echo $_SESSION['user_id']; ?>);
     
     Swal.fire({
         title: 'Processing...',

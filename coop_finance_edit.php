@@ -2,13 +2,13 @@
 require_once('Connections/coop.php');
 session_start();
 header('Content-Type: application/json');
-if (!isset($_SESSION['UserID'])) {
+if (!isset($_SESSION['user_id'])) {
     echo json_encode(['error' => 'Permission denied.']); exit;
 }
 $id = intval($_POST['id'] ?? 0);
 $amount = floatval(str_replace(',', '', $_POST['amount'] ?? '0'));
 $description = trim($_POST['description'] ?? '');
-$updated_by = $_SESSION['UserID'];
+$updated_by = $_SESSION['user_id'];
 if (!$id || $amount <= 0) {
     echo json_encode(['error' => 'Invalid input.']); exit;
 }

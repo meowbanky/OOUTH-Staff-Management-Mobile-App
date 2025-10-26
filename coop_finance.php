@@ -1,7 +1,7 @@
 <?php
 require_once('Connections/coop.php');
 session_start();
-if (!isset($_SESSION['UserID'])) header("Location:index.php");
+if (!isset($_SESSION['user_id'])) header("Location:index.php");
 require_once('header.php');
 
 // Fetch periods for dropdown
