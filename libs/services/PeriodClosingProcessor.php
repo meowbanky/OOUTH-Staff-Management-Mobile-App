@@ -338,9 +338,9 @@ class PeriodClosingProcessor {
      */
     private function createOpeningBalancesForNextPeriod($periodid) {
         // Get next period
-        $sql = "SELECT Periodid FROM tbpayrollperiods 
-                WHERE Periodid > ? 
-                ORDER BY Periodid ASC 
+        $sql = "SELECT id FROM tbpayrollperiods 
+                WHERE id > ? 
+                ORDER BY id ASC 
                 LIMIT 1";
         
         $stmt = mysqli_prepare($this->db, $sql);
@@ -354,7 +354,7 @@ class PeriodClosingProcessor {
             return; // No next period
         }
         
-        $next_periodid = $next_period['Periodid'];
+        $next_periodid = $next_period['id'];
         
         // Copy closing balances to opening balances of next period
         $sql = "INSERT INTO coop_period_balances 

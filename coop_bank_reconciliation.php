@@ -23,7 +23,7 @@ if ($bankResult) {
 
 // Get periods
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -71,7 +71,7 @@ $history = $reconService->getReconciliationHistory(null, 10);
                         required>
                         <option value="">-- Select Period --</option>
                         <?php foreach ($periods as $period): ?>
-                        <option value="<?php echo $period['Periodid']; ?>">
+                        <option value="<?php echo $period['id']; ?>">
                             <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                         </option>
                         <?php endforeach; ?>

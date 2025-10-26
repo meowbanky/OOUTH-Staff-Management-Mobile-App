@@ -134,7 +134,7 @@ class NotesGenerator {
      */
     public function generateNote7($periodid) {
         // Get period date range
-        $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE Periodid = ?";
+        $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE id = ?";
         $stmt = mysqli_prepare($this->db, $periodQuery);
         mysqli_stmt_bind_param($stmt, "i", $periodid);
         mysqli_stmt_execute($stmt);

@@ -8,7 +8,7 @@ require_once('includes/header.php');
 
 // Get all periods
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -26,7 +26,7 @@ for ($i = 1; $i <= 5; $i++) {
 
 // Default to last 3 periods if none selected
 if (empty($selectedPeriods) && count($periods) >= 3) {
-    $selectedPeriods = array_slice(array_column($periods, 'Periodid'), 0, 3);
+    $selectedPeriods = array_slice(array_column($periods, 'id'), 0, 3);
 }
 
 $statementType = isset($_GET['statement']) ? $_GET['statement'] : 'income';
@@ -51,7 +51,7 @@ if (!empty($selectedPeriods)) {
 $periodNames = [];
 foreach ($selectedPeriods as $pid) {
     foreach ($periods as $p) {
-        if ($p['Periodid'] == $pid) {
+        if ($p['id'] == $pid) {
             $periodNames[$pid] = $p['PayrollPeriod'];
             break;
         }
@@ -98,8 +98,8 @@ foreach ($selectedPeriods as $pid) {
                             <select name="period<?php echo $i; ?>" class="w-full border rounded px-2 py-1 text-sm">
                                 <option value="">None</option>
                                 <?php foreach ($periods as $period): ?>
-                                    <option value="<?php echo $period['Periodid']; ?>" 
-                                            <?php echo (isset($selectedPeriods[$i-1]) && $selectedPeriods[$i-1] == $period['Periodid']) ? 'selected' : ''; ?>>
+                                    <option value="<?php echo $period['id']; ?>" 
+                                            <?php echo (isset($selectedPeriods[$i-1]) && $selectedPeriods[$i-1] == $period['id']) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                                     </option>
                                 <?php endforeach; ?>

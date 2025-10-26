@@ -9,7 +9,7 @@ $balanceCalculator = new AccountBalanceCalculator($coop, $database_cov);
 
 // Get periods for dropdown
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -18,10 +18,10 @@ if ($periodResult) {
 }
 
 // Get selected period
-$selectedPeriod = isset($_GET['periodid']) ? intval($_GET['periodid']) : (count($periods) > 0 ? $periods[0]['Periodid'] : 0);
+$selectedPeriod = isset($_GET['periodid']) ? intval($_GET['periodid']) : (count($periods) > 0 ? $periods[0]['id'] : 0);
 $selectedPeriodName = '';
 foreach ($periods as $period) {
-    if ($period['Periodid'] == $selectedPeriod) {
+    if ($period['id'] == $selectedPeriod) {
         $selectedPeriodName = $period['PayrollPeriod'];
         break;
     }
@@ -65,8 +65,8 @@ if ($selectedPeriod > 0) {
                     onchange="this.form.submit()">
                     <option value="">-- Select Period --</option>
                     <?php foreach ($periods as $period): ?>
-                    <option value="<?php echo $period['Periodid']; ?>"
-                        <?php echo ($period['Periodid'] == $selectedPeriod) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $period['id']; ?>"
+                        <?php echo ($period['id'] == $selectedPeriod) ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                     </option>
                     <?php endforeach; ?>

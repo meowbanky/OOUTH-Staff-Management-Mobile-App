@@ -56,7 +56,7 @@ class NotificationService {
     }
 
     private function getTransactionDetails($memberId, $periodId) {
-        $query = "SELECT tlb_mastertransaction.memberid,tbpayrollperiods.Periodid,
+        $query = "SELECT tlb_mastertransaction.memberid,tbpayrollperiods.id,
 CONCAT(tblemployees.LastName, ' , ', tblemployees.FirstName, ' ', IFNULL(tblemployees.MiddleName, '')) AS namess,
     tblemployees.MobileNumber as MobilePhone,
     tbpayrollperiods.PayrollPeriod,
@@ -102,10 +102,10 @@ CONCAT(tblemployees.LastName, ' , ', tblemployees.FirstName, ' ', IFNULL(tblempl
         tlb_mastertransaction.loanRepayment + 
         tlb_mastertransaction.repayment_bank ) as total
 FROM tlb_mastertransaction INNER JOIN tblemployees on tlb_mastertransaction.memberid = tblemployees.CoopID
-LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.Periodid 
+LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.id 
         WHERE tblemployees.CoopID = '" . mysqli_real_escape_string($this->db, $memberId) . "' 
         AND tlb_mastertransaction.periodid = " . (int)$periodId . "
-        GROUP BY tbpayrollperiods.Periodid ORDER BY tbpayrollperiods.Periodid DESC LIMIT 1";
+        GROUP BY tbpayrollperiods.id ORDER BY tbpayrollperiods.id DESC LIMIT 1";
 
         $result = mysqli_query($this->db, $query);
         if (!$result) {

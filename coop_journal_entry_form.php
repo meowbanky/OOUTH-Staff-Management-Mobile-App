@@ -5,7 +5,7 @@ require_once('includes/header.php');
 
 // Get periods for dropdown
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -64,7 +64,7 @@ if ($accountsResult) {
                     <select name="periodid" id="periodid" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" required>
                         <option value="">-- Select Period --</option>
                         <?php foreach ($periods as $period): ?>
-                            <option value="<?php echo $period['Periodid']; ?>">
+                            <option value="<?php echo $period['id']; ?>">
                                 <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                             </option>
                         <?php endforeach; ?>

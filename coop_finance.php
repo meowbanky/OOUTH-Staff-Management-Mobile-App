@@ -6,7 +6,7 @@ require_once('includes/header.php');
 
 // Fetch periods for dropdown
 $periods = [];
-$res = $coop->query("SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC");
+$res = $coop->query("SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC");
 if ($res) $periods = $res->fetch_all(MYSQLI_ASSOC);
 
 // Fetch categories for both types
@@ -30,7 +30,7 @@ $expendCats = getCategories($coop, 'expenditure');
             <select name="periodid" id="periodid" class="w-full border px-3 py-2 rounded" required>
                 <option value="">Select Period...</option>
                 <?php foreach($periods as $p): ?>
-                <option value="<?= $p['Periodid'] ?>"><?= htmlspecialchars($p['PayrollPeriod']) ?></option>
+                <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['PayrollPeriod']) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -78,7 +78,7 @@ $expendCats = getCategories($coop, 'expenditure');
         <select id="reportPeriod" class="w-full border px-3 py-2 rounded mb-2">
             <option value="">Select Period...</option>
             <?php foreach($periods as $p): ?>
-            <option value="<?= $p['Periodid'] ?>"><?= htmlspecialchars($p['PayrollPeriod']) ?></option>
+            <option value="<?= $p['id'] ?>"><?= htmlspecialchars($p['PayrollPeriod']) ?></option>
             <?php endforeach; ?>
         </select>
         <div class="flex gap-2 mb-2">

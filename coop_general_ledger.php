@@ -19,7 +19,7 @@ if ($accountsResult) {
 
 // Get periods
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -121,7 +121,7 @@ if ($selectedAccount > 0 && $selectedPeriod > 0) {
                 <select name="periodid" class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
                     <option value="">-- Select Period --</option>
                     <?php foreach ($periods as $period): ?>
-                        <option value="<?php echo $period['Periodid']; ?>" <?php echo ($period['Periodid'] == $selectedPeriod) ? 'selected' : ''; ?>>
+                        <option value="<?php echo $period['id']; ?>" <?php echo ($period['id'] == $selectedPeriod) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                         </option>
                     <?php endforeach; ?>

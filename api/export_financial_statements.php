@@ -17,7 +17,7 @@ if ($periodid <= 0) {
 }
 
 // Get period name
-$periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE Periodid = ?";
+$periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE id = ?";
 $stmt = mysqli_prepare($coop, $periodQuery);
 mysqli_stmt_bind_param($stmt, "i", $periodid);
 mysqli_stmt_execute($stmt);

@@ -9,7 +9,7 @@ $accountingEngine = new AccountingEngine($coop, $database_cov);
 
 // Get periods for dropdown
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -59,7 +59,7 @@ $sql = "SELECT
             je.*,
             pp.PayrollPeriod
         FROM coop_journal_entries je
-        LEFT JOIN tbpayrollperiods pp ON je.periodid = pp.Periodid
+        LEFT JOIN tbpayrollperiods pp ON je.periodid = pp.id
         WHERE " . implode(' AND ', $where) . "
         ORDER BY je.entry_date DESC, je.id DESC
         LIMIT 100";
@@ -133,8 +133,8 @@ $stats = mysqli_fetch_assoc($statsResult);
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
                     <option value="">All Periods</option>
                     <?php foreach ($periods as $period): ?>
-                    <option value="<?php echo $period['Periodid']; ?>"
-                        <?php echo ($period['Periodid'] == $selectedPeriod) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $period['id']; ?>"
+                        <?php echo ($period['id'] == $selectedPeriod) ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                     </option>
                     <?php endforeach; ?>

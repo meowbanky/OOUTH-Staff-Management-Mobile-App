@@ -208,7 +208,7 @@ class MemberAccountManager {
                             ma.credit_amount,
                             ma.closing_balance
                         FROM coop_member_accounts ma
-                        JOIN tbpayrollperiods pp ON ma.periodid = pp.Periodid
+                        JOIN tbpayrollperiods pp ON ma.periodid = pp.id
                         WHERE ma.memberid = ? AND ma.account_type = ?
                         AND ma.periodid >= ? AND ma.periodid <= ?
                         ORDER BY ma.periodid";

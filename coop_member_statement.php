@@ -9,7 +9,7 @@ $memberAccountManager = new MemberAccountManager($coop, $database_cov);
 
 // Get periods for dropdown
 $periods = [];
-$periodQuery = "SELECT Periodid, PayrollPeriod FROM tbpayrollperiods ORDER BY Periodid DESC";
+$periodQuery = "SELECT id, PayrollPeriod FROM tbpayrollperiods ORDER BY id DESC";
 $periodResult = mysqli_query($coop, $periodQuery);
 if ($periodResult) {
     while ($row = mysqli_fetch_assoc($periodResult)) {
@@ -37,10 +37,10 @@ $toPeriod = isset($_GET['to_period']) ? intval($_GET['to_period']) : 0;
 
 // Set default periods if not selected
 if ($fromPeriod == 0 && count($periods) > 0) {
-    $fromPeriod = $periods[min(5, count($periods) - 1)]['Periodid']; // 6 periods back or earliest
+    $fromPeriod = $periods[min(5, count($periods) - 1)]['id']; // 6 periods back or earliest
 }
 if ($toPeriod == 0 && count($periods) > 0) {
-    $toPeriod = $periods[0]['Periodid']; // Latest period
+    $toPeriod = $periods[0]['id']; // Latest period
 }
 
 // Generate statement if member selected
@@ -98,8 +98,8 @@ if ($selectedMember > 0 && $fromPeriod > 0 && $toPeriod > 0) {
                 <select name="from_period"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     <?php foreach (array_reverse($periods) as $period): ?>
-                    <option value="<?php echo $period['Periodid']; ?>"
-                        <?php echo ($period['Periodid'] == $fromPeriod) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $period['id']; ?>"
+                        <?php echo ($period['id'] == $fromPeriod) ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                     </option>
                     <?php endforeach; ?>
@@ -111,8 +111,8 @@ if ($selectedMember > 0 && $fromPeriod > 0 && $toPeriod > 0) {
                 <select name="to_period"
                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     <?php foreach ($periods as $period): ?>
-                    <option value="<?php echo $period['Periodid']; ?>"
-                        <?php echo ($period['Periodid'] == $toPeriod) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $period['id']; ?>"
+                        <?php echo ($period['id'] == $toPeriod) ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
                     </option>
                     <?php endforeach; ?>

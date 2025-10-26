@@ -194,7 +194,7 @@ class BankReconciliationService {
                     pp.PayrollPeriod
                 FROM coop_bank_reconciliation br
                 JOIN coop_accounts a ON br.bank_account_id = a.id
-                LEFT JOIN tbpayrollperiods pp ON br.periodid = pp.Periodid";
+                LEFT JOIN tbpayrollperiods pp ON br.periodid = pp.id";
         
         if ($bank_account_id) {
             $sql .= " WHERE br.bank_account_id = ?";

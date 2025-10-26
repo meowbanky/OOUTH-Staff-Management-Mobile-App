@@ -427,7 +427,7 @@ class AccountingEngine {
      */
     private function generateEntryNumber($periodid) {
         // Get period details
-        $sql = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE Periodid = ?";
+        $sql = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE id = ?";
         $stmt = mysqli_prepare($this->db, $sql);
         mysqli_stmt_bind_param($stmt, "i", $periodid);
         mysqli_stmt_execute($stmt);

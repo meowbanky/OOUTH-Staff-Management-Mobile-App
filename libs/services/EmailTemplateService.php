@@ -30,7 +30,7 @@ class EmailTemplateService {
         }
         
         // Get period information
-        $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE Periodid = ?";
+        $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE id = ?";
         $stmt = mysqli_prepare($this->db, $periodQuery);
         mysqli_stmt_bind_param($stmt, "i", $periodId);
         mysqli_stmt_execute($stmt);
