@@ -1,7 +1,7 @@
 <?php
 
 require_once('Connections/coop.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Get filter parameters
 $filterType = isset($_GET['type']) ? $_GET['type'] : '';
@@ -369,5 +369,4 @@ $stats = mysqli_fetch_assoc($statsResult);
             System Accounts: <?php echo $stats['system_accounts']; ?></p>
     </div>
 </div>
-
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>

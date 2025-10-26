@@ -3,7 +3,7 @@
 require_once('Connections/coop.php');
 require_once('libs/services/PeriodClosingProcessor.php');
 require_once('libs/services/AccountBalanceCalculator.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 $closingProcessor = new PeriodClosingProcessor($coop, $database_cov);
 $calculator = new AccountBalanceCalculator($coop, $database_cov);
@@ -392,5 +392,5 @@ async function reopenPeriod() {
 }
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>
 

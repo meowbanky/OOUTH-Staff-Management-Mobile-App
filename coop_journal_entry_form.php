@@ -1,7 +1,7 @@
 <?php
 
 require_once('Connections/coop.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Get periods for dropdown
 $periods = [];
@@ -446,5 +446,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>
 

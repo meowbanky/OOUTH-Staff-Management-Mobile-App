@@ -2,7 +2,7 @@
 
 require_once('Connections/coop.php');
 require_once('libs/services/AccountBalanceCalculator.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Initialize calculator
 $balanceCalculator = new AccountBalanceCalculator($coop, $database_cov);
@@ -374,4 +374,4 @@ style.textContent = `
 document.head.appendChild(style);
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>

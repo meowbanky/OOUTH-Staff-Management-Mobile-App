@@ -2,7 +2,7 @@
 
 require_once('Connections/coop.php');
 require_once('libs/services/AccountingEngine.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Initialize engine
 $accountingEngine = new AccountingEngine($coop, $database_cov);
@@ -382,4 +382,4 @@ function loadEntryLines(entryId) {
 }
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>

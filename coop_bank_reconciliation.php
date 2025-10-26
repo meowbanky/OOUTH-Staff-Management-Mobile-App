@@ -3,7 +3,7 @@
 require_once('Connections/coop.php');
 require_once('libs/services/BankReconciliationService.php');
 require_once('libs/services/AccountBalanceCalculator.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 $reconService = new BankReconciliationService($coop, $database_cov);
 $calculator = new AccountBalanceCalculator($coop, $database_cov);
@@ -45,19 +45,20 @@ $history = $reconService->getReconciliationHistory(null, 10);
     <!-- Reconciliation Form -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-xl font-bold text-gray-900 mb-4">New Reconciliation</h2>
-        
+
         <form id="reconForm">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Bank Account <span class="text-red-500">*</span>
                     </label>
-                    <select name="bank_account_id" id="bankAccountSelect" class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
+                    <select name="bank_account_id" id="bankAccountSelect"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
                         <option value="">-- Select Bank Account --</option>
                         <?php foreach ($bankAccounts as $account): ?>
-                            <option value="<?php echo $account['id']; ?>">
-                                <?php echo htmlspecialchars($account['account_code'] . ' - ' . $account['account_name']); ?>
-                            </option>
+                        <option value="<?php echo $account['id']; ?>">
+                            <?php echo htmlspecialchars($account['account_code'] . ' - ' . $account['account_name']); ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -66,12 +67,13 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Period <span class="text-red-500">*</span>
                     </label>
-                    <select name="periodid" id="periodSelect" class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
+                    <select name="periodid" id="periodSelect" class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                        required>
                         <option value="">-- Select Period --</option>
                         <?php foreach ($periods as $period): ?>
-                            <option value="<?php echo $period['Periodid']; ?>">
-                                <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
-                            </option>
+                        <option value="<?php echo $period['Periodid']; ?>">
+                            <?php echo htmlspecialchars($period['PayrollPeriod']); ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -80,17 +82,17 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Reconciliation Date <span class="text-red-500">*</span>
                     </label>
-                    <input type="date" name="reconciliation_date" value="<?php echo date('Y-m-d'); ?>" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
+                    <input type="date" name="reconciliation_date" value="<?php echo date('Y-m-d'); ?>"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2" required>
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Book Balance (₦) <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="book_balance" id="bookBalance" step="0.01" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono" 
-                           placeholder="0.00" readonly>
+                    <input type="number" name="book_balance" id="bookBalance" step="0.01"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono" placeholder="0.00"
+                        readonly>
                     <p class="text-xs text-gray-500 mt-1">Auto-calculated from your accounts</p>
                 </div>
 
@@ -102,18 +104,18 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Bank Statement Balance (₦) <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="bank_statement_balance" id="bankBalance" step="0.01" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono" 
-                           placeholder="0.00" required>
+                    <input type="number" name="bank_statement_balance" id="bankBalance" step="0.01"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono" placeholder="0.00"
+                        required>
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Outstanding Deposits (₦)
                     </label>
-                    <input type="number" name="outstanding_deposits" id="outstandingDeposits" step="0.01" min="0" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input" 
-                           placeholder="0.00">
+                    <input type="number" name="outstanding_deposits" id="outstandingDeposits" step="0.01" min="0"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input"
+                        placeholder="0.00">
                     <p class="text-xs text-gray-500 mt-1">Deposits made but not yet on statement</p>
                 </div>
 
@@ -121,9 +123,9 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Outstanding Withdrawals (₦)
                     </label>
-                    <input type="number" name="outstanding_withdrawals" id="outstandingWithdrawals" step="0.01" min="0" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input" 
-                           placeholder="0.00">
+                    <input type="number" name="outstanding_withdrawals" id="outstandingWithdrawals" step="0.01" min="0"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input"
+                        placeholder="0.00">
                     <p class="text-xs text-gray-500 mt-1">Checks/payments not yet cleared</p>
                 </div>
 
@@ -131,9 +133,9 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Bank Charges (₦)
                     </label>
-                    <input type="number" name="bank_charges" id="bankCharges" step="0.01" min="0" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input" 
-                           placeholder="0.00">
+                    <input type="number" name="bank_charges" id="bankCharges" step="0.01" min="0"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input"
+                        placeholder="0.00">
                     <p class="text-xs text-gray-500 mt-1">Charges not yet recorded in books</p>
                 </div>
 
@@ -141,24 +143,23 @@ $history = $reconService->getReconciliationHistory(null, 10);
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         Bank Interest (₦)
                     </label>
-                    <input type="number" name="bank_interest" id="bankInterest" step="0.01" min="0" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input" 
-                           placeholder="0.00">
+                    <input type="number" name="bank_interest" id="bankInterest" step="0.01" min="0"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono recon-input"
+                        placeholder="0.00">
                     <p class="text-xs text-gray-500 mt-1">Interest earned not yet recorded</p>
                 </div>
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
-                    <textarea name="notes" rows="2" 
-                              class="w-full border border-gray-300 rounded-lg px-4 py-2"
-                              placeholder="Any additional notes about this reconciliation..."></textarea>
+                    <textarea name="notes" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                        placeholder="Any additional notes about this reconciliation..."></textarea>
                 </div>
             </div>
 
             <!-- Reconciliation Calculation -->
             <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-4">
                 <h3 class="font-bold text-gray-900 mb-4">Reconciliation Calculation</h3>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Bank Side -->
                     <div class="bg-white rounded-lg p-4">
@@ -219,7 +220,8 @@ $history = $reconService->getReconciliationHistory(null, 10);
 
             <!-- Submit Button -->
             <div class="flex justify-end gap-4">
-                <button type="button" onclick="resetForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg">
+                <button type="button" onclick="resetForm()"
+                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg">
                     <i class="fa fa-redo mr-1"></i> Reset
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
@@ -231,53 +233,58 @@ $history = $reconService->getReconciliationHistory(null, 10);
 
     <!-- Reconciliation History -->
     <?php if (count($history) > 0): ?>
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
-                <h2 class="text-xl font-bold">Reconciliation History</h2>
-                <p class="text-sm text-teal-100">Recent reconciliations</p>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-left">Date</th>
-                            <th class="px-4 py-3 text-left">Account</th>
-                            <th class="px-4 py-3 text-left">Period</th>
-                            <th class="px-4 py-3 text-right">Bank Balance</th>
-                            <th class="px-4 py-3 text-right">Book Balance</th>
-                            <th class="px-4 py-3 text-right">Variance</th>
-                            <th class="px-4 py-3 text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <?php foreach ($history as $recon): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3"><?php echo date('d M Y', strtotime($recon['reconciliation_date'])); ?></td>
-                                <td class="px-4 py-3 font-mono text-sm"><?php echo htmlspecialchars($recon['account_code']); ?></td>
-                                <td class="px-4 py-3 text-sm"><?php echo htmlspecialchars($recon['PayrollPeriod']); ?></td>
-                                <td class="px-4 py-3 text-right font-mono">₦<?php echo number_format($recon['bank_statement_balance'], 2); ?></td>
-                                <td class="px-4 py-3 text-right font-mono">₦<?php echo number_format($recon['book_balance'], 2); ?></td>
-                                <td class="px-4 py-3 text-right font-mono <?php echo abs($recon['variance']) < 0.01 ? 'text-green-600' : 'text-red-600'; ?>">
-                                    <?php echo abs($recon['variance']) < 0.01 ? '-' : '₦' . number_format(abs($recon['variance']), 2); ?>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <?php if ($recon['is_balanced']): ?>
-                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                            ✓ Balanced
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                            ✗ Variance
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+            <h2 class="text-xl font-bold">Reconciliation History</h2>
+            <p class="text-sm text-teal-100">Recent reconciliations</p>
         </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Date</th>
+                        <th class="px-4 py-3 text-left">Account</th>
+                        <th class="px-4 py-3 text-left">Period</th>
+                        <th class="px-4 py-3 text-right">Bank Balance</th>
+                        <th class="px-4 py-3 text-right">Book Balance</th>
+                        <th class="px-4 py-3 text-right">Variance</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($history as $recon): ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3"><?php echo date('d M Y', strtotime($recon['reconciliation_date'])); ?>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-sm"><?php echo htmlspecialchars($recon['account_code']); ?>
+                        </td>
+                        <td class="px-4 py-3 text-sm"><?php echo htmlspecialchars($recon['PayrollPeriod']); ?></td>
+                        <td class="px-4 py-3 text-right font-mono">
+                            ₦<?php echo number_format($recon['bank_statement_balance'], 2); ?></td>
+                        <td class="px-4 py-3 text-right font-mono">
+                            ₦<?php echo number_format($recon['book_balance'], 2); ?></td>
+                        <td
+                            class="px-4 py-3 text-right font-mono <?php echo abs($recon['variance']) < 0.01 ? 'text-green-600' : 'text-red-600'; ?>">
+                            <?php echo abs($recon['variance']) < 0.01 ? '-' : '₦' . number_format(abs($recon['variance']), 2); ?>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <?php if ($recon['is_balanced']): ?>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                ✓ Balanced
+                            </span>
+                            <?php else: ?>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                ✗ Variance
+                            </span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <?php endif; ?>
 </div>
 
@@ -290,13 +297,13 @@ document.getElementById('periodSelect').addEventListener('change', fetchBookBala
 async function fetchBookBalance() {
     const accountId = document.getElementById('bankAccountSelect').value;
     const periodid = document.getElementById('periodSelect').value;
-    
+
     if (!accountId || !periodid) return;
-    
+
     try {
         const response = await fetch(`api/get_book_balance.php?account_id=${accountId}&periodid=${periodid}`);
         const data = await response.json();
-        
+
         if (data.success) {
             document.getElementById('bookBalance').value = data.balance.toFixed(2);
             calculateReconciliation();
@@ -314,7 +321,7 @@ function calculateReconciliation() {
     const outWithdrawals = parseFloat(document.getElementById('outstandingWithdrawals').value) || 0;
     const bankCharges = parseFloat(document.getElementById('bankCharges').value) || 0;
     const bankInterest = parseFloat(document.getElementById('bankInterest').value) || 0;
-    
+
     // Display values
     document.getElementById('displayBankBalance').textContent = '₦' + bankBalance.toFixed(2);
     document.getElementById('displayOutDeposits').textContent = '₦' + outDeposits.toFixed(2);
@@ -322,22 +329,22 @@ function calculateReconciliation() {
     document.getElementById('displayBookBalance').textContent = '₦' + bookBalance.toFixed(2);
     document.getElementById('displayBankCharges').textContent = '₦' + bankCharges.toFixed(2);
     document.getElementById('displayBankInterest').textContent = '₦' + bankInterest.toFixed(2);
-    
+
     // Calculate adjusted balances
     const adjustedBankBal = bankBalance + outDeposits - outWithdrawals;
     const adjustedBookBal = bookBalance + bankInterest - bankCharges;
-    
+
     document.getElementById('adjustedBankBalance').textContent = '₦' + adjustedBankBal.toFixed(2);
     document.getElementById('adjustedBookBalance').textContent = '₦' + adjustedBookBal.toFixed(2);
-    
+
     // Calculate variance
     const variance = adjustedBankBal - adjustedBookBal;
     const varianceDisplay = document.getElementById('varianceDisplay');
     const varianceValue = document.getElementById('variance');
     const varianceStatus = document.getElementById('varianceStatus');
-    
+
     varianceValue.textContent = '₦' + Math.abs(variance).toFixed(2);
-    
+
     if (Math.abs(variance) < 0.01) {
         varianceDisplay.className = 'mt-4 p-4 rounded-lg bg-green-100 border-2 border-green-500';
         varianceValue.className = 'font-bold text-2xl font-mono text-green-900';
@@ -346,8 +353,8 @@ function calculateReconciliation() {
     } else {
         varianceDisplay.className = 'mt-4 p-4 rounded-lg bg-red-100 border-2 border-red-500';
         varianceValue.className = 'font-bold text-2xl font-mono text-red-900';
-        varianceStatus.textContent = variance > 0 ? 
-            '⚠️ Bank balance is higher - Check for unrecorded income or overstated expenses' : 
+        varianceStatus.textContent = variance > 0 ?
+            '⚠️ Bank balance is higher - Check for unrecorded income or overstated expenses' :
             '⚠️ Book balance is higher - Check for unrecorded expenses or overstated income';
         varianceStatus.className = 'text-sm mt-2 text-red-800';
     }
@@ -367,25 +374,27 @@ function resetForm() {
 // Submit form
 document.getElementById('reconForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(this);
     formData.append('reconciled_by', <?php echo $_SESSION['user_id']; ?>);
-    
+
     Swal.fire({
         title: 'Processing...',
         text: 'Creating bank reconciliation',
         allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
+        didOpen: () => {
+            Swal.showLoading();
+        }
     });
-    
+
     try {
         const response = await fetch('api/create_bank_reconciliation.php', {
             method: 'POST',
             body: formData
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             Swal.fire({
                 icon: 'success',
@@ -419,5 +428,4 @@ document.getElementById('reconForm').addEventListener('submit', async function(e
 });
 </script>
 
-<?php require_once('footer.php'); ?>
-
+<?php require_once('includes/footer.php'); ?>

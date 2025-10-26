@@ -2,7 +2,7 @@
 
 require_once('Connections/coop.php');
 require_once('libs/services/MemberAccountManager.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Initialize manager
 $memberAccountManager = new MemberAccountManager($coop, $database_cov);
@@ -288,4 +288,4 @@ style.textContent = `
 document.head.appendChild(style);
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>

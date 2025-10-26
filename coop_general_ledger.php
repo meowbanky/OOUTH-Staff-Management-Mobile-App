@@ -2,7 +2,7 @@
 
 require_once('Connections/coop.php');
 require_once('libs/services/AccountBalanceCalculator.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Get all accounts for dropdown
 $accountsQuery = "SELECT id, account_code, account_name, account_type 
@@ -226,5 +226,5 @@ if ($selectedAccount > 0 && $selectedPeriod > 0) {
     <?php endif; ?>
 </div>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>
 

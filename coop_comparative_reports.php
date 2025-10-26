@@ -4,7 +4,7 @@ require_once('Connections/coop.php');
 require_once('libs/reports/IncomeExpenditureStatement.php');
 require_once('libs/reports/BalanceSheet.php');
 require_once('libs/reports/CashflowStatement.php');
-require_once('header.php');
+require_once('includes/header.php');
 
 // Get all periods
 $periods = [];
@@ -337,5 +337,5 @@ function exportToExcel() {
 }
 </script>
 
-<?php require_once('footer.php'); ?>
+<?php require_once('includes/footer.php'); ?>
 
