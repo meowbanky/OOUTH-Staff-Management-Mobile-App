@@ -47,7 +47,7 @@ if ($selectedAccount > 0 && $selectedPeriod > 0) {
     mysqli_stmt_close($stmt);
     
     // Get opening balance
-    $calculator = new AccountBalanceCalculator($coop, $database_cov);
+    $calculator = new AccountBalanceCalculator($coop, $database);
     $balance = $calculator->getAccountBalance($selectedAccount, $selectedPeriod);
     $runningBalance = floatval($balance['opening_debit'] ?? 0) - floatval($balance['opening_credit'] ?? 0);
     

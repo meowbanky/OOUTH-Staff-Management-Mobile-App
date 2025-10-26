@@ -5,7 +5,7 @@ require_once('libs/services/AccountBalanceCalculator.php');
 require_once('includes/header.php');
 
 // Initialize calculator
-$balanceCalculator = new AccountBalanceCalculator($coop, $database_cov);
+$balanceCalculator = new AccountBalanceCalculator($coop, $database);
 
 // Get periods for dropdown
 $periods = [];

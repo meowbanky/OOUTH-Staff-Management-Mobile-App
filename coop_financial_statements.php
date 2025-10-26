@@ -35,9 +35,9 @@ $balanceSheet = null;
 $cashflowStatement = null;
 
 if ($selectedPeriod > 0) {
-    $incomeGenerator = new IncomeExpenditureStatement($coop, $database_cov);
-    $balanceGenerator = new BalanceSheet($coop, $database_cov);
-    $cashflowGenerator = new CashflowStatement($coop, $database_cov);
+    $incomeGenerator = new IncomeExpenditureStatement($coop, $database);
+    $balanceGenerator = new BalanceSheet($coop, $database);
+    $cashflowGenerator = new CashflowStatement($coop, $database);
     
     $incomeStatement = $incomeGenerator->generateStatement($selectedPeriod);
     $balanceSheet = $balanceGenerator->generateStatement($selectedPeriod);

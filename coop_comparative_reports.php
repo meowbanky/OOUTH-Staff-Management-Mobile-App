@@ -34,9 +34,9 @@ $statementType = isset($_GET['statement']) ? $_GET['statement'] : 'income';
 // Generate comparative reports
 $comparativeData = null;
 if (!empty($selectedPeriods)) {
-    $incomeGenerator = new IncomeExpenditureStatement($coop, $database_cov);
-    $balanceGenerator = new BalanceSheet($coop, $database_cov);
-    $cashflowGenerator = new CashflowStatement($coop, $database_cov);
+    $incomeGenerator = new IncomeExpenditureStatement($coop, $database);
+    $balanceGenerator = new BalanceSheet($coop, $database);
+    $cashflowGenerator = new CashflowStatement($coop, $database);
     
     if ($statementType == 'income') {
         $comparativeData = $incomeGenerator->generateStatement($selectedPeriods[0], array_slice($selectedPeriods, 1));

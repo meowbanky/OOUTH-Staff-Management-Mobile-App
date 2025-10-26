@@ -5,7 +5,7 @@ require_once('libs/services/MemberAccountManager.php');
 require_once('includes/header.php');
 
 // Initialize manager
-$memberAccountManager = new MemberAccountManager($coop, $database_cov);
+$memberAccountManager = new MemberAccountManager($coop, $database);
 
 // Get periods for dropdown
 $periods = [];

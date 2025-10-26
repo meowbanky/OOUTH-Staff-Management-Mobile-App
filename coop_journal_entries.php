@@ -5,7 +5,7 @@ require_once('libs/services/AccountingEngine.php');
 require_once('includes/header.php');
 
 // Initialize engine
-$accountingEngine = new AccountingEngine($coop, $database_cov);
+$accountingEngine = new AccountingEngine($coop, $database);
 
 // Get periods for dropdown
 $periods = [];

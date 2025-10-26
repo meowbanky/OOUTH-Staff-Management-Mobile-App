@@ -5,8 +5,8 @@ require_once('libs/services/PeriodClosingProcessor.php');
 require_once('libs/services/AccountBalanceCalculator.php');
 require_once('includes/header.php');
 
-$closingProcessor = new PeriodClosingProcessor($coop, $database_cov);
-$calculator = new AccountBalanceCalculator($coop, $database_cov);
+$closingProcessor = new PeriodClosingProcessor($coop, $database);
+$calculator = new AccountBalanceCalculator($coop, $database);
 
 // Get periods
 $periods = [];
