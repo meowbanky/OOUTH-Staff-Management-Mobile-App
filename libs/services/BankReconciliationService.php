@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class BankReconciliationService {
     private $db;
     private $database_name;
@@ -237,5 +236,3 @@ class BankReconciliationService {
         return $balance['balance'];
     }
 }
-?>
-

@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class NotesGenerator {
     private $db;
     private $database_name;
@@ -241,5 +240,3 @@ class NotesGenerator {
         return floatval($row['total'] ?? 0);
     }
 }
-?>
-

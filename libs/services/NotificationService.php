@@ -1,11 +1,9 @@
 <?php
 namespace App\Services;
-
 class NotificationService {
     private $db;
     private $oneSignalConfig;
     private $smsConfig;
-
     public function __construct($db) {
         $this->db = $db;
         $this->oneSignalConfig = [
@@ -16,10 +14,8 @@ class NotificationService {
             'sender' => 'VCMSSAGAMU',
             'apiKey' => 'TLYa2oT5vTpT3X4r3fSv2lSfErDApbmhbOAjOP3ituAA2XnLYMFIqzrq3leU1y',
             'endpoint' => 'https://v3.api.termii.com/api/sms/send'
-
         ];
     }
-
     public function sendTransactionNotification($memberId, $periodId) {
         try {
             // Get transaction details
@@ -28,15 +24,12 @@ class NotificationService {
             if (!$transactionData) {
                 throw new \Exception("No transaction data found");
             }
-
             // Format message
             $message = $this->formatTransactionMessage($transactionData);
-
             // Send notifications
             $smsResult = $this->sendSMS($transactionData['MobilePhone'], $message);
 //            error_log("SMS Response: " . json_encode($smsResult));
 //            error_log("Mobile Number: " . json_encode($transactionData['MobilePhone']));
-
             if (!empty($transactionData['onesignal_id'])) {
                 $this->sendPushNotification(
                     $transactionData['onesignal_id'],
@@ -44,17 +37,14 @@ class NotificationService {
                     $message
                 );
             }
-
             // Log notification
             $this->logNotification($memberId, $message);
-
             return true;
         } catch (\Exception $e) {
             error_log("Notification Error: " . $e->getMessage());
             return false;
         }
     }
-
     private function getTransactionDetails($memberId, $periodId) {
         $query = "SELECT tlb_mastertransaction.memberid,tbpayrollperiods.id,
 CONCAT(tblemployees.LastName, ' , ', tblemployees.FirstName, ' ', IFNULL(tblemployees.MiddleName, '')) AS namess,
@@ -106,15 +96,12 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
         WHERE tblemployees.CoopID = '" . mysqli_real_escape_string($this->db, $memberId) . "' 
         AND tlb_mastertransaction.periodid = " . (int)$periodId . "
         GROUP BY tbpayrollperiods.id ORDER BY tbpayrollperiods.id DESC LIMIT 1";
-
         $result = mysqli_query($this->db, $query);
         if (!$result) {
             throw new \Exception("Database query failed: " . mysqli_error($this->db));
         }
-
         return mysqli_fetch_assoc($result);
     }
-
     private function formatTransactionMessage($data) {
         return sprintf(
             "COOP ACCT. BAL., MONTHLY CONTR.: %s\n" .
@@ -143,14 +130,11 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
             "https://emmaggi.com/cov/download.html"
         );
     }
-
     private function sendSMS($phone, $message) {
         if (empty($phone)) {
             throw new \Exception("Phone number is required");
         }
-
         $phone = $this->formatPhoneNumber($phone);
-
         $data = [
             "api_key" => $this->smsConfig['apiKey'],
             "to" => $phone,  // Single phone number, not array
@@ -159,7 +143,6 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
             "type" => "plain",
             "channel" => "generic"
         ];
-
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL => $this->smsConfig['endpoint'],
@@ -175,34 +158,26 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
                 "Content-Type: application/json"
             ]
         ]);
-
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
         if (curl_errno($ch)) {
             $error = curl_error($ch);
             curl_close($ch);
             throw new \Exception("Curl error: $error");
         }
-
         curl_close($ch);
-
         $responseData = json_decode($response, true);
 //        error_log("Full SMS API Response: " . $response);
-
         if ($httpCode !== 200 && $httpCode !== 201) {
             $errorMessage = isset($responseData['message']) ? $responseData['message'] : $response;
             throw new \Exception("SMS API Error ($httpCode): $errorMessage");
         }
-
         return $responseData;
     }
-
     private function sendPushNotification($playerId, $title, $message) {
         if (empty($playerId)) {
             return false; // Skip if no player ID
         }
-
         $fields = [
             'app_id' => $this->oneSignalConfig['appId'],
             'include_player_ids' => [$playerId],
@@ -210,7 +185,6 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
             'contents' => ['en' => $message],
             'priority' => 10
         ];
-
         $ch = curl_init('https://onesignal.com/api/v1/notifications');
         curl_setopt_array($ch, [
             CURLOPT_HTTPHEADER => [
@@ -223,18 +197,14 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_TIMEOUT => 30
         ]);
-
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
         if ($httpCode !== 200) {
             throw new \Exception("OneSignal API Error: $response");
         }
-
         return json_decode($response, true);
     }
-
     private function formatPhoneNumber($phone) {
         $phone = trim($phone);
         if (substr($phone, 0, 1) === '0') {
@@ -244,16 +214,13 @@ LEFT JOIN tbpayrollperiods ON tlb_mastertransaction.periodid = tbpayrollperiods.
         }
         return $phone;
     }
-
     private function logNotification($memberId, $message) {
         $memberId = mysqli_real_escape_string($this->db, $memberId);
         $message = mysqli_real_escape_string($this->db, $message);
-
         $query = "INSERT INTO notifications 
                   (memberid, message, created_at, status) 
                   VALUES 
                   ('$memberId', '$message', NOW(), 'unread')";
-
         return mysqli_query($this->db, $query);
     }
 }

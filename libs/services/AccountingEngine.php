@@ -8,7 +8,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class AccountingEngine {
     private $db;
     private $database_name;
@@ -574,4 +573,3 @@ class AccountingEngine {
         return $account;
     }
 }
-?>

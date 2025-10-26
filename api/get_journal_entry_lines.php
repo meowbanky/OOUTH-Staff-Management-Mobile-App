@@ -1,21 +1,16 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
-
 require_once('../Connections/coop.php');
-
 $entry_id = isset($_GET['entry_id']) ? intval($_GET['entry_id']) : 0;
-
 if ($entry_id <= 0) {
     echo json_encode(['success' => false, 'error' => 'Invalid entry ID']);
     exit;
 }
-
 try {
     $sql = "SELECT 
                 jel.*,
@@ -49,5 +44,3 @@ try {
         'error' => $e->getMessage()
     ]);
 }
-?>
-

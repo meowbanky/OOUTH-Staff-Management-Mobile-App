@@ -1,8 +1,6 @@
 <?php
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 class EmailQueueManager {
     private $db;
     private $maxEmailsPerHour = 50; // Configurable rate limit
@@ -428,4 +426,3 @@ class EmailQueueManager {
         return $affectedRows;
     }
 }
-?>

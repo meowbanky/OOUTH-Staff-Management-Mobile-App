@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class PeriodClosingProcessor {
     private $db;
     private $database_name;
@@ -471,5 +470,3 @@ class PeriodClosingProcessor {
         ];
     }
 }
-?>
-

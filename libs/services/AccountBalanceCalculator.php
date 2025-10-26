@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class AccountBalanceCalculator {
     private $db;
     private $database_name;
@@ -509,5 +508,3 @@ class AccountBalanceCalculator {
         return $accounts;
     }
 }
-?>
-

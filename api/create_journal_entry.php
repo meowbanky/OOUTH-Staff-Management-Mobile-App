@@ -1,15 +1,12 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
-
 require_once('../Connections/coop.php');
 require_once('../libs/services/AccountingEngine.php');
-
 try {
     // Validate required fields
     if (empty($_POST['periodid']) || empty($_POST['entry_date']) || empty($_POST['description']) || empty($_POST['lines'])) {
@@ -88,5 +85,3 @@ try {
         'error' => $e->getMessage()
     ]);
 }
-?>
-

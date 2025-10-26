@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class CashflowStatement {
     private $db;
     private $database_name;
@@ -331,5 +330,3 @@ class CashflowStatement {
         return floatval($row['period_debit']);
     }
 }
-?>
-

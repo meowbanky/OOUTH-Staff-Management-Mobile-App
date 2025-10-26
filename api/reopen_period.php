@@ -1,15 +1,12 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
-
 require_once('../Connections/coop.php');
 require_once('../libs/services/PeriodClosingProcessor.php');
-
 try {
     $input = json_decode(file_get_contents('php://input'), true);
     
@@ -36,5 +33,3 @@ try {
         'error' => $e->getMessage()
     ]);
 }
-?>
-

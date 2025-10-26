@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class BalanceSheet {
     private $db;
     private $database_name;
@@ -231,5 +230,3 @@ class BalanceSheet {
         return $total;
     }
 }
-?>
-

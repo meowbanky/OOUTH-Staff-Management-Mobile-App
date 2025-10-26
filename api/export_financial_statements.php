@@ -3,19 +3,15 @@ session_start();
 if (!isset($_SESSION['user_id'])) {
     die('Unauthorized');
 }
-
 require_once('../Connections/coop.php');
 require_once('../libs/reports/IncomeExpenditureStatement.php');
 require_once('../libs/reports/BalanceSheet.php');
 require_once('../libs/reports/CashflowStatement.php');
-
 $periodid = intval($_GET['periodid'] ?? 0);
 $type = $_GET['type'] ?? 'income';
-
 if ($periodid <= 0) {
     die('Invalid period');
 }
-
 // Get period name
 $periodQuery = "SELECT PayrollPeriod FROM tbpayrollperiods WHERE id = ?";
 $stmt = mysqli_prepare($coop, $periodQuery);
@@ -24,13 +20,10 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $period = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
-
 $periodName = $period['PayrollPeriod'] ?? 'Unknown';
-
 // Generate statement
 $data = null;
 $filename = '';
-
 if ($type == 'income') {
     $generator = new IncomeExpenditureStatement($coop, $database);
     $result = $generator->generateStatement($periodid);
@@ -47,19 +40,15 @@ if ($type == 'income') {
     $data = $result['statement'][$periodid];
     $filename = 'Cashflow_Statement_' . str_replace(' ', '_', $periodName);
 }
-
 // Output as CSV
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
-
 $output = fopen('php://output', 'w');
-
 // Write header
 fputcsv($output, [strtoupper(str_replace('_', ' & ', $type)) . ' STATEMENT']);
 fputcsv($output, ['Period: ' . $periodName]);
 fputcsv($output, ['Generated: ' . date('d M Y, h:i A')]);
 fputcsv($output, []); // Empty line
-
 if ($type == 'income' && $data) {
     fputcsv($output, ['REVENUE', '']);
     fputcsv($output, ['Entrance Fee', number_format($data['revenue']['entrance_fee'], 2)]);
@@ -116,8 +105,5 @@ if ($type == 'income' && $data) {
     fputcsv($output, ['Cash Beginning', number_format($data['cash_beginning'], 2)]);
     fputcsv($output, ['Cash Ending', number_format($data['cash_ending'], 2)]);
 }
-
 fclose($output);
 exit;
-?>
-

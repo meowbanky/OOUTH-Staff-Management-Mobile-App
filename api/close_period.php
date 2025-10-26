@@ -1,15 +1,12 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }
-
 require_once('../Connections/coop.php');
 require_once('../libs/services/PeriodClosingProcessor.php');
-
 try {
     $periodid = intval($_POST['periodid'] ?? 0);
     
@@ -59,5 +56,3 @@ try {
         'error' => $e->getMessage()
     ]);
 }
-?>
-

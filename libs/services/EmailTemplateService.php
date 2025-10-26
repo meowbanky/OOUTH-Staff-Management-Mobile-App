@@ -1,5 +1,4 @@
 <?php
-
 class EmailTemplateService {
     private $db;
     private $database_name;
@@ -235,7 +234,6 @@ class EmailTemplateService {
             $metadata
         );
     }
-
     /**
      * Queue transaction summary emails for all members in a period
      */
@@ -285,4 +283,3 @@ class EmailTemplateService {
         return ['queued' => $queued, 'failed' => $failed];
     }
 }
-?>

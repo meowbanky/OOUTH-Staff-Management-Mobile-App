@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class IncomeExpenditureStatement {
     private $db;
     private $database_name;
@@ -197,5 +196,3 @@ class IncomeExpenditureStatement {
         return $total;
     }
 }
-?>
-

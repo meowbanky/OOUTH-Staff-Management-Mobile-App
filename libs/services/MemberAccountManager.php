@@ -7,7 +7,6 @@
  * @version 1.0
  * @author Cooperative Management System
  */
-
 class MemberAccountManager {
     private $db;
     private $database_name;
@@ -337,7 +336,6 @@ class MemberAccountManager {
         if ($member && empty($member['Phone'])) {
             $member['Phone'] = '';
         }
-
         return $member;
     }
     
@@ -463,5 +461,3 @@ class MemberAccountManager {
         }
     }
 }
-?>
-
