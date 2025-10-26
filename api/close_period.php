@@ -35,7 +35,7 @@ try {
     $appropriation['retained_earnings'] = $appropriation['surplus_amount'] - $total_appropriated;
     
     // Close period
-    $processor = new PeriodClosingProcessor($coop, $database_cov);
+    $processor = new PeriodClosingProcessor($coop, $database);
     $result = $processor->closePeriod($periodid, $_SESSION['user_id'], $appropriation);
     
     if ($result['success']) {

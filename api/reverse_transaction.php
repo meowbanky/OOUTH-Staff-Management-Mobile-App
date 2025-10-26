@@ -18,7 +18,7 @@ try {
         throw new Exception('Invalid member or period ID');
     }
     
-    $engine = new AccountingEngine($coop, $database_cov);
+    $engine = new AccountingEngine($coop, $database);
     
     // Find all journal entries for this member/period
     $sql = "SELECT id, entry_number, source_document, description, total_amount

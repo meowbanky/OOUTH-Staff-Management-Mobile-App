@@ -24,7 +24,7 @@ try {
         throw new Exception('Reason for reopening is required');
     }
     
-    $processor = new PeriodClosingProcessor($coop, $database_cov);
+    $processor = new PeriodClosingProcessor($coop, $database);
     $result = $processor->reopenPeriod($periodid, $_SESSION['user_id'], $reason);
     
     echo json_encode($result);

@@ -18,7 +18,7 @@ try {
         throw new Exception('Invalid parameters');
     }
     
-    $calculator = new AccountBalanceCalculator($coop, $database_cov);
+    $calculator = new AccountBalanceCalculator($coop, $database);
     $balance = $calculator->getAccountBalance($account_id, $periodid);
     
     echo json_encode([

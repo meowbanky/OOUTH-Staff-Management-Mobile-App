@@ -32,17 +32,17 @@ $data = null;
 $filename = '';
 
 if ($type == 'income') {
-    $generator = new IncomeExpenditureStatement($coop, $database_cov);
+    $generator = new IncomeExpenditureStatement($coop, $database);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Income_Expenditure_' . str_replace(' ', '_', $periodName);
 } elseif ($type == 'balance') {
-    $generator = new BalanceSheet($coop, $database_cov);
+    $generator = new BalanceSheet($coop, $database);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Balance_Sheet_' . str_replace(' ', '_', $periodName);
 } elseif ($type == 'cashflow') {
-    $generator = new CashflowStatement($coop, $database_cov);
+    $generator = new CashflowStatement($coop, $database);
     $result = $generator->generateStatement($periodid);
     $data = $result['statement'][$periodid];
     $filename = 'Cashflow_Statement_' . str_replace(' ', '_', $periodName);

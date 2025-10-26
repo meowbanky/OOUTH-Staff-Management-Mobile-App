@@ -29,7 +29,7 @@ try {
         throw new Exception('Period and bank account are required');
     }
     
-    $service = new BankReconciliationService($coop, $database_cov);
+    $service = new BankReconciliationService($coop, $database);
     $result = $service->createReconciliation($reconciliation_data);
     
     if ($result['success']) {

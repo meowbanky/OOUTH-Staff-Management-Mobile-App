@@ -49,7 +49,7 @@ try {
     }
     
     // Create accounting engine
-    $accountingEngine = new AccountingEngine($coop, $database_cov);
+    $accountingEngine = new AccountingEngine($coop, $database);
     
     // Create journal entry
     $result = $accountingEngine->createJournalEntry(
