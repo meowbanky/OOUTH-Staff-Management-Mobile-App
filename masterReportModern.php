@@ -986,7 +986,19 @@ $today = date('Y-m-d');
                 success: (response) => {
                     this.hideDeleteLoading();
                     if (response.success) {
-                        this.showSuccess(`${records.length} records deleted successfully`);
+                        // Build success message with accounting info
+                        let message = `Successfully deleted ${response.deleted_count} records`;
+                        if (response.journal_entries_reversed > 0) {
+                            message += `\n\n📒 Accounting: Reversed ${response.journal_entries_reversed} journal entries`;
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deletion Complete',
+                            html: message.replace(/\n/g, '<br>'),
+                            footer: response.accounting_impact ? `<small>${response.accounting_impact}</small>` : '',
+                            timer: 5000
+                        });
                         this.generateReport();
                     } else {
                         this.showError(response.message);

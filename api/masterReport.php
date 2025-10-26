@@ -2,6 +2,7 @@
 ini_set('max_execution_time', '600'); // Increased to 10 minutes for bulk operations
 require_once('../Connections/coop.php');
 include_once('../classes/model.php');
+require_once('../libs/services/AccountingEngine.php');
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -53,7 +54,7 @@ try {
 }
 
 function deleteRecords() {
-    global $conn;
+    global $conn, $coop, $database;
     
     if (!isset($_POST['records']) || !is_array($_POST['records'])) {
         throw new Exception('No records specified for deletion');
@@ -62,6 +63,7 @@ function deleteRecords() {
     $records = $_POST['records'];
     $validRecords = [];
     $errors = [];
+    $journalEntriesReversed = 0;
 
     // Validate all records first
     foreach ($records as $record) {
@@ -89,8 +91,43 @@ function deleteRecords() {
     try {
         // Start single transaction for all deletions
         $conn->beginTransaction();
+        
+        // Initialize accounting engine for journal reversals
+        $accountingEngine = new AccountingEngine($coop, $database);
 
-        // Prepare placeholders for bulk delete
+        // STEP 1: Reverse journal entries first (before deleting transactions)
+        foreach ($validRecords as $record) {
+            $coopId = $record[0];
+            $period = $record[1];
+            $sourceDoc = "DEDUCT-$coopId-$period";
+            
+            // Find the journal entry for this transaction
+            $journalQuery = "SELECT id, entry_number FROM coop_journal_entries 
+                            WHERE source_document = ? AND status = 'posted' AND is_reversed = FALSE";
+            $stmt = mysqli_prepare($coop, $journalQuery);
+            mysqli_stmt_bind_param($stmt, "s", $sourceDoc);
+            mysqli_stmt_execute($stmt);
+            $journalResult = mysqli_stmt_get_result($stmt);
+            
+            if ($journalEntry = mysqli_fetch_assoc($journalResult)) {
+                // Reverse the journal entry
+                $reverseResult = $accountingEngine->reverseEntry(
+                    $journalEntry['id'],
+                    $_SESSION['SESS_MEMBER_ID'] ?? 1,
+                    "Reversal due to transaction deletion for $coopId, Period $period"
+                );
+                
+                if ($reverseResult['success']) {
+                    $journalEntriesReversed++;
+                    error_log("Reversed journal entry {$journalEntry['entry_number']} for $coopId, period $period");
+                } else {
+                    error_log("Failed to reverse journal entry for $coopId, period $period: {$reverseResult['error']}");
+                }
+            }
+            mysqli_stmt_close($stmt);
+        }
+        
+        // STEP 2: Delete from all related tables in bulk
         $placeholders = str_repeat('(?,?),', count($validRecords));
         $placeholders = rtrim($placeholders, ',');
 
@@ -132,6 +169,8 @@ function deleteRecords() {
             'message' => "Successfully deleted records for " . count($validRecords) . " member-period combinations",
             'deleted_count' => count($validRecords),
             'total_rows_deleted' => $totalDeleted,
+            'journal_entries_reversed' => $journalEntriesReversed,
+            'accounting_impact' => $journalEntriesReversed > 0 ? "Reversed $journalEntriesReversed journal entries" : "No journal entries to reverse",
             'errors' => $errors
         ]);
 
