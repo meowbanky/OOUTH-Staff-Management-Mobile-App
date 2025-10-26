@@ -1,6 +1,7 @@
 <?php
 require_once('../Connections/coop.php');
 require_once __DIR__ . '/services/NotificationService.php';
+require_once __DIR__ . '/../libs/services/AccountingEngine.php';
 
 use App\Services\NotificationService;
 
@@ -10,8 +11,9 @@ ini_set('max_execution_time', 0);
 // Initialize services
 try {
     $notificationService = new NotificationService($coop);
+    $accountingEngine = new AccountingEngine($coop, $database);
 } catch (Exception $e) {
-    error_log("Failed to initialize notification service: " . $e->getMessage());
+    error_log("Failed to initialize services: " . $e->getMessage());
     exit;
 }
 
@@ -138,6 +140,13 @@ try {
 
             processPendingLoans($coop, $member['CoopID'], $periodID);
             processLoanSavings($coop, $member['CoopID'], $periodID);
+
+            // Create automatic journal entry for this member's transaction
+            try {
+                createMemberJournalEntry($accountingEngine, $coop, $member['CoopID'], $periodID);
+            } catch (Exception $e) {
+                error_log("Failed to create journal entry for {$member['CoopID']}: " . $e->getMessage());
+            }
 
             try {
                 $notificationService->sendTransactionNotification($member['CoopID'], $periodID);
@@ -448,4 +457,198 @@ function updateProgress($current, $total, $coopID) {
     ob_flush();
     flush();
 }
-?>
+
+/**
+ * Create automatic journal entry for member monthly deduction
+ * 
+ * This function creates a double-entry journal entry that records:
+ * - Bank receipts (Debit)
+ * - Member contributions to Shares, Savings, Loans, etc. (Credit)
+ */
+function createMemberJournalEntry($accountingEngine, $coop, $coopID, $periodID) {
+    // Get member name for description
+    $memberQuery = "SELECT CONCAT(FirstName, ' ', LastName) as name FROM tblemployees WHERE CoopID = ?";
+    $stmt = mysqli_prepare($coop, $memberQuery);
+    mysqli_stmt_bind_param($stmt, "s", $coopID);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $memberData = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+    
+    $memberName = $memberData['name'] ?? $coopID;
+    
+    // Get all transaction amounts for this member in this period
+    $transQuery = "SELECT 
+                    COALESCE(EntryFee, 0) as entry_fee,
+                    COALESCE(savingsAmount, 0) as savings,
+                    COALESCE(sharesAmount, 0) as shares,
+                    COALESCE(DevLevy, 0) as dev_levy,
+                    COALESCE(Stationery, 0) as stationery,
+                    COALESCE(InterestPaid, 0) as interest_paid,
+                    COALESCE(loanRepayment, 0) as loan_repayment,
+                    COALESCE(CommodityRepayment, 0) as commodity_repayment,
+                    COALESCE(Commodity, 0) as commodity
+                FROM tbl_mastertransact 
+                WHERE CoopID = ? AND TransactionPeriod = ?";
+    
+    $stmt = mysqli_prepare($coop, $transQuery);
+    mysqli_stmt_bind_param($stmt, "si", $coopID, $periodID);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $trans = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+    
+    if (!$trans) {
+        error_log("No transaction found for journal entry: $coopID, period: $periodID");
+        return;
+    }
+    
+    // Calculate total received from member
+    $totalReceived = $trans['entry_fee'] + $trans['savings'] + $trans['shares'] + 
+                     $trans['dev_levy'] + $trans['stationery'] + $trans['interest_paid'] + 
+                     $trans['loan_repayment'] + $trans['commodity_repayment'];
+    
+    // Skip if no transaction amount
+    if ($totalReceived <= 0) {
+        return;
+    }
+    
+    // Build journal entry lines
+    $lines = [];
+    
+    // DEBIT: Bank Account (Money received)
+    $lines[] = [
+        'account_id' => 4,  // Bank - Main Account (1102)
+        'debit_amount' => $totalReceived,
+        'credit_amount' => 0,
+        'description' => "Monthly deduction from $memberName",
+        'reference_type' => 'member',
+        'reference_id' => $coopID
+    ];
+    
+    // CREDITS: Member accounts (What the money was for)
+    
+    // 1. Entrance Fee Income
+    if ($trans['entry_fee'] > 0) {
+        $lines[] = [
+            'account_id' => 49,  // Entrance Fees Income (4101)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['entry_fee'],
+            'description' => "Entrance fee from $memberName"
+        ];
+    }
+    
+    // 2. Ordinary Savings
+    if ($trans['savings'] > 0) {
+        $lines[] = [
+            'account_id' => 37,  // Ordinary Savings (3201)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['savings'],
+            'description' => "Savings contribution from $memberName",
+            'reference_type' => 'member',
+            'reference_id' => $coopID
+        ];
+    }
+    
+    // 3. Ordinary Shares
+    if ($trans['shares'] > 0) {
+        $lines[] = [
+            'account_id' => 33,  // Ordinary Shares (3101)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['shares'],
+            'description' => "Shares contribution from $memberName",
+            'reference_type' => 'member',
+            'reference_id' => $coopID
+        ];
+    }
+    
+    // 4. Dev Levy (Operating Revenue or Other Income)
+    if ($trans['dev_levy'] > 0) {
+        $lines[] = [
+            'account_id' => 59,  // Miscellaneous Income (4299)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['dev_levy'],
+            'description' => "Development levy from $memberName"
+        ];
+    }
+    
+    // 5. Stationery (Operating Revenue)
+    if ($trans['stationery'] > 0) {
+        $lines[] = [
+            'account_id' => 59,  // Miscellaneous Income (4299)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['stationery'],
+            'description' => "Stationery fee from $memberName"
+        ];
+    }
+    
+    // 6. Interest Paid on Loans
+    if ($trans['interest_paid'] > 0) {
+        $lines[] = [
+            'account_id' => 50,  // Interest on Loans (4102)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['interest_paid'],
+            'description' => "Interest on loan from $memberName"
+        ];
+    }
+    
+    // 7. Loan Repayment (Reduces Member Loans Asset)
+    if ($trans['loan_repayment'] > 0) {
+        $lines[] = [
+            'account_id' => 6,  // Member Loans (1110)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['loan_repayment'],
+            'description' => "Loan repayment from $memberName",
+            'reference_type' => 'member',
+            'reference_id' => $coopID
+        ];
+    }
+    
+    // 8. Commodity Repayment
+    if ($trans['commodity_repayment'] > 0) {
+        $lines[] = [
+            'account_id' => 7,  // Account Receivables (1120)
+            'debit_amount' => 0,
+            'credit_amount' => $trans['commodity_repayment'],
+            'description' => "Commodity repayment from $memberName"
+        ];
+    }
+    
+    // Create the journal entry
+    $result = $accountingEngine->createJournalEntry(
+        $periodID,
+        date('Y-m-d'),
+        'member_transaction',
+        "Monthly deduction - $memberName (Period $periodID)",
+        $lines,
+        1,  // System user ID
+        "DEDUCT-$coopID-$periodID"
+    );
+    
+    if ($result['success']) {
+        // Automatically post the entry
+        $postResult = $accountingEngine->postEntry($result['entry_id']);
+        if ($postResult['success']) {
+            error_log("Journal entry created and posted for $coopID: Entry #{$result['entry_number']}");
+        } else {
+            error_log("Journal entry created but posting failed for $coopID: {$postResult['error']}");
+        }
+    } else {
+        error_log("Failed to create journal entry for $coopID: {$result['error']}");
+    }
+}
+
+function updateProgress($current, $total, $coopID) {
+    $percent = intval(($current / $total) * 100);
+    $percentDisplay = $percent . "%";
+    
+    // Debug logging
+    error_log("Progress Update: $current/$total = $percentDisplay for $coopID");
+    
+    // Send clean progress data that can be easily parsed
+    echo str_repeat(' ', 1024 * 64);
+    echo "PROGRESS_DATA: Processing $coopID ($current of $total employees) - $percentDisplay\n";
+    // echo "DEBUG: Sent progress data for $coopID\n";
+    ob_flush();
+    flush();
+}
