@@ -47,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $batches = $batchManager->getAllBatches();
 $totalBatches = count($batches);
 
+// Debug: Log batch data
+error_log("Home.php: Total batches found: " . $totalBatches);
+error_log("Home.php: Batches data: " . print_r($batches, true));
+
 // Include the view
 include 'views/batch-management.php';
 ?>

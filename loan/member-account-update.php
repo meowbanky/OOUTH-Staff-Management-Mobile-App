@@ -1,6 +1,6 @@
 <?php
 // Database connection
-require_once('Connections/coopSky.php');
+require_once('Connections/coop.php');
 require_once('classes/MemberAccountManager.php');
 require_once('classes/ResponseHandler.php');
 
@@ -8,7 +8,7 @@ require_once('classes/ResponseHandler.php');
 session_start();
 
 // Initialize classes
-$memberAccountManager = new MemberAccountManager($coopSky, $database_coopSky);
+$memberAccountManager = new MemberAccountManager($coop, $database_coop);
 $responseHandler = new ResponseHandler();
 
 // Fetch banks for the dropdown

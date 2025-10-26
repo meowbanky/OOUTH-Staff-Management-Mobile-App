@@ -1,69 +1,84 @@
+<!-- Debug: Batches count = <?= isset($batches) ? count($batches) : 'NOT SET' ?> -->
+<!-- Debug: Total batches = <?= isset($totalBatches) ? $totalBatches : 'NOT SET' ?> -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Batch Management System</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!-- Custom CSS -->
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
         }
-        
-        .card-hover {
-            transition: all 0.3s ease;
+
+        to {
+            transform: rotate(360deg);
         }
-        
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
-        
-        .loading-spinner {
-            animation: spin 1s linear infinite;
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    }
     </style>
-    
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#1E40AF',
-                        accent: '#F59E0B',
-                        success: '#10B981',
-                        danger: '#EF4444',
-                        warning: '#F59E0B',
-                        info: '#06B6D4'
-                    }
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#3B82F6',
+                    secondary: '#1E40AF',
+                    accent: '#F59E0B',
+                    success: '#10B981',
+                    danger: '#EF4444',
+                    warning: '#F59E0B',
+                    info: '#06B6D4'
                 }
             }
         }
+    }
     </script>
 </head>
 
@@ -82,19 +97,21 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="beneficiary.php" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all">
+                    <a href="beneficiary.php"
+                        class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all">
                         <i class="fas fa-users mr-2"></i>Beneficiaries
                     </a>
-                    <a href="member-account-update.php" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all">
+                    <a href="member-account-update.php"
+                        class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all">
                         <i class="fas fa-user-edit mr-2"></i>Update Member Accounts
                     </a>
                     <div class="text-white text-sm">
                         <i class="fas fa-user-circle mr-2"></i>
                         Welcome, <?= htmlspecialchars($_SESSION['complete_name'] ?? 'Admin') ?>
                     </div>
-                    <a href="logout.php" 
-                       class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all"
-                       onclick="return confirm('Are you sure you want to logout?')">
+                    <a href="logout.php"
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all"
+                        onclick="return confirm('Are you sure you want to logout?')">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
                 </div>
@@ -104,45 +121,50 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <!-- Login Success Message -->
         <?php if (isset($login_success) && $login_success): ?>
-            <div id="login-success-alert" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span>Welcome back, <?= htmlspecialchars($_SESSION['complete_name'] ?? 'Admin') ?>! You have successfully logged in.</span>
-                </div>
-                <button onclick="document.getElementById('login-success-alert').style.display='none'" class="text-green-500 hover:text-green-700">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div id="login-success-alert"
+            class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>Welcome back, <?= htmlspecialchars($_SESSION['complete_name'] ?? 'Admin') ?>! You have
+                    successfully logged in.</span>
             </div>
+            <button onclick="document.getElementById('login-success-alert').style.display='none'"
+                class="text-green-500 hover:text-green-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <?php endif; ?>
-        
+
         <!-- Auto-hide login success message -->
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const loginSuccessAlert = document.getElementById('login-success-alert');
-                if (loginSuccessAlert) {
-                    // Auto-hide after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginSuccessAlert = document.getElementById('login-success-alert');
+            if (loginSuccessAlert) {
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    loginSuccessAlert.style.transition = 'opacity 0.5s ease';
+                    loginSuccessAlert.style.opacity = '0';
                     setTimeout(function() {
-                        loginSuccessAlert.style.transition = 'opacity 0.5s ease';
-                        loginSuccessAlert.style.opacity = '0';
-                        setTimeout(function() {
-                            loginSuccessAlert.style.display = 'none';
-                        }, 500);
-                    }, 5000);
-                }
-            });
+                        loginSuccessAlert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            }
+        });
         </script>
-        
+
         <!-- Success/Error Messages -->
         <?php 
         $sessionMessage = $responseHandler->getSessionMessage();
         if ($sessionMessage): 
         ?>
-        <div class="mb-6 p-4 rounded-lg <?= $sessionMessage['type'] === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700' ?> fade-in">
+        <div
+            class="mb-6 p-4 rounded-lg <?= $sessionMessage['type'] === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700' ?> fade-in">
             <div class="flex items-center">
-                <i class="fas fa-<?= $sessionMessage['type'] === 'success' ? 'check-circle' : 'exclamation-circle' ?> mr-2"></i>
+                <i
+                    class="fas fa-<?= $sessionMessage['type'] === 'success' ? 'check-circle' : 'exclamation-circle' ?> mr-2"></i>
                 <span><?= htmlspecialchars($sessionMessage['text']) ?></span>
             </div>
         </div>
@@ -161,7 +183,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-green-100 text-green-600">
@@ -175,7 +197,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
@@ -202,37 +224,27 @@
             <div class="p-6">
                 <form id="batch-form" method="POST" class="space-y-6">
                     <input type="hidden" name="action" value="create_batch">
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="batch-number" class="block text-sm font-medium text-gray-700 mb-2">
                                 Batch Number
                             </label>
                             <div class="relative">
-                                <input 
-                                    type="text" 
-                                    id="batch-number" 
-                                    name="batch" 
+                                <input type="text" id="batch-number" name="batch"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                    placeholder="Enter batch number or generate one"
-                                    required
-                                />
-                                <button 
-                                    type="button" 
-                                    id="generate-batch" 
-                                    class="absolute right-2 top-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-secondary transition-all text-sm"
-                                >
+                                    placeholder="Enter batch number or generate one" required />
+                                <button type="button" id="generate-batch"
+                                    class="absolute right-2 top-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-secondary transition-all text-sm">
                                     <i class="fas fa-sync-alt mr-1"></i>
                                     Generate
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="flex items-end">
-                            <button 
-                                type="submit" 
-                                class="w-full bg-success hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center"
-                            >
+                            <button type="submit"
+                                class="w-full bg-success hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center justify-center">
                                 <i class="fas fa-save mr-2"></i>
                                 Create Batch
                             </button>
@@ -252,15 +264,12 @@
                     </h2>
                     <div class="flex items-center space-x-4">
                         <div class="relative">
-                            <input 
-                                type="text" 
-                                id="search-batches" 
-                                placeholder="Search batches..." 
-                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
+                            <input type="text" id="search-batches" placeholder="Search batches..."
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" />
                             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                         </div>
-                        <select id="items-per-page" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <select id="items-per-page"
+                            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option value="10">10 per page</option>
                             <option value="25">25 per page</option>
                             <option value="50">50 per page</option>
@@ -269,7 +278,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="overflow-x-auto">
                 <table id="batches-table" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -303,59 +312,63 @@
                             </td>
                         </tr>
                         <?php else: ?>
-                            <?php foreach ($batches as $batch): ?>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    #<?= htmlspecialchars($batch['batch_id']) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <?= htmlspecialchars($batch['batch_number']) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <?= $batch['transaction_count'] ?> transactions
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <?php if ($batch['transaction_count'] > 0): ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-check-circle mr-1"></i>
-                                            Active
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            <i class="fas fa-clock mr-1"></i>
-                                            Pending
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <a href="beneficiary.php?Session_batch=<?= urlencode($batch['batch_number']) ?>&Batchid_session=<?= $batch['batch_id'] ?>" 
-                                           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-primary hover:bg-secondary transition-all">
-                                            <i class="fas fa-plus mr-1"></i>
-                                            Add Payment
-                                        </a>
-                                        <a href="sendsms.php?batch=<?= urlencode($batch['batch_number']) ?>" 
-                                           onclick="return confirm('Are you sure you want to send SMS to this batch?')"
-                                           class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-info hover:bg-blue-600 transition-all">
-                                            <i class="fas fa-sms mr-1"></i>
-                                            Send SMS
-                                        </a>
-                                        <button onclick="postAccount('<?= htmlspecialchars($batch['batch_number']) ?>'); console.log('Button clicked for batch: <?= htmlspecialchars($batch['batch_number']) ?>');" 
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-warning hover:bg-yellow-600 transition-all">
-                                            <i class="fas fa-upload mr-1"></i>
-                                            Post Account
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                        <?php foreach ($batches as $batch): ?>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                #<?= htmlspecialchars($batch['batch_id']) ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <?= htmlspecialchars($batch['batch_number']) ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <?= $batch['transaction_count'] ?> transactions
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <?php if ($batch['transaction_count'] > 0): ?>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    Active
+                                </span>
+                                <?php else: ?>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    Pending
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="beneficiary.php?Session_batch=<?= urlencode($batch['batch_number']) ?>&Batchid_session=<?= $batch['batch_id'] ?>"
+                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-primary hover:bg-secondary transition-all">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        Add Payment
+                                    </a>
+                                    <a href="sendsms.php?batch=<?= urlencode($batch['batch_number']) ?>"
+                                        onclick="return confirm('Are you sure you want to send SMS to this batch?')"
+                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-info hover:bg-blue-600 transition-all">
+                                        <i class="fas fa-sms mr-1"></i>
+                                        Send SMS
+                                    </a>
+                                    <button
+                                        onclick="postAccount('<?= htmlspecialchars($batch['batch_number']) ?>'); console.log('Button clicked for batch: <?= htmlspecialchars($batch['batch_number']) ?>');"
+                                        class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-warning hover:bg-yellow-600 transition-all">
+                                        <i class="fas fa-upload mr-1"></i>
+                                        Post Account
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Pagination -->
             <?php if ($totalBatches > 0): ?>
             <div class="flex items-center justify-between px-6 py-4 bg-gray-50 border-t border-gray-200">
@@ -433,9 +446,9 @@
                         <label for="payroll-period" class="block text-sm font-medium text-gray-700 mb-2">
                             Select Payroll Period <span class="text-red-500">*</span>
                         </label>
-                        <select id="payroll-period" name="payroll_period_id" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                required>
+                        <select id="payroll-period" name="payroll_period_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            required>
                             <option value="">Select Payroll Period</option>
                             <!-- Periods will be loaded dynamically -->
                         </select>
@@ -446,8 +459,8 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Batch Beneficiaries</h3>
                             <div class="flex items-center">
-                                <input type="checkbox" id="select-all-beneficiaries" 
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                                <input type="checkbox" id="select-all-beneficiaries"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
                                 <label for="select-all-beneficiaries" class="ml-2 text-sm text-gray-700">
                                     Select All
                                 </label>
@@ -457,16 +470,30 @@
                             <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
-                                            <input type="checkbox" id="select-all-beneficiaries-header" 
-                                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                                            <input type="checkbox" id="select-all-beneficiaries-header"
+                                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                checked>
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coop ID</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member Name</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account No</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Coop ID</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Member Name</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Bank</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Account No</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Amount</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="beneficiaries-table-body" class="bg-white divide-y divide-gray-200">
@@ -485,10 +512,12 @@
 
                 <!-- Modal Footer -->
                 <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                    <button id="cancel-loan" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <button id="cancel-loan"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Cancel
                     </button>
-                    <button id="save-loan" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <button id="save-loan"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                         <i class="fas fa-save mr-2"></i>
                         Save Loan
                     </button>
@@ -499,4 +528,5 @@
 
     <script src="js/batch-management.js"></script>
 </body>
+
 </html>

@@ -6,8 +6,11 @@ $hostname = "localhost";
 $database = "emmaggic_coop";
 $username = "emmaggic_root";
 $password = "Oluwaseyi";
-$coop = mysqli_connect($hostname, $username, $password) or trigger_error(mysqli_error($coop),E_USER_ERROR);
-mysqli_select_db($coop, $database) or trigger_error(mysqli_error($coop),E_USER_ERROR);
+$coop = mysqli_connect($hostname, $username, $password);
+if (!$coop) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+mysqli_select_db($coop, $database) or die("Database selection failed: " . mysqli_error($coop));
 
 // Set charset to utf8
 mysqli_set_charset($coop, "utf8"); 

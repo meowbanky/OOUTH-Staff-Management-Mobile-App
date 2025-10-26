@@ -21,6 +21,11 @@ class MemberAccountManager {
                         e.FirstName,
                         e.MiddleName,
                         e.LastName,
+                        e.EmailAddress,
+                        e.MobileNumber,
+                        e.StreetAddress,
+                        e.Department,
+                        e.JobPosition,
                         a.Bank,
                         a.AccountNo,
                         a.bank_code,
@@ -193,10 +198,10 @@ class MemberAccountManager {
                         MiddleName = '$middleName',
                         LastName = '$lastName',
                         EmailAddress = '$email',
-                        PhoneNumber = '$phone',
-                        Address = '$address',
+                        MobileNumber = '$phone',
+                        StreetAddress = '$address',
                         Department = '$department',
-                        Position = '$position'
+                        JobPosition = '$position'
                     WHERE CoopID = '$coopId'";
             
             if (!mysqli_query($this->connection, $sql)) {

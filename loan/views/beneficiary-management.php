@@ -12,46 +12,46 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!-- Custom CSS for Autocomplete -->
     <style>
-        .ui-autocomplete {
-            max-height: 300px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            background: white;
-            z-index: 1000;
-        }
-        
-        .ui-autocomplete .ui-menu-item {
-            border: none;
-            margin: 0;
-        }
-        
-        .ui-autocomplete .ui-menu-item-wrapper {
-            padding: 0;
-            border: none;
-            background: transparent;
-        }
-        
-        .ui-autocomplete .ui-state-active {
-            background: #dbeafe;
-            border: none;
-        }
-        
-        .ui-autocomplete .ui-state-hover {
-            background: #f3f4f6;
-            border: none;
-        }
-        
-        /* Loading indicator */
-        .ui-autocomplete-loading {
-            background: white url('data:image/svg+xml;charset=utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>') no-repeat right center;
-            background-size: 20px 20px;
-        }
+    .ui-autocomplete {
+        max-height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        background: white;
+        z-index: 1000;
+    }
+
+    .ui-autocomplete .ui-menu-item {
+        border: none;
+        margin: 0;
+    }
+
+    .ui-autocomplete .ui-menu-item-wrapper {
+        padding: 0;
+        border: none;
+        background: transparent;
+    }
+
+    .ui-autocomplete .ui-state-active {
+        background: #dbeafe;
+        border: none;
+    }
+
+    .ui-autocomplete .ui-state-hover {
+        background: #f3f4f6;
+        border: none;
+    }
+
+    /* Loading indicator */
+    .ui-autocomplete-loading {
+        background: white url('data:image/svg+xml;charset=utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>') no-repeat right center;
+        background-size: 20px 20px;
+    }
     </style>
 </head>
 
@@ -89,9 +89,9 @@
                         <i class="fas fa-user-circle mr-1"></i>
                         <?= htmlspecialchars($_SESSION['complete_name'] ?? 'Admin') ?>
                     </div>
-                    <a href="logout.php" 
-                       class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                       onclick="return confirm('Are you sure you want to logout?')">
+                    <a href="logout.php"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                        onclick="return confirm('Are you sure you want to logout?')">
                         <i class="fas fa-sign-out-alt mr-2"></i>
                         Logout
                     </a>
@@ -110,7 +110,8 @@
                     <i class="fas fa-university text-green-600 mr-2"></i>
                     Edit Member Bank Details
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Update bank details for any member, even if they're not in the current batch</p>
+                <p class="text-sm text-gray-600 mt-1">Update bank details for any member, even if they're not in the
+                    current batch</p>
             </div>
             <div class="p-6">
                 <div class="max-w-md">
@@ -118,17 +119,17 @@
                         Search Member
                     </label>
                     <div class="relative">
-                        <input type="text" id="standalone-member-search" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                               placeholder="Type member ID or name..." autocomplete="off">
-                        <button type="button" id="clear-standalone-search" 
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
+                        <input type="text" id="standalone-member-search"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            placeholder="Type member ID or name..." autocomplete="off">
+                        <button type="button" id="clear-standalone-search"
+                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <button type="button" id="open-standalone-bank-edit" 
-                            class="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            disabled>
+                    <button type="button" id="open-standalone-bank-edit"
+                        class="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled>
                         <i class="fas fa-university mr-2"></i>
                         Edit Bank Details
                     </button>
@@ -303,9 +304,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
-                                    <span class="edit-bank-name text-blue-600 hover:text-blue-800 cursor-pointer" 
-                                          data-beneficiary='<?php echo htmlspecialchars(json_encode($beneficiary), ENT_QUOTES, 'UTF-8'); ?>'
-                                          title="Edit Bank Details">
+                                    <span class="edit-bank-name text-blue-600 hover:text-blue-800 cursor-pointer"
+                                        data-beneficiary='<?php echo htmlspecialchars(json_encode($beneficiary), ENT_QUOTES, 'UTF-8'); ?>'
+                                        title="Edit Bank Details">
                                         <?php echo htmlspecialchars($beneficiary['BeneficiaryName']); ?>
                                     </span>
                                 </div>
@@ -324,7 +325,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center space-x-2">
-                                    <button type="button" class="edit-bank text-green-600 hover:text-green-800" 
+                                    <button type="button" class="edit-bank text-green-600 hover:text-green-800"
                                         data-beneficiary='<?php echo htmlspecialchars(json_encode($beneficiary), ENT_QUOTES, 'UTF-8'); ?>'
                                         title="Edit Bank Details">
                                         <i class="fas fa-university"></i>
@@ -434,8 +435,8 @@
                         <!-- Member Info (Read-only) -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Member</label>
-                            <input type="text" id="modal-member-name" readonly 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                            <input type="text" id="modal-member-name" readonly
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
                             <input type="hidden" id="modal-member-id">
                         </div>
 
@@ -444,9 +445,9 @@
                             <label for="modal-bank" class="block text-sm font-medium text-gray-700 mb-1">
                                 Bank Name <span class="text-red-500">*</span>
                             </label>
-                            <select id="modal-bank" name="bank" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    required>
+                            <select id="modal-bank" name="bank"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required>
                                 <option value="">Select Bank</option>
                                 <!-- Banks will be loaded dynamically -->
                             </select>
@@ -457,9 +458,9 @@
                             <label for="modal-account-no" class="block text-sm font-medium text-gray-700 mb-1">
                                 Account Number <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="modal-account-no" name="account_no" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="Enter account number" required>
+                            <input type="text" id="modal-account-no" name="account_no"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter account number" required>
                         </div>
 
                         <!-- Bank Code -->
@@ -468,18 +469,20 @@
                                 Bank Code
                             </label>
                             <input type="text" id="modal-bank-code" name="bank_code" readonly
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                                   placeholder="Bank code will be auto-filled">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                                placeholder="Bank code will be auto-filled">
                         </div>
                     </form>
                 </div>
 
                 <!-- Modal Footer -->
                 <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                    <button id="cancel-bank-edit" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <button id="cancel-bank-edit"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Cancel
                     </button>
-                    <button id="save-bank-edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <button id="save-bank-edit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         <i class="fas fa-save mr-2"></i>
                         Save Changes
                     </button>

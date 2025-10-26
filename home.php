@@ -353,6 +353,177 @@ include 'includes/header.php';
     </div>
     <?php endif; ?>
 
+    <!-- ==================== ACCOUNTING MODULE SECTION ==================== -->
+    
+    <!-- Chart of Accounts (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                <i class="fas fa-list-alt text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Chart of Accounts</h3>
+        </div>
+        <p class="text-gray-600 mb-4">View and manage account structure.</p>
+        <a href="coop_chart_of_accounts.php"
+            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            View Accounts
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Journal Entries (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-violet-100 text-violet-600">
+                <i class="fas fa-book text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Journal Entries</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Create and manage journal entries.</p>
+        <div class="flex gap-2">
+            <a href="coop_journal_entry_form.php"
+                class="inline-flex items-center px-3 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm">
+                <i class="fas fa-plus mr-2"></i>
+                New Entry
+            </a>
+            <a href="coop_journal_entries.php"
+                class="inline-flex items-center px-3 py-2 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition-colors text-sm">
+                <i class="fas fa-list mr-2"></i>
+                View All
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Trial Balance (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-pink-100 text-pink-600">
+                <i class="fas fa-balance-scale text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Trial Balance</h3>
+        </div>
+        <p class="text-gray-600 mb-4">View accounting trial balance.</p>
+        <a href="coop_trial_balance.php"
+            class="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            View Trial Balance
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Financial Statements (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-rose-100 text-rose-600">
+                <i class="fas fa-file-invoice-dollar text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Financial Statements</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Income, Balance Sheet, Cashflow reports.</p>
+        <a href="coop_financial_statements.php"
+            class="inline-flex items-center px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            View Statements
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- General Ledger (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-fuchsia-100 text-fuchsia-600">
+                <i class="fas fa-book-open text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">General Ledger</h3>
+        </div>
+        <p class="text-gray-600 mb-4">View account-wise ledger entries.</p>
+        <a href="coop_general_ledger.php"
+            class="inline-flex items-center px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            View Ledger
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Member Statement (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-sky-100 text-sky-600">
+                <i class="fas fa-user-circle text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Member Statement</h3>
+        </div>
+        <p class="text-gray-600 mb-4">View member account statements.</p>
+        <a href="coop_member_statement.php"
+            class="inline-flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            Member Statements
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Period Closing (Admin Only) -->
+    <?php if ($userRole == 'Admin'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-amber-100 text-amber-600">
+                <i class="fas fa-calendar-check text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Period Closing</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Close accounting periods.</p>
+        <a href="coop_period_closing.php"
+            class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            Close Period
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Bank Reconciliation (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-lime-100 text-lime-600">
+                <i class="fas fa-building text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Bank Reconciliation</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Reconcile bank statements.</p>
+        <a href="coop_bank_reconciliation.php"
+            class="inline-flex items-center px-4 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            Reconcile Bank
+        </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Comparative Reports (Admin & Accountant) -->
+    <?php if ($userRole == 'Admin' || $userRole == 'Accountant'): ?>
+    <div class="bg-white rounded-lg shadow-lg p-6 card-hover">
+        <div class="flex items-center mb-4">
+            <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                <i class="fas fa-chart-line text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 ml-4">Comparative Reports</h3>
+        </div>
+        <p class="text-gray-600 mb-4">Compare financial periods.</p>
+        <a href="coop_comparative_reports.php"
+            class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+            <i class="fas fa-arrow-right mr-2"></i>
+            View Reports
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Process Deduction (Admin Only) -->
     <?php if ($userRole == 'Admin'): ?>
     <div class="bg-white rounded-lg shadow-lg p-6 card-hover">

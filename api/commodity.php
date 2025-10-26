@@ -35,8 +35,8 @@ function getCommodities() {
     $period = $_POST['period'] ?? '';
     
     // Debug logging
-    error_log("Commodity API - Period received: " . $period);
-    error_log("Commodity API - POST data: " . print_r($_POST, true));
+    // error_log("Commodity API - Period received: " . $period);
+    // error_log("Commodity API - POST data: " . print_r($_POST, true));
     
     if (empty($period)) {
         echo json_encode(['success' => false, 'message' => 'Period is required']);
@@ -66,7 +66,7 @@ function getCommodities() {
             LEFT JOIN tblemployees e ON c.coopID = e.CoopID
             LEFT JOIN tbpayrollperiods p ON c.Period = p.id
             WHERE c.Period = ?
-            ORDER BY c.dateOfInsertion DESC
+            ORDER BY c.commodity_id DESC
         ");
         
         $query->execute([$period]);

@@ -131,11 +131,7 @@ class BatchManager {
                     GROUP BY tbl_batch.Batch 
                     ORDER BY batch_id DESC";
             
-            // Log the exact SQL query being executed
-            error_log("========================================");
-            error_log("BatchManager::getAllBatches() - SQL Query:");
-            error_log($sql);
-            error_log("========================================");
+        
             
             $result = mysqli_query($this->connection, $sql);
             if (!$result) {
@@ -145,7 +141,7 @@ class BatchManager {
                 throw new Exception("Query failed: " . mysqli_error($this->connection));
             }
             
-            error_log("BatchManager: Query executed successfully!");
+            
             
             $batches = [];
             while ($row = mysqli_fetch_assoc($result)) {
@@ -156,7 +152,7 @@ class BatchManager {
             if (count($batches) > 0) {
                 error_log("BatchManager: First batch sample: " . print_r($batches[0], true));
             }
-            error_log("========================================");
+           
             
             mysqli_free_result($result);
             return $batches;

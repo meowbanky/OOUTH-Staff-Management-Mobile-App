@@ -30,10 +30,13 @@ if (isset($_GET['Session_batch'])) {
 
 // Handle legacy GET requests for deletion
 if (isset($_GET['beneficiaryCode']) && isset($_SESSION['Batch'])) {
-    $response = $beneficiaryManager->deleteBeneficiary($_GET['beneficiaryCode'], $_SESSION['Batch']);
-    if ($response['success']) {
-        header("Location: beneficiary.php?Session_batch=" . urlencode($_SESSION['Batch']));
-        exit();
+    $batch = $_SESSION['Batch'] ?? '';
+    if (!empty($batch)) {
+        $response = $beneficiaryManager->deleteBeneficiary($_GET['beneficiaryCode'], $batch);
+        if ($response['success']) {
+            header("Location: beneficiary.php?Session_batch=" . urlencode($batch));
+            exit();
+        }
     }
 }
 

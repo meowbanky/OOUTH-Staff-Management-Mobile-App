@@ -193,10 +193,10 @@ class MemberAccountManager {
     $("#middle_name").val(memberData.MiddleName || "");
     $("#last_name").val(memberData.LastName || "");
     $("#email").val(memberData.EmailAddress || "");
-    $("#phone").val(memberData.PhoneNumber || "");
-    $("#address").val(memberData.Address || "");
+    $("#phone").val(memberData.MobileNumber || "");
+    $("#address").val(memberData.StreetAddress || "");
     $("#department").val(memberData.Department || "");
-    $("#position").val(memberData.Position || "");
+    $("#position").val(memberData.JobPosition || "");
 
     // Populate account information form
     $("#bank").val(memberData.Bank || "");
