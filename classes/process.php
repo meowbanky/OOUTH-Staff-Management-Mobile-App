@@ -443,21 +443,6 @@ function processLoanSavings($coop, $coopID, $periodID) {
     }
 }
 
-function updateProgress($current, $total, $coopID) {
-    $percent = intval(($current / $total) * 100);
-    $percentDisplay = $percent . "%";
-    
-    // Debug logging
-    error_log("Progress Update: $current/$total = $percentDisplay for $coopID");
-    
-    // Send clean progress data that can be easily parsed
-    echo str_repeat(' ', 1024 * 64);
-    echo "PROGRESS_DATA: Processing $coopID ($current of $total employees) - $percentDisplay\n";
-    // echo "DEBUG: Sent progress data for $coopID\n";
-    ob_flush();
-    flush();
-}
-
 /**
  * Create automatic journal entry for member monthly deduction
  * 
