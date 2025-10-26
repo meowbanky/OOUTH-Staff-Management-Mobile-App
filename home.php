@@ -168,7 +168,9 @@ if ($accountsExist && mysqli_num_rows($accountsExist) > 0) {
             
             // Check trial balance
             $trialBalance = $calculator->getTrialBalance($currentPeriodId);
-            $trialBalanced = abs($trialBalance['total_debit'] - $trialBalance['total_credit']) < 0.01;
+            $totalDebit = $trialBalance['total_debit'] ?? 0;
+            $totalCredit = $trialBalance['total_credit'] ?? 0;
+            $trialBalanced = abs($totalDebit - $totalCredit) < 0.01;
             $totalAssets = $cashBalance + $loansBalance;
             $memberEquity = $savingsBalance + $sharesBalance;
             ?>
