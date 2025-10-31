@@ -214,7 +214,7 @@ class LoanManager {
     }
     
     /**
-     * Post account - Insert beneficiaries as loans
+     * Post account - Insert beneficiaries as loan approvals
      */
     public function postAccount($batchNumber, $loanPeriod, $payrollPeriodId, $selectedBeneficiaries = null) {
         try {
@@ -251,7 +251,7 @@ class LoanManager {
                     $loanAmount = floatval($beneficiary['Amount']);
                     $monthlyRepayment = $loanAmount / $loanPeriod; // Calculate monthly repayment
                     
-                    error_log("CoopID: $coopId, Amount: $loanAmount, MonthlyRepayment: $monthlyRepayment");
+                    error_log("CoopID: $coopId, Amount: $loanAmount, Period: $payrollPeriodId");
                     
                     // Check if member exists
                     $checkMember = "SELECT CoopID FROM tblemployees WHERE CoopID = '$coopId'";
@@ -275,43 +275,43 @@ class LoanManager {
                         continue;
                     }
                     
-                    // Check if loan already exists for this member and loan period (prevent duplicate loans)
-                    $checkLoan = "SELECT loan_id FROM tbl_loans WHERE CoopID = '$coopId' AND LoanPeriod = '$payrollPeriodId' AND LoanStatus = 1";
-                    $loanResult = mysqli_query($this->connection, $checkLoan);
+                    // Check if loan approval already exists for this coopID and period (prevent duplicates)
+                    $checkApproval = "SELECT id FROM tbl_loanapproval WHERE coopID = '$coopId' AND period = '$payrollPeriodId'";
+                    $approvalResult = mysqli_query($this->connection, $checkApproval);
                     
-                    if (mysqli_num_rows($loanResult) > 0) {
-                        $error = "Active loan already exists for member: $coopId with loan period: $payrollPeriodId months";
+                    if (mysqli_num_rows($approvalResult) > 0) {
+                        $error = "Loan approval already exists for member: $coopId in period: $payrollPeriodId";
                         error_log($error);
                         $errors[] = $error;
                         continue;
                     }
                     
-                    // Insert loan
-                    $sql = "INSERT INTO tbl_loans 
-                            (CoopID, DateOfLoanApp, LoanAmount, MonthlyRepayment, LoanStatus, StationeryStatus, LoanPeriod) 
-                            VALUES ('$coopId', '$today', $loanAmount, $monthlyRepayment, 1, 0, $payrollPeriodId)";
+                    // Insert into tbl_loanapproval
+                    $sql = "INSERT INTO tbl_loanapproval 
+                            (coopID, period, approvalDate, LoanAmount, MonthlyRepayment, batch) 
+                            VALUES ('$coopId', '$payrollPeriodId', '$today', $loanAmount, $monthlyRepayment, '$batchNumber')";
                     
                     error_log("Executing insert: " . $sql);
                     
                     if (!mysqli_query($this->connection, $sql)) {
-                        $error = "Failed to insert loan for member: " . $coopId . " - " . mysqli_error($this->connection);
+                        $error = "Failed to insert loan approval for member: " . $coopId . " - " . mysqli_error($this->connection);
                         error_log($error);
                         $errors[] = $error;
                         continue;
                     }
                     
                     $insertedCount++;
-                    error_log("Successfully inserted loan for member: $coopId");
+                    error_log("Successfully inserted loan approval for member: $coopId");
                 }
                 
                 // Commit transaction
                 mysqli_commit($this->connection);
                 
-                // Check if any loans were actually inserted
+                // Check if any loan approvals were actually inserted
                 if ($insertedCount == 0) {
                     $result = [
                         'success' => false,
-                        'message' => "No loans were inserted. All beneficiaries were skipped due to validation errors.",
+                        'message' => "No loan approvals were inserted. All beneficiaries were skipped due to validation errors.",
                         'data' => [
                             'batch_number' => $batchNumber,
                             'inserted_count' => $insertedCount,
@@ -322,7 +322,7 @@ class LoanManager {
                 } else {
                     $result = [
                         'success' => true,
-                        'message' => "Successfully posted $insertedCount loans from batch: $batchNumber",
+                        'message' => "Successfully posted $insertedCount loan approvals from batch: $batchNumber",
                         'data' => [
                             'batch_number' => $batchNumber,
                             'inserted_count' => $insertedCount,
