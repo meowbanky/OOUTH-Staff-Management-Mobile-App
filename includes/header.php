@@ -138,48 +138,246 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
     .ui-menu-item:last-child {
         border-bottom: none;
     }
+
+    /* Sidebar styles */
+    .sidebar {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar-overlay {
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+    }
+
+    .menu-item {
+        transition: all 0.2s ease;
+    }
+
+    .menu-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .menu-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        border-left: 4px solid white;
+    }
     </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="gradient-bg shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-                <!-- Logo and Title -->
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-white/20 p-2 rounded-lg">
-                            <i class="fas fa-university text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-white text-xl font-bold">OOUTH COOP</h1>
-                            <p class="text-white/80 text-sm">Cooperative Management System</p>
-                        </div>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-purple-800 to-indigo-900 text-white shadow-2xl z-50 overflow-y-auto">
+        <div class="p-4">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 mb-8 pb-4 border-b border-white/20">
+                <div class="bg-white/20 p-2 rounded-lg">
+                    <i class="fas fa-university text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-white text-lg font-bold">OOUTH COOP</h1>
+                    <p class="text-white/80 text-xs">Management System</p>
+                </div>
+            </div>
+
+            <!-- Menu Items -->
+            <nav class="space-y-1">
+                <!-- Dashboard -->
+                <a href="home.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'home.php' ? 'active' : '' ?>">
+                    <i class="fas fa-home w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <?php if (($userRole == 'Admin') || ($userRole == 'user')): ?>
+                <!-- Process Loan -->
+                <a href="loan-processor.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-shopping-cart w-5"></i>
+                    <span>Process Loan</span>
+                </a>
+                <?php endif; ?>
+
+                <?php if ($userRole == 'Admin'): ?>
+                <!-- Reports -->
+                <a href="masterReportModern.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-chart-bar w-5"></i>
+                    <span>Reports</span>
+                </a>
+
+                <!-- Enquiry -->
+                <a href="enquiry.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-search w-5"></i>
+                    <span>Enquiry</span>
+                </a>
+
+                <!-- Commodity -->
+                <a href="procesCommodity.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-exchange-alt w-5"></i>
+                    <span>Commodity</span>
+                </a>
+
+                <!-- Periods -->
+                <a href="payperiods.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-table w-5"></i>
+                    <span>Periods</span>
+                </a>
+
+                <!-- Process Deduction -->
+                <a href="payprocess.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-cogs w-5"></i>
+                    <span>Process Deduction</span>
+                </a>
+
+                <!-- Users -->
+                <a href="users.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-users w-5"></i>
+                    <span>Users</span>
+                </a>
+
+                <!-- Records -->
+                <a href="employee.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-user w-5"></i>
+                    <span>Records</span>
+                </a>
+
+                <!-- Update Deductions -->
+                <a href="update_deduction.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-edit w-5"></i>
+                    <span>Update Deductions</span>
+                </a>
+
+                <!-- Print List -->
+                <a href="print_member.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-print w-5"></i>
+                    <span>Print List</span>
+                </a>
+
+                <!-- File Upload -->
+                <a href="api_upload.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-cloud-download-alt w-5"></i>
+                    <span>File Upload</span>
+                </a>
+
+                <!-- Settings -->
+                <a href="#" id="sidebar_settings" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>Settings</span>
+                </a>
+
+                <!-- Accounting Section Divider -->
+                <?php 
+                $accountsExist = mysqli_query($coop ?? null, "SHOW TABLES LIKE 'coop_accounts'");
+                if ($accountsExist && mysqli_num_rows($accountsExist) > 0): 
+                ?>
+                <div class="pt-4 pb-2 px-4">
+                    <div class="flex items-center space-x-2 text-white/60 text-xs font-semibold uppercase tracking-wider">
+                        <i class="fas fa-calculator"></i>
+                        <span>Accounting</span>
                     </div>
                 </div>
+                <?php endif; ?>
+                <?php endif; ?>
 
-                <!-- Navigation and User Info -->
-                <div class="flex items-center space-x-4">
-                    <!-- Back to Dashboard Button (if not on home page) -->
-                    <?php if (basename($currentPage) !== 'home.php'): ?>
-                    <a href="home.php"
-                        class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
-                    </a>
-                    <?php endif; ?>
+                <?php if (($userRole == 'Admin' || $userRole == 'Accountant') && $accountsExist && mysqli_num_rows($accountsExist) > 0): ?>
+                <!-- Chart of Accounts -->
+                <a href="coop_chart_of_accounts.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-list-alt w-5"></i>
+                    <span>Chart of Accounts</span>
+                </a>
 
+                <!-- Journal Entries -->
+                <a href="coop_journal_entries.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-book w-5"></i>
+                    <span>Journal Entries</span>
+                </a>
+
+                <!-- Trial Balance -->
+                <a href="coop_trial_balance.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-balance-scale w-5"></i>
+                    <span>Trial Balance</span>
+                </a>
+
+                <!-- Financial Statements -->
+                <a href="coop_financial_statements.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-file-invoice-dollar w-5"></i>
+                    <span>Financial Statements</span>
+                </a>
+
+                <!-- General Ledger -->
+                <a href="coop_general_ledger.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-book-open w-5"></i>
+                    <span>General Ledger</span>
+                </a>
+
+                <!-- Member Statement -->
+                <a href="coop_member_statement.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-user-circle w-5"></i>
+                    <span>Member Statement</span>
+                </a>
+
+                <?php if ($userRole == 'Admin'): ?>
+                <!-- Period Closing -->
+                <a href="coop_period_closing.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span>Period Closing</span>
+                </a>
+                <?php endif; ?>
+
+                <!-- Bank Reconciliation -->
+                <a href="coop_bank_reconciliation.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-building w-5"></i>
+                    <span>Bank Reconciliation</span>
+                </a>
+
+                <!-- Comparative Reports -->
+                <a href="coop_comparative_reports.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Comparative Reports</span>
+                </a>
+                <?php endif; ?>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay (for mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg fixed top-0 left-0 right-0 z-30 lg:left-64">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Mobile Menu Toggle -->
+                <button id="menu-toggle" class="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <!-- Page Title -->
+                <div class="flex-1 text-center lg:text-left lg:ml-4">
+                    <h2 class="text-white text-lg font-semibold"><?= htmlspecialchars($pageTitle) ?></h2>
+                </div>
+
+                <!-- User Info and Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <!-- User Info -->
-                    <div class="text-white text-sm">
-                        <i class="fas fa-user-circle mr-2"></i>
-                        Welcome, <?= htmlspecialchars($userName) ?>
-                        <span class="text-white/80">(<?= htmlspecialchars($userRole) ?>)</span>
+                    <div class="hidden sm:block text-white text-sm">
+                        <i class="fas fa-user-circle mr-1"></i>
+                        <?= htmlspecialchars($userName) ?>
+                        <span class="text-white/80 text-xs">(<?= htmlspecialchars($userRole) ?>)</span>
                     </div>
 
                     <!-- Logout Button -->
                     <a href="logout.php"
-                        class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg transition-colors text-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden sm:inline ml-1">Logout</span>
                     </a>
                 </div>
             </div>
@@ -187,4 +385,49 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
     </header>
 
     <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="pt-20 lg:ml-64 px-4 sm:px-6 lg:px-8 py-8">
+    
+    <script>
+    // Sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        
+        function openSidebar() {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        menuToggle?.addEventListener('click', function() {
+            if (sidebar.classList.contains('open')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+        
+        sidebarOverlay?.addEventListener('click', closeSidebar);
+        
+        // Close sidebar on window resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        });
+        
+        // Settings modal trigger from sidebar
+        document.getElementById('sidebar_settings')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeSidebar();
+            document.getElementById('link_deletetransaction')?.click();
+        });
+    });
+    </script>
