@@ -201,7 +201,7 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
                 <?php if (($userRole == 'Admin') || ($userRole == 'user')): ?>
                 <!-- Process Loan -->
-                <a href="loan-processor.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="loan-processor.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'loan-processor.php' ? 'active' : '' ?>">
                     <i class="fas fa-shopping-cart w-5"></i>
                     <span>Process Loan</span>
                 </a>
@@ -209,61 +209,61 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
                 <?php if ($userRole == 'Admin'): ?>
                 <!-- Reports -->
-                <a href="masterReportModern.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="masterReportModern.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'masterReportModern.php' ? 'active' : '' ?>">
                     <i class="fas fa-chart-bar w-5"></i>
                     <span>Reports</span>
                 </a>
 
                 <!-- Enquiry -->
-                <a href="enquiry.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="enquiry.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'enquiry.php' ? 'active' : '' ?>">
                     <i class="fas fa-search w-5"></i>
                     <span>Enquiry</span>
                 </a>
 
                 <!-- Commodity -->
-                <a href="procesCommodity.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="procesCommodity.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'procesCommodity.php' ? 'active' : '' ?>">
                     <i class="fas fa-exchange-alt w-5"></i>
                     <span>Commodity</span>
                 </a>
 
                 <!-- Periods -->
-                <a href="payperiods.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="payperiods.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'payperiods.php' ? 'active' : '' ?>">
                     <i class="fas fa-table w-5"></i>
                     <span>Periods</span>
                 </a>
 
                 <!-- Process Deduction -->
-                <a href="payprocess.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="payprocess.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'payprocess.php' ? 'active' : '' ?>">
                     <i class="fas fa-cogs w-5"></i>
                     <span>Process Deduction</span>
                 </a>
 
                 <!-- Users -->
-                <a href="users.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="users.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'users.php' ? 'active' : '' ?>">
                     <i class="fas fa-users w-5"></i>
                     <span>Users</span>
                 </a>
 
                 <!-- Records -->
-                <a href="employee.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="employee.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'employee.php' ? 'active' : '' ?>">
                     <i class="fas fa-user w-5"></i>
                     <span>Records</span>
                 </a>
 
                 <!-- Update Deductions -->
-                <a href="update_deduction.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="update_deduction.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'update_deduction.php' ? 'active' : '' ?>">
                     <i class="fas fa-edit w-5"></i>
                     <span>Update Deductions</span>
                 </a>
 
                 <!-- Print List -->
-                <a href="print_member.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="print_member.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'print_member.php' ? 'active' : '' ?>">
                     <i class="fas fa-print w-5"></i>
                     <span>Print List</span>
                 </a>
 
                 <!-- File Upload -->
-                <a href="api_upload.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="api_upload.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'api_upload.php' ? 'active' : '' ?>">
                     <i class="fas fa-cloud-download-alt w-5"></i>
                     <span>File Upload</span>
                 </a>
@@ -295,45 +295,45 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
                 <?php if (($userRole == 'Admin' || $userRole == 'Accountant') && $accountsExist && mysqli_num_rows($accountsExist) > 0): ?>
                 <!-- Chart of Accounts -->
-                <a href="coop_chart_of_accounts.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_chart_of_accounts.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_chart_of_accounts.php' ? 'active' : '' ?>">
                     <i class="fas fa-list-alt w-5"></i>
                     <span>Chart of Accounts</span>
                 </a>
 
                 <!-- Journal Entries -->
-                <a href="coop_journal_entries.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_journal_entries.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_journal_entries.php' || basename($currentPage) === 'coop_journal_entry_form.php' ? 'active' : '' ?>">
                     <i class="fas fa-book w-5"></i>
                     <span>Journal Entries</span>
                 </a>
 
                 <!-- Trial Balance -->
-                <a href="coop_trial_balance.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_trial_balance.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_trial_balance.php' ? 'active' : '' ?>">
                     <i class="fas fa-balance-scale w-5"></i>
                     <span>Trial Balance</span>
                 </a>
 
                 <!-- Financial Statements -->
                 <a href="coop_financial_statements.php"
-                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_financial_statements.php' ? 'active' : '' ?>">
                     <i class="fas fa-file-invoice-dollar w-5"></i>
                     <span>Financial Statements</span>
                 </a>
 
                 <!-- General Ledger -->
-                <a href="coop_general_ledger.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_general_ledger.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_general_ledger.php' ? 'active' : '' ?>">
                     <i class="fas fa-book-open w-5"></i>
                     <span>General Ledger</span>
                 </a>
 
                 <!-- Member Statement -->
-                <a href="coop_member_statement.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_member_statement.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_member_statement.php' ? 'active' : '' ?>">
                     <i class="fas fa-user-circle w-5"></i>
                     <span>Member Statement</span>
                 </a>
 
                 <?php if ($userRole == 'Admin'): ?>
                 <!-- Period Closing -->
-                <a href="coop_period_closing.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_period_closing.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_period_closing.php' ? 'active' : '' ?>">
                     <i class="fas fa-calendar-check w-5"></i>
                     <span>Period Closing</span>
                 </a>
@@ -341,14 +341,14 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
                 <!-- Bank Reconciliation -->
                 <a href="coop_bank_reconciliation.php"
-                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_bank_reconciliation.php' ? 'active' : '' ?>">
                     <i class="fas fa-building w-5"></i>
                     <span>Bank Reconciliation</span>
                 </a>
 
                 <!-- Comparative Reports -->
                 <a href="coop_comparative_reports.php"
-                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'coop_comparative_reports.php' ? 'active' : '' ?>">
                     <i class="fas fa-chart-line w-5"></i>
                     <span>Comparative Reports</span>
                 </a>
