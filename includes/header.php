@@ -176,7 +176,8 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
 <body class="bg-gray-50 min-h-screen">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-purple-800 to-indigo-900 text-white shadow-2xl z-50 overflow-y-auto">
+    <aside id="sidebar"
+        class="sidebar fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-purple-800 to-indigo-900 text-white shadow-2xl z-50 overflow-y-auto">
         <div class="p-4">
             <!-- Logo -->
             <div class="flex items-center space-x-3 mb-8 pb-4 border-b border-white/20">
@@ -192,7 +193,8 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
             <!-- Menu Items -->
             <nav class="space-y-1">
                 <!-- Dashboard -->
-                <a href="home.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'home.php' ? 'active' : '' ?>">
+                <a href="home.php"
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg <?= basename($currentPage) === 'home.php' ? 'active' : '' ?>">
                     <i class="fas fa-home w-5"></i>
                     <span>Dashboard</span>
                 </a>
@@ -274,11 +276,16 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
                 <!-- Accounting Section Divider -->
                 <?php 
-                $accountsExist = mysqli_query($coop ?? null, "SHOW TABLES LIKE 'coop_accounts'");
+                if (isset($coop)) {
+                    $accountsExist = mysqli_query($coop, "SHOW TABLES LIKE 'coop_accounts'");
+                } else {
+                    $accountsExist = false;
+                }
                 if ($accountsExist && mysqli_num_rows($accountsExist) > 0): 
                 ?>
                 <div class="pt-4 pb-2 px-4">
-                    <div class="flex items-center space-x-2 text-white/60 text-xs font-semibold uppercase tracking-wider">
+                    <div
+                        class="flex items-center space-x-2 text-white/60 text-xs font-semibold uppercase tracking-wider">
                         <i class="fas fa-calculator"></i>
                         <span>Accounting</span>
                     </div>
@@ -306,7 +313,8 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
                 </a>
 
                 <!-- Financial Statements -->
-                <a href="coop_financial_statements.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_financial_statements.php"
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
                     <i class="fas fa-file-invoice-dollar w-5"></i>
                     <span>Financial Statements</span>
                 </a>
@@ -332,13 +340,15 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
                 <?php endif; ?>
 
                 <!-- Bank Reconciliation -->
-                <a href="coop_bank_reconciliation.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_bank_reconciliation.php"
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
                     <i class="fas fa-building w-5"></i>
                     <span>Bank Reconciliation</span>
                 </a>
 
                 <!-- Comparative Reports -->
-                <a href="coop_comparative_reports.php" class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
+                <a href="coop_comparative_reports.php"
+                    class="menu-item flex items-center space-x-3 px-4 py-3 rounded-lg">
                     <i class="fas fa-chart-line w-5"></i>
                     <span>Comparative Reports</span>
                 </a>
@@ -355,7 +365,8 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
         <div class="px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <!-- Mobile Menu Toggle -->
-                <button id="menu-toggle" class="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
+                <button id="menu-toggle"
+                    class="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
 
@@ -386,48 +397,48 @@ $pageTitle = $pageTitle ?? 'OOUTH COOP';
 
     <!-- Main Content Container -->
     <main class="pt-20 lg:ml-64 px-4 sm:px-6 lg:px-8 py-8">
-    
-    <script>
-    // Sidebar toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const menuToggle = document.getElementById('menu-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-        
-        function openSidebar() {
-            sidebar.classList.add('open');
-            sidebarOverlay.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            sidebarOverlay.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-        
-        menuToggle?.addEventListener('click', function() {
-            if (sidebar.classList.contains('open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
+
+        <script>
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             }
-        });
-        
-        sidebarOverlay?.addEventListener('click', closeSidebar);
-        
-        // Close sidebar on window resize to desktop
-        window.addEventListener('resize', function() {
-            if (window.innerWidth >= 1024) {
-                closeSidebar();
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.add('hidden');
+                document.body.style.overflow = '';
             }
+
+            menuToggle?.addEventListener('click', function() {
+                if (sidebar.classList.contains('open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            sidebarOverlay?.addEventListener('click', closeSidebar);
+
+            // Close sidebar on window resize to desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) {
+                    closeSidebar();
+                }
+            });
+
+            // Settings modal trigger from sidebar
+            document.getElementById('sidebar_settings')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeSidebar();
+                document.getElementById('link_deletetransaction')?.click();
+            });
         });
-        
-        // Settings modal trigger from sidebar
-        document.getElementById('sidebar_settings')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            closeSidebar();
-            document.getElementById('link_deletetransaction')?.click();
-        });
-    });
-    </script>
+        </script>
