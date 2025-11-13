@@ -1,6 +1,7 @@
 <?php
 require_once('Connections/coop.php');
-session_start();
+require_once('includes/session_helper.php');
+initSession();
 
 // Clear any existing session data
 unset($_SESSION['SESS_MEMBER_ID']);
@@ -22,7 +23,7 @@ if (isset($_GET['logout'])) {
     session_destroy();
     
     // Start a new session for success message
-    session_start();
+    initSession();
     $_SESSION['logout_success'] = true;
     
     // Redirect to login page to prevent resubmission

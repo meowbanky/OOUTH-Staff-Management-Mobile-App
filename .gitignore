@@ -54,6 +54,9 @@ files/
 cache/
 tmp/
 
+# Session files
+sessions/
+
 # Composer
 vendor/
 composer.lock
