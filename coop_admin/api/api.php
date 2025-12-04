@@ -1,4 +1,13 @@
 <?php
+/**
+ * OOUTH COOP API
+ * External API for member information and balance queries
+ * 
+ * Actions:
+ * - check_user: Verify member by phone number
+ * - get_balances: Get member account balances
+ */
+
 header('Content-Type: application/json');
 
 // Load environment configuration
@@ -14,7 +23,7 @@ $API_SECRET = EnvConfig::getAPISecret();
 // Validate API secret is configured
 if (empty($API_SECRET)) {
     http_response_code(500);
-    echo json_encode(["status" => "error", "message" => "API_SECRET not configured in config.env"]);
+    echo json_encode(["status" => "error", "message" => "API_SECRET not configured in .env"]);
     exit;
 }
 
@@ -85,32 +94,71 @@ switch ($action) {
 // 4. FUNCTIONS
 // ==========================================
 
+/**
+ * Check if a user exists by phone number
+ * 
+ * @param PDO $pdo Database connection
+ */
 function checkUser($pdo) {
     // Input: Phone number
     $phone = $_GET['phone'] ?? '';
     
-    // Basic sanitization
+    if (empty($phone)) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Phone number is required"
+        ]);
+        return;
+    }
+    
+    // Basic sanitization - remove all non-numeric characters
     $phone = preg_replace('/[^0-9]/', '', $phone); 
+    
+    if (empty($phone)) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Invalid phone number format"
+        ]);
+        return;
+    }
 
-    // We check specifically for the phone number
+    // Query tblemployees table
     // Note: n8n usually sends WhatsApp numbers with country code (e.g. 23480...)
-    // You might need to adjust the LIKE query if your DB stores '080...'
+    // We try to match the last 10 digits to handle 080 vs 23480 issues
+    $stmt = $pdo->prepare("
+        SELECT 
+            CoopID, 
+            FirstName, 
+            MiddleName,
+            LastName, 
+            MobileNumber,
+            EmailAddress,
+            Status
+        FROM tblemployees 
+        WHERE MobileNumber LIKE ? 
+        LIMIT 1
+    ");
     
-    // Trying exact match first, then checking if DB stores it without country code
-    $stmt = $pdo->prepare("SELECT memberid, Fname, Lname, MobilePhone FROM tbl_personalinfo WHERE MobilePhone LIKE ? LIMIT 1");
-    
-    // We try to match the last 10 digits to be safe (handles 080 vs 23480 issues)
+    // Match last 10 digits (handles 080 vs 23480 issues)
     $searchPhone = "%" . substr($phone, -10); 
     
     $stmt->execute([$searchPhone]);
     $user = $stmt->fetch();
 
     if ($user) {
+        // Build full name
+        $fullName = trim($user['FirstName'] . ' ' . ($user['MiddleName'] ?? '') . ' ' . $user['LastName']);
+        $fullName = preg_replace('/\s+/', ' ', $fullName); // Clean up extra spaces
+        
         echo json_encode([
             "status" => "success",
-            "member_id" => $user['memberid'],
-            "name" => $user['Fname'] . " " . $user['Lname'],
-            "phone_matched" => $user['MobilePhone']
+            "member_id" => $user['CoopID'],
+            "name" => $fullName,
+            "first_name" => $user['FirstName'],
+            "last_name" => $user['LastName'],
+            "phone_matched" => $user['MobileNumber'],
+            "email" => $user['EmailAddress'] ?? null,
+            "status" => $user['Status'] ?? 'Active'
         ]);
     } else {
         echo json_encode([
@@ -120,53 +168,119 @@ function checkUser($pdo) {
     }
 }
 
+/**
+ * Get member account balances
+ * 
+ * @param PDO $pdo Database connection
+ */
 function getBalances($pdo) {
-    $memberId = $_GET['member_id'] ?? 0;
-
-    if (!$memberId) {
-        echo json_encode(["status" => "error", "message" => "Member ID required"]);
+    $coopId = $_GET['member_id'] ?? $_GET['coop_id'] ?? '';
+    
+    if (empty($coopId)) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Member ID (CoopID) is required"
+        ]);
         return;
     }
 
-    // Updated SQL to include interest columns
+    // Query tbl_mastertransact for transaction totals
+    // Note: In this system, savingsAmount and sharesAmount are deposits (positive values)
+    // Withdrawals might be stored as negative values or in separate tables
     $sql = "SELECT 
-                SUM(savings) as total_savings_in,
-                SUM(withdrawal_savings) as total_savings_out,
-                SUM(shares) as total_shares_in,
-                SUM(withdrawal_shares) as total_shares_out,
-                SUM(loanAmount) as total_loan_taken,
-                SUM(loanRepayment) as total_loan_repaid,
-                SUM(interest) as total_interest_charged,
-                SUM(interestPaid) as total_interest_paid
-            FROM tlb_mastertransaction 
-            WHERE memberid = ?";
-
+                COALESCE(SUM(savingsAmount), 0) as total_savings,
+                COALESCE(SUM(sharesAmount), 0) as total_shares,
+                COALESCE(SUM(loan), 0) as total_loan_taken,
+                COALESCE(SUM(loanRepayment), 0) as total_loan_repaid,
+                COALESCE(SUM(InterestPaid), 0) as total_interest_paid,
+                COALESCE(SUM(DevLevy), 0) as total_dev_levy,
+                COALESCE(SUM(EntryFee), 0) as total_entry_fee,
+                COALESCE(SUM(Stationery), 0) as total_stationery,
+                COALESCE(SUM(Commodity), 0) as total_commodity,
+                COALESCE(SUM(CommodityRepayment), 0) as total_commodity_repaid
+            FROM tbl_mastertransact 
+            WHERE COOPID = ? 
+            AND completed = 1";
+    
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$memberId]);
+    $stmt->execute([$coopId]);
     $result = $stmt->fetch();
 
-    // Calculations
-    $savings_bal  = ($result['total_savings_in'] ?? 0) - ($result['total_savings_out'] ?? 0);
-    $shares_bal   = ($result['total_shares_in'] ?? 0) - ($result['total_shares_out'] ?? 0);
-    
-    // Loan Principal Balance
-    $loan_bal     = ($result['total_loan_taken'] ?? 0) - ($result['total_loan_repaid'] ?? 0);
-    
-    // Outstanding Interest Balance
-    $interest_bal = ($result['total_interest_charged'] ?? 0) - ($result['total_interest_paid'] ?? 0);
+    if (!$result) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "No transaction records found for this member"
+        ]);
+        return;
+    }
 
-    // Safety checks (optional: keeps balances from looking weird if data is inconsistent)
+    // Calculate balances
+    // Savings balance (deposits only - no withdrawal column in schema)
+    $savings_bal = floatval($result['total_savings'] ?? 0);
+    
+    // Shares balance (deposits only - no withdrawal column in schema)
+    $shares_bal = floatval($result['total_shares'] ?? 0);
+    
+    // Loan Principal Balance (loan taken - loan repaid)
+    $loan_bal = floatval($result['total_loan_taken'] ?? 0) - floatval($result['total_loan_repaid'] ?? 0);
+    
+    // Interest Balance
+    // Note: InterestPaid is interest paid by member, not interest charged
+    // If you need outstanding interest, you may need to query tbl_loans or tbl_interest tables
+    $interest_paid = floatval($result['total_interest_paid'] ?? 0);
+    
+    // Other balances
+    $dev_levy = floatval($result['total_dev_levy'] ?? 0);
+    $entry_fee = floatval($result['total_entry_fee'] ?? 0);
+    $stationery = floatval($result['total_stationery'] ?? 0);
+    
+    // Commodity balance (commodity taken - commodity repaid)
+    $commodity_bal = floatval($result['total_commodity'] ?? 0) - floatval($result['total_commodity_repaid'] ?? 0);
+
+    // Safety checks - ensure balances are not negative (unless withdrawals are negative)
     if($loan_bal < 0) $loan_bal = 0;
-    if($interest_bal < 0) $interest_bal = 0;
+    if($commodity_bal < 0) $commodity_bal = 0;
+    if($savings_bal < 0) $savings_bal = 0;
+    if($shares_bal < 0) $shares_bal = 0;
+
+    // Get member info for additional context
+    $memberStmt = $pdo->prepare("
+        SELECT 
+            CoopID,
+            FirstName,
+            LastName,
+            Status
+        FROM tblemployees 
+        WHERE CoopID = ?
+        LIMIT 1
+    ");
+    $memberStmt->execute([$coopId]);
+    $member = $memberStmt->fetch();
 
     echo json_encode([
         "status" => "success",
+        "member_id" => $coopId,
+        "member_name" => $member ? trim($member['FirstName'] . ' ' . $member['LastName']) : null,
+        "member_status" => $member['Status'] ?? null,
         "data" => [
-            "savings_balance" => number_format($savings_bal, 2),
-            "shares_balance" => number_format($shares_bal, 2),
-            "loan_balance" => number_format($loan_bal, 2),
-            "interest_balance" => number_format($interest_bal, 2),
+            "savings_balance" => number_format($savings_bal, 2, '.', ''),
+            "shares_balance" => number_format($shares_bal, 2, '.', ''),
+            "loan_balance" => number_format($loan_bal, 2, '.', ''),
+            "interest_paid" => number_format($interest_paid, 2, '.', ''),
+            "commodity_balance" => number_format($commodity_bal, 2, '.', ''),
+            "dev_levy_total" => number_format($dev_levy, 2, '.', ''),
+            "entry_fee_total" => number_format($entry_fee, 2, '.', ''),
+            "stationery_total" => number_format($stationery, 2, '.', ''),
             "currency" => "NGN"
+        ],
+        "raw_totals" => [
+            "total_savings" => $savings_bal,
+            "total_shares" => $shares_bal,
+            "total_loan_taken" => floatval($result['total_loan_taken'] ?? 0),
+            "total_loan_repaid" => floatval($result['total_loan_repaid'] ?? 0),
+            "total_interest_paid" => $interest_paid,
+            "total_commodity" => floatval($result['total_commodity'] ?? 0),
+            "total_commodity_repaid" => floatval($result['total_commodity_repaid'] ?? 0)
         ]
     ]);
 }
