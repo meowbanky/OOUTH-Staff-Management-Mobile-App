@@ -210,14 +210,58 @@ $googleMapsApiKey = EnvConfig::getGoogleMapsApiKey();
 
 <script>
 const apiBaseUrl = '<?php echo "https://www.emmaggi.com/coop_admin/auth_api/api"; ?>';
+const testApiUrl = '<?php echo "https://www.emmaggi.com/coop_admin/auth_api/api/admin/test-events.php"; ?>';
 let map;
 let marker;
 let events = [];
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    loadEvents();
+    // First test the API endpoint
+    testApiConnection().then(() => {
+        loadEvents();
+    }).catch(error => {
+        console.error('API test failed:', error);
+        // Still try to load events
+        loadEvents();
+    });
 });
+
+// Test API connection
+async function testApiConnection() {
+    try {
+        const response = await fetch(testApiUrl, {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('API Test Results:', result);
+            if (result.tests) {
+                if (!result.tests.env_file_exists) {
+                    console.warn('WARNING: .env file not found at:', result.tests.env_file_path);
+                }
+                if (!result.tests.database_file_exists) {
+                    console.error('ERROR: Database.php file not found at:', result.tests.database_file_path);
+                }
+                if (result.tests.database_connection_error) {
+                    console.error('ERROR: Database connection failed:', result.tests.database_connection_error);
+                }
+            }
+            return result;
+        } else {
+            const text = await response.text();
+            console.error('API test failed with status:', response.status, text);
+            throw new Error(`API test failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('API test error:', error);
+        throw error;
+    }
+}
 
 // Load events list
 async function loadEvents() {

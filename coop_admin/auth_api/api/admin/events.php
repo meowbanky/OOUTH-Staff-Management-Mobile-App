@@ -2,27 +2,8 @@
 // api/admin/events.php
 // Admin API for managing events
 
-// Set error handler to catch fatal errors
-register_shutdown_function(function() {
-    $error = error_get_last();
-    if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-        ob_end_clean();
-        http_response_code(500);
-        header('Content-Type: application/json; charset=UTF-8');
-        echo json_encode([
-            'success' => false,
-            'message' => 'Server error: ' . $error['message'],
-            'file' => basename($error['file']),
-            'line' => $error['line']
-        ]);
-    }
-});
-
-// Clean any output buffers and start fresh
-if (ob_get_level()) {
-    ob_end_clean();
-}
-ob_start();
+// Clean output buffer
+ob_clean();
 
 // Set CORS headers FIRST
 header('Access-Control-Allow-Origin: *');
@@ -35,58 +16,24 @@ header('Content-Type: application/json; charset=UTF-8');
 // Handle preflight OPTIONS request IMMEDIATELY
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    ob_end_clean();
     exit();
 }
 
 try {
-    // Start session for admin authentication FIRST
+    require_once '../../config/Database.php';
+    
+    // Start session for admin authentication
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     
-    // Check if user is admin BEFORE database connection
-    $isAdmin = isset($_SESSION['SESS_MEMBER_ID']) && trim($_SESSION['SESS_MEMBER_ID']) != '' && 
-               (($_SESSION['role'] ?? '') == 'Admin' || ($_SESSION['role'] ?? '') === 'Admin');
-    
-    if (!$isAdmin) {
-        ob_end_clean();
-        http_response_code(403);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Admin access required. Please log in as admin.'
-        ]);
-        exit();
+    // Check if user is admin
+    if (!isset($_SESSION['SESS_MEMBER_ID']) || (trim($_SESSION['SESS_MEMBER_ID']) == '') || ($_SESSION['role'] ?? '') !== 'Admin') {
+        throw new Exception('Admin access required', 403);
     }
 
-    // Load Database class with error handling
-    $dbPath = __DIR__ . '/../../config/Database.php';
-    if (!file_exists($dbPath)) {
-        ob_end_clean();
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database configuration file not found'
-        ]);
-        exit();
-    }
-    
-    require_once $dbPath;
-    
-    try {
-        $database = new Database();
-        $db = $database->getConnection();
-    } catch (Exception $dbError) {
-        error_log("Database connection error in events.php: " . $dbError->getMessage());
-        ob_end_clean();
-        http_response_code(500);
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database connection failed: ' . $dbError->getMessage()
-        ]);
-        exit();
-    }
-    
+    $database = new Database();
+    $db = $database->getConnection();
     $adminUsername = $_SESSION['complete_name'] ?? 'Admin';
 
     // Get event ID from URL if present
@@ -133,24 +80,11 @@ try {
         $statusCode = 500;
     }
     
-    ob_end_clean();
     http_response_code($statusCode);
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage(),
-        'error_code' => $statusCode
+        'message' => $e->getMessage()
     ]);
-    exit();
-} catch (Error $e) {
-    error_log("Fatal error in events.php: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
-    ob_end_clean();
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error: ' . $e->getMessage()
-    ]);
-    exit();
 }
 
 function getEvents($db) {
@@ -195,12 +129,10 @@ function getEvents($db) {
         ];
     }
     
-    ob_end_clean();
     echo json_encode([
         'success' => true,
         'data' => $events
     ]);
-    exit();
 }
 
 function getEventDetails($db, $eventId) {
@@ -269,7 +201,6 @@ function getEventDetails($db, $eventId) {
         ];
     }
     
-    ob_end_clean();
     echo json_encode([
         'success' => true,
         'data' => [
@@ -289,7 +220,6 @@ function getEventDetails($db, $eventId) {
             'attendance_count' => count($attendance)
         ]
     ]);
-    exit();
 }
 
 function createEvent($db, $adminUsername) {
@@ -360,13 +290,11 @@ function createEvent($db, $adminUsername) {
     
     $eventId = $db->lastInsertId();
     
-    ob_end_clean();
     echo json_encode([
         'success' => true,
         'message' => 'Event created successfully',
         'data' => ['id' => intval($eventId)]
     ]);
-    exit();
 }
 
 function updateEvent($db, $eventId, $adminUsername) {
@@ -446,12 +374,10 @@ function updateEvent($db, $eventId, $adminUsername) {
     $stmt = $db->prepare($query);
     $stmt->execute($params);
     
-    ob_end_clean();
     echo json_encode([
         'success' => true,
         'message' => 'Event updated successfully'
     ]);
-    exit();
 }
 
 function deleteEvent($db, $eventId) {
@@ -471,10 +397,8 @@ function deleteEvent($db, $eventId) {
     $stmt->bindParam(':id', $eventId, PDO::PARAM_INT);
     $stmt->execute();
     
-    ob_end_clean();
     echo json_encode([
         'success' => true,
         'message' => 'Event deleted successfully'
     ]);
-    exit();
 }
