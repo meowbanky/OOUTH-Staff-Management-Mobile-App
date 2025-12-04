@@ -216,26 +216,32 @@ function getBalances($pdo) {
 
     // Calculate balances
     // Savings balance (deposits only - no withdrawal column in schema)
-    $savings_bal = floatval($result['total_savings'] ?? 0);
+    $savings_bal = round(floatval($result['total_savings'] ?? 0), 2);
     
     // Shares balance (deposits only - no withdrawal column in schema)
-    $shares_bal = floatval($result['total_shares'] ?? 0);
+    $shares_bal = round(floatval($result['total_shares'] ?? 0), 2);
     
     // Loan Principal Balance (loan taken - loan repaid)
-    $loan_bal = floatval($result['total_loan_taken'] ?? 0) - floatval($result['total_loan_repaid'] ?? 0);
+    $loan_bal = round(floatval($result['total_loan_taken'] ?? 0) - floatval($result['total_loan_repaid'] ?? 0), 2);
     
     // Interest Balance
     // Note: InterestPaid is interest paid by member, not interest charged
     // If you need outstanding interest, you may need to query tbl_loans or tbl_interest tables
-    $interest_paid = floatval($result['total_interest_paid'] ?? 0);
+    $interest_paid = round(floatval($result['total_interest_paid'] ?? 0), 2);
     
     // Other balances
-    $dev_levy = floatval($result['total_dev_levy'] ?? 0);
-    $entry_fee = floatval($result['total_entry_fee'] ?? 0);
-    $stationery = floatval($result['total_stationery'] ?? 0);
+    $dev_levy = round(floatval($result['total_dev_levy'] ?? 0), 2);
+    $entry_fee = round(floatval($result['total_entry_fee'] ?? 0), 2);
+    $stationery = round(floatval($result['total_stationery'] ?? 0), 2);
     
     // Commodity balance (commodity taken - commodity repaid)
-    $commodity_bal = floatval($result['total_commodity'] ?? 0) - floatval($result['total_commodity_repaid'] ?? 0);
+    $commodity_bal = round(floatval($result['total_commodity'] ?? 0) - floatval($result['total_commodity_repaid'] ?? 0), 2);
+    
+    // Raw totals (for reference)
+    $total_loan_taken = round(floatval($result['total_loan_taken'] ?? 0), 2);
+    $total_loan_repaid = round(floatval($result['total_loan_repaid'] ?? 0), 2);
+    $total_commodity = round(floatval($result['total_commodity'] ?? 0), 2);
+    $total_commodity_repaid = round(floatval($result['total_commodity_repaid'] ?? 0), 2);
 
     // Safety checks - ensure balances are not negative (unless withdrawals are negative)
     if($loan_bal < 0) $loan_bal = 0;
@@ -274,13 +280,13 @@ function getBalances($pdo) {
             "currency" => "NGN"
         ],
         "raw_totals" => [
-            "total_savings" => $savings_bal,
-            "total_shares" => $shares_bal,
-            "total_loan_taken" => floatval($result['total_loan_taken'] ?? 0),
-            "total_loan_repaid" => floatval($result['total_loan_repaid'] ?? 0),
-            "total_interest_paid" => $interest_paid,
-            "total_commodity" => floatval($result['total_commodity'] ?? 0),
-            "total_commodity_repaid" => floatval($result['total_commodity_repaid'] ?? 0)
+            "total_savings" => number_format($savings_bal, 2, '.', ''),
+            "total_shares" => number_format($shares_bal, 2, '.', ''),
+            "total_loan_taken" => number_format($total_loan_taken, 2, '.', ''),
+            "total_loan_repaid" => number_format($total_loan_repaid, 2, '.', ''),
+            "total_interest_paid" => number_format($interest_paid, 2, '.', ''),
+            "total_commodity" => number_format($total_commodity, 2, '.', ''),
+            "total_commodity_repaid" => number_format($total_commodity_repaid, 2, '.', '')
         ]
     ]);
 }
