@@ -66,14 +66,34 @@ class EnvConfig {
     }
     
     /**
-     * Get database configuration
+     * Get database configuration from .env file
+     * Throws exception if required values are missing
      */
     public static function getDatabaseConfig() {
+        $host = self::get('DB_HOST');
+        $name = self::get('DB_NAME');
+        $user = self::get('DB_USER');
+        $password = self::get('DB_PASSWORD');
+        
+        // Validate required database configuration values
+        if (empty($host)) {
+            throw new \Exception('DB_HOST is not configured in config.env file');
+        }
+        if (empty($name)) {
+            throw new \Exception('DB_NAME is not configured in config.env file');
+        }
+        if (empty($user)) {
+            throw new \Exception('DB_USER is not configured in config.env file');
+        }
+        if ($password === null) {
+            throw new \Exception('DB_PASSWORD is not configured in config.env file');
+        }
+        
         return [
-            'host' => self::get('DB_HOST', 'localhost'),
-            'name' => self::get('DB_NAME', 'emmaggic_coop'),
-            'user' => self::get('DB_USER', 'emmaggic_root'),
-            'password' => self::get('DB_PASSWORD', 'Oluwaseyi')
+            'host' => $host,
+            'name' => $name,
+            'user' => $user,
+            'password' => $password
         ];
     }
     
