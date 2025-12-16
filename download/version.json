@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "build_number": "1",
+  "changelog": "- Initial release\n- View payslips\n- View pension reports\n- Duty rota access\n- Profile management",
+  "force_update": false,
+  "download_url": "https://oouthsalary.com.ng/download.html",
+  "release_date": "2025-01-27"
+}
