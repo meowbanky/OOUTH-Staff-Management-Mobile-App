@@ -26,6 +26,9 @@
 # IDE and editor
 .idea/
 .vscode/
+.phpintel/
+.codegpt/
+.firebase/
 *.swp
 *.sublime-workspace
 
@@ -44,6 +47,13 @@ local.properties
 secrets.json
 GoogleService-Info.plist
 google-services.json
+*.keystore
+*.jks
+key.properties
+android/key.properties
+
+# CI/CD - Keep workflow files but ensure no hardcoded secrets
+# Note: Use GitHub Secrets for sensitive data in workflows
 
 # Logs and temporary files
 *.log
