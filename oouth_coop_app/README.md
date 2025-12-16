@@ -9,13 +9,16 @@ The OOUTH Cooperative Mobile App is a cross-platform mobile application built wi
 ## ✨ Features
 
 ### Core Functionality
+
 - **Authentication & Security**
+
   - Secure login with OTP verification
   - Biometric authentication support
   - Device binding for enhanced security
   - Password management and recovery
 
 - **Financial Services**
+
   - Wallet management and balance tracking
   - Transaction history and summaries
   - Loan applications and tracking
@@ -23,6 +26,7 @@ The OOUTH Cooperative Mobile App is a cross-platform mobile application built wi
   - Financial statements
 
 - **Member Services**
+
   - Profile management
   - Account information
   - Product catalog browsing
@@ -30,6 +34,7 @@ The OOUTH Cooperative Mobile App is a cross-platform mobile application built wi
   - Duty rota management
 
 - **Communication**
+
   - Push notifications (OneSignal & Firebase)
   - In-app notifications
   - Support and complaint submission
@@ -56,22 +61,26 @@ Before you begin, ensure you have the following installed:
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd oouth_coop_app
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Configure environment variables**
+
    - Create a `.env` file in the root directory
    - Add your API endpoints and configuration variables
    - Ensure `.env` is included in your assets (already configured in `pubspec.yaml`)
 
 4. **Configure Firebase** (if using Firebase services)
+
    - Add your `google-services.json` (Android) to `android/app/`
    - Add your `GoogleService-Info.plist` (iOS) to `ios/Runner/`
 
@@ -117,13 +126,13 @@ lib/
 - **Networking**: `http` (^1.1.0)
 - **Storage**: `shared_preferences` (^2.2.0)
 - **Authentication**: `local_auth` (^2.1.6)
-- **Notifications**: 
+- **Notifications**:
   - `onesignal_flutter` (^5.2.9)
   - `firebase_messaging` (^14.7.16)
-- **Location & Maps**: 
+- **Location & Maps**:
   - `geolocator` (^10.1.0)
   - `google_maps_flutter` (^2.5.0)
-- **UI Components**: 
+- **UI Components**:
   - `google_fonts` (^5.1.0)
   - `flutter_svg` (^2.0.7)
   - `lottie` (^2.7.0)
@@ -144,17 +153,20 @@ For a complete list, see `pubspec.yaml`.
 ### Build Configuration
 
 #### Android
+
 - Minimum SDK: 21
 - Target SDK: Latest stable
 - Keystore: Configured in `android/app/`
 
 #### iOS
+
 - Minimum iOS version: 12.0
 - Configure signing in Xcode
 
 ## 🏃 Running the App
 
 ### Development Mode
+
 ```bash
 flutter run
 ```
@@ -162,6 +174,7 @@ flutter run
 ### Release Build
 
 #### Android
+
 ```bash
 flutter build apk --release
 # or for app bundle
@@ -169,11 +182,13 @@ flutter build appbundle --release
 ```
 
 #### iOS
+
 ```bash
 flutter build ios --release
 ```
 
 #### Web
+
 ```bash
 flutter build web --release
 ```
@@ -181,6 +196,7 @@ flutter build web --release
 ## 🧪 Testing
 
 Run tests with:
+
 ```bash
 flutter test
 ```
