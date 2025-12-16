@@ -1,256 +1,300 @@
-# OOUTH Cooperative Mobile App
+# OOUTH Mobile App
 
-A comprehensive Flutter-based mobile application for the OOUTH Cooperative Society, providing members with seamless access to cooperative services, financial management, and member engagement features.
+**OOUTH HR & Salary Information Management System - Mobile Application**
 
-## 📱 Overview
+A Flutter-based mobile application for OOUTH (Olubisi Onabanjo University Teaching Hospital) staff to access their salary information, payslips, pension reports, and other HR services on the go.
 
-The OOUTH Cooperative Mobile App is a cross-platform mobile application built with Flutter, designed to empower cooperative members with easy access to their accounts, loans, transactions, events, and other cooperative services. The app provides a modern, intuitive interface for managing cooperative membership activities on the go.
+## 📱 Features
 
-## ✨ Features
+### Core Features
+- **Payslip Management**
+  - View payslips for different payment periods
+  - Download payslips as PDF
+  - Compare payslips across periods
+  - Visual analytics with charts and graphs
 
-### Core Functionality
+- **Pension Report** ✨ *New*
+  - View pension contribution history
+  - Filter by period range or view all periods
+  - Download pension reports as PDF
+  - Visual contribution trends with charts
+  - Summary statistics (total contributions, average amount)
 
-- **Authentication & Security**
+- **Duty Rota**
+  - View duty schedules
+  - Calendar-based interface
+  - Shift management
 
-  - Secure login with OTP verification
-  - Biometric authentication support
-  - Device binding for enhanced security
-  - Password management and recovery
+- **Profile Management**
+  - View and edit personal information
+  - Update profile details
+  - Track approval status
 
-- **Financial Services**
+- **Notifications**
+  - Real-time notifications
+  - Unread count badges
+  - Push notifications support
 
-  - Wallet management and balance tracking
-  - Transaction history and summaries
-  - Loan applications and tracking
-  - Payment processing
-  - Financial statements
+## 🛠️ Technical Stack
 
-- **Member Services**
+- **Framework**: Flutter 3.32.1
+- **Language**: Dart 3.5.4
+- **State Management**: Provider
+- **HTTP Client**: Dio
+- **PDF Generation**: pdf package
+- **Charts**: fl_chart
+- **Authentication**: JWT-based
+- **Storage**: flutter_secure_storage, shared_preferences
+- **Biometric Auth**: local_auth
 
-  - Profile management
-  - Account information
-  - Product catalog browsing
-  - Event registration and attendance
-  - Duty rota management
+## 📋 Prerequisites
 
-- **Communication**
-
-  - Push notifications (OneSignal & Firebase)
-  - In-app notifications
-  - Support and complaint submission
-
-- **Additional Features**
-  - Location services and Google Maps integration
-  - Offline connectivity detection
-  - App update notifications
-  - Dark/Light theme support
-  - Multi-platform support (iOS, Android, Web)
+- Flutter SDK 3.32.1 or higher
+- Dart SDK 3.5.4 or higher
+- Android Studio / Xcode (for mobile development)
+- Android SDK 36
+- Android NDK 27.0.12077973
+- Gradle 8.11.1
+- Android Gradle Plugin 8.9.1
+- Kotlin 2.1.0
 
 ## 🚀 Getting Started
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Flutter SDK** (>=3.0.0 <4.0.0)
-- **Dart SDK** (comes with Flutter)
-- **Android Studio** or **Xcode** (for mobile development)
-- **VS Code** or **Android Studio** (recommended IDEs)
-- **Git** for version control
 
 ### Installation
 
 1. **Clone the repository**
-
    ```bash
    git clone https://github.com/meowbanky/OOUTH-Staff-Management-Mobile-App.git
    cd OOUTH-Staff-Management-Mobile-App
-   cd oouth_coop_app
    ```
 
 2. **Install dependencies**
-
    ```bash
    flutter pub get
    ```
 
-3. **Configure environment variables**
+3. **Configure Android**
+   - Ensure `android/key.properties` exists with keystore configuration
+   - Keystore file should be at `android/app/upload-keystore.jks`
 
-   - Create a `.env` file in the `oouth_coop_app` directory
-   - Add your API endpoints and configuration variables
-   - Ensure `.env` is included in your assets (already configured in `pubspec.yaml`)
-
-4. **Configure Firebase** (if using Firebase services)
-
-   - Add your `google-services.json` (Android) to `oouth_coop_app/android/app/`
-   - Add your `GoogleService-Info.plist` (iOS) to `oouth_coop_app/ios/Runner/`
-
-5. **Run the application**
+4. **Run the app**
    ```bash
    flutter run
    ```
 
-## 🏗️ Project Structure
+## 📦 Building the App
 
-```
-oouth_coop_app/
-├── lib/
-│   ├── config/           # App configuration and theme settings
-│   ├── features/         # Feature modules
-│   │   ├── account/      # Account management
-│   │   ├── auth/         # Authentication flows
-│   │   ├── complaints/   # Support and complaints
-│   │   ├── events/       # Event management
-│   │   ├── home/         # Home screen
-│   │   ├── loans/        # Loan services
-│   │   ├── notifications/# Notification handling
-│   │   ├── payments/     # Payment processing
-│   │   ├── products/     # Product catalog
-│   │   ├── profile/      # User profile
-│   │   ├── settings/     # App settings
-│   │   ├── support/      # Support services
-│   │   ├── transactions/ # Transaction history
-│   │   └── wallet/       # Wallet management
-│   ├── services/         # Core services
-│   ├── shared/           # Shared widgets and components
-│   └── utils/            # Utility functions and helpers
-├── coop_admin/           # Backend admin panel and API
-└── assets/               # Images, fonts, and other assets
-```
+### Build Release APK
 
-## 📦 Key Dependencies
-
-- **State Management**: `provider` (^6.0.5)
-- **Networking**: `http` (^1.1.0)
-- **Storage**: `shared_preferences` (^2.2.0)
-- **Authentication**: `local_auth` (^2.1.6)
-- **Notifications**:
-  - `onesignal_flutter` (^5.2.9)
-  - `firebase_messaging` (^14.7.16)
-- **Location & Maps**:
-  - `geolocator` (^10.1.0)
-  - `google_maps_flutter` (^2.5.0)
-- **UI Components**:
-  - `google_fonts` (^5.1.0)
-  - `flutter_svg` (^2.0.7)
-  - `lottie` (^2.7.0)
-
-For a complete list, see `oouth_coop_app/pubspec.yaml`.
-
-## 🔧 Configuration
-
-### Environment Setup
-
-1. Copy the `.env.example` (if available) to `.env` in the `oouth_coop_app` directory
-2. Configure the following variables:
-   - API base URL
-   - Firebase configuration
-   - OneSignal app ID
-   - Google Maps API key
-
-### Build Configuration
-
-#### Android
-
-- Minimum SDK: 21
-- Target SDK: Latest stable
-- Keystore: Configured in `oouth_coop_app/android/app/`
-
-#### iOS
-
-- Minimum iOS version: 12.0
-- Configure signing in Xcode
-
-## 🏃 Running the App
-
-### Development Mode
+Use the automated build script:
 
 ```bash
-cd oouth_coop_app
-flutter run
+cd oouthsalary_mobile
+./version_bump.sh
 ```
 
-### Release Build
+The script will:
+1. Prompt for version bump type (Major/Minor/Patch)
+2. Update version in `pubspec.yaml`
+3. Create `version.json` files
+4. Build release APK files (split per architecture + universal)
+5. Copy APKs to `oouthsalary/download/` folder
+6. Generate version information for download page
 
-#### Android
+### Manual Build
 
 ```bash
-cd oouth_coop_app
+# Build universal APK
 flutter build apk --release
-# or for app bundle
-flutter build appbundle --release
+
+# Build split APKs (smaller file sizes)
+flutter build apk --split-per-abi --release
 ```
 
-#### iOS
+### Build Locations
 
-```bash
-cd oouth_coop_app
-flutter build ios --release
+- Universal APK: `build/app/outputs/flutter-apk/app-release.apk`
+- ARM64: `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
+- ARMv7: `build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk`
+- x86_64: `build/app/outputs/flutter-apk/app-x86_64-release.apk`
+
+## 🌐 API Endpoints
+
+The app connects to: `https://oouthsalary.com.ng/auth_api`
+
+### Authentication
+- `POST /api/auth/login.php` - User login
+- `POST /api/auth/reset_password.php` - Password reset
+- `GET /api/auth/get_employee.php` - Get employee details
+
+### Payroll
+- `GET /api/payroll/periods.php` - Get payment periods
+- `GET /api/payroll/payslip.php` - Get payslip data
+- `GET /api/payroll/pension_report.php` - Get pension report data ✨ *New*
+
+### Profile
+- `GET /api/profile/get_profile.php` - Get profile
+- `POST /api/profile/submit_changes.php` - Submit profile changes
+- `GET /api/profile/get_approval_status.php` - Get approval status
+
+### Other
+- `GET /api/departments/get_departments.php` - Get departments
+- `GET /api/duty/duty_rota.php` - Get duty rota
+- `GET /api/auth/notifications.php` - Get notifications
+
+## 📁 Project Structure
+
 ```
-
-#### Web
-
-```bash
-cd oouth_coop_app
-flutter build web --release
+oouthsalary_mobile/
+├── lib/
+│   ├── main.dart                 # App entry point
+│   ├── models/                   # Data models
+│   ├── screens/                  # UI screens
+│   │   ├── dashboard_screen.dart
+│   │   ├── payslip_screen.dart
+│   │   ├── pension_report_screen.dart  # ✨ New
+│   │   └── ...
+│   ├── services/                 # API services
+│   │   ├── api_service.dart
+│   │   ├── payslip_service.dart
+│   │   ├── pension_service.dart  # ✨ New
+│   │   └── ...
+│   ├── providers/                # State management
+│   ├── widgets/                  # Reusable widgets
+│   └── utils/                    # Utilities
+├── android/                      # Android configuration
+├── ios/                          # iOS configuration
+├── assets/                       # Images, fonts, etc.
+├── version_bump.sh              # Build & deployment script
+└── version.json                 # Version information
 ```
-
-## 🧪 Testing
-
-Run tests with:
-
-```bash
-cd oouth_coop_app
-flutter test
-```
-
-## 📱 Build & Deployment
-
-The app supports automated builds and deployments:
-
-- **APK builds** are stored in the `oouth_coop_app/dist/` and `oouth_coop_app/download/` directories
-- **Version management** is handled via `version.json` and `version_bump.sh`
-- **Firebase Hosting** is configured for web deployment
-- **GitHub Actions** workflows are set up for automated builds
 
 ## 🔐 Security
 
-- Device binding for account security
+- JWT token-based authentication
+- Secure storage for sensitive data
 - Biometric authentication support
-- Secure storage of sensitive data
 - Encrypted API communications
-- OTP-based authentication
 
-## 📚 Resources
+## 📱 Download
 
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Dart Language Tour](https://dart.dev/guides/language/language-tour)
-- [Flutter Cookbook](https://docs.flutter.dev/cookbook)
-- [Material Design](https://material.io/design)
+The app can be downloaded from:
+- **Download Page**: https://oouthsalary.com.ng/download.html
+- **Direct APK**: https://oouthsalary.com.ng/download/oouth_mobile.apk
 
-## 🤝 Contributing
+Version information is available at:
+- `https://oouthsalary.com.ng/download/version.json`
+- `https://oouthsalary.com.ng/download/version.php`
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🚀 Deployment
+
+### Automated Deployment
+
+1. **Update version**
+   ```bash
+   ./version_bump.sh
+   ```
+   Select version bump type when prompted.
+
+2. **Files are automatically:**
+   - Built as release APKs
+   - Copied to `oouthsalary/download/` folder
+   - Version info updated in `version.json`
+
+3. **Upload to server**
+   - Upload APK files to web server
+   - Ensure `download.html` is accessible
+   - Verify version.json is accessible
+
+### Manual Deployment
+
+1. Build APK: `flutter build apk --release`
+2. Copy APK to `oouthsalary/download/oouth_mobile.apk`
+3. Update `oouthsalary/download/version.json`
+4. Upload files to server
+
+## 📊 Version Information
+
+Current version: **1.1.0+2**
+
+Version format: `MAJOR.MINOR.PATCH+BUILD_NUMBER`
+
+- **Major**: Breaking changes
+- **Minor**: New features
+- **Patch**: Bug fixes
+- **Build**: Incremental build number
+
+## 🐛 Troubleshooting
+
+### Build Issues
+
+**Gradle/Kotlin errors:**
+```bash
+cd android
+./gradlew clean
+./gradlew --stop
+cd ..
+flutter clean
+flutter pub get
+```
+
+**NDK version mismatch:**
+- Ensure Android NDK 27.0.12077973 is installed
+- Update `android/app/build.gradle` with correct NDK version
+
+**Signing errors:**
+- Verify `android/key.properties` exists
+- Check keystore file path in `build.gradle`
+- Ensure keystore file is at `android/app/upload-keystore.jks`
+
+### Runtime Issues
+
+**PDF generation blank:**
+- Check console logs for pension data structure
+- Verify API returns data in expected format
+- Ensure pension data is not empty
+
+**API connection errors:**
+- Verify base URL: `https://oouthsalary.com.ng/auth_api`
+- Check network connectivity
+- Verify JWT token is valid
+
+## 📝 Changelog
+
+### Version 1.1.0 (Current)
+- ✨ Added pension report feature
+- 📊 Pension contribution history with charts
+- 📄 PDF export for pension reports
+- 🔧 Improved error handling
+- 🐛 Fixed PDF generation issues
+- 📱 Updated download page
+- 🔧 Updated Android build configuration (SDK 36, NDK 27, Gradle 8.11.1)
+
+### Version 1.0.0
+- 🎉 Initial release
+- 📄 Payslip viewing and download
+- 👤 Profile management
+- 📅 Duty rota access
+- 🔔 Notifications
+
+## 👥 Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Test thoroughly
+4. Submit a pull request
 
 ## 📄 License
 
-[Specify your license here]
+Copyright © OOUTH Salary Management System. All rights reserved.
 
-## 👥 Support
+## 📞 Support
 
-For support, email [support email] or open an issue in the repository.
-
-## 📝 Version History
-
-- **v2.0.0+9** - Current version
-  - Enhanced security features
-  - Improved UI/UX
-  - Bug fixes and performance improvements
+For issues or questions:
+- Check the troubleshooting section
+- Review API documentation
+- Contact the development team
 
 ---
 
-**Built with ❤️ using Flutter**
+**Built with ❤️ for OOUTH Staff**

@@ -1,7 +1,7 @@
 name: oouth_mobile
 description: "OOUTH HR & Salary Information Management System"
 publish_to: "none"
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.5.4
@@ -98,11 +98,6 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/images/oouth_logo.png"
   web:
     generate: true
-    image_path: "assets/images/oouth_logo.png"
-    background_color: "#ffffff"
-    theme_color: "#ffffff"
-    icons:
-      - sizes: [16, 32, 64, 192, 512]
 
 flutter_native_splash:
   color: "#ffffff"

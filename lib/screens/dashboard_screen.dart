@@ -9,6 +9,7 @@ import 'payslip_screen.dart';
 import 'notifications_screen.dart';
 import 'duty_rota_screen.dart';
 import 'profile_screen.dart';
+import 'pension_report_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -176,6 +177,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const DutyRotaScreen(),
+          ),
+        );
+        break;
+
+      case 'pension':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PensionReportScreen(),
           ),
         );
         break;
@@ -379,6 +389,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
+      childAspectRatio: 1.1,
       children: [
         _buildCard(
           context,
@@ -407,6 +418,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Icons.person_outline,
           AppTheme.primaryColor,
           () => _handleCardTap(context, 'profile'),
+        ),
+        _buildCard(
+          context,
+          'Pension Report',
+          Icons.account_balance_wallet,
+          AppTheme.primaryColor,
+          () => _handleCardTap(context, 'pension'),
         ),
       ],
     );
