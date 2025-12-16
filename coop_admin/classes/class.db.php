@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../config/EnvConfig.php';
 
-// Load database configuration from config.env
+// Load database configuration from .env
 $dbConfig = EnvConfig::getDatabaseConfig();
 $db_server = $dbConfig['host'];
 $db_user = $dbConfig['user'];

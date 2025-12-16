@@ -4,36 +4,49 @@ class EnvConfig {
     private static $config = null;
     
     /**
-     * Load configuration from config.env file
+     * Load configuration from .env file
      */
     public static function load() {
         if (self::$config === null) {
             self::$config = [];
             
-            $envFile = __DIR__ . '/../config.env';
+            $envFile = __DIR__ . '/../.env';
             
             if (file_exists($envFile)) {
                 $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 
-                foreach ($lines as $line) {
-                    // Skip comments
-                    if (strpos(trim($line), '#') === 0) {
+                foreach ($lines as $lineNum => $line) {
+                    // Trim the line
+                    $line = trim($line);
+                    
+                    // Skip empty lines and comments
+                    if (empty($line) || strpos($line, '#') === 0) {
                         continue;
                     }
                     
                     // Parse key=value pairs
                     if (strpos($line, '=') !== false) {
-                        list($key, $value) = explode('=', $line, 2);
-                        $key = trim($key);
-                        $value = trim($value);
+                        // Split on first = only (in case value contains =)
+                        $parts = explode('=', $line, 2);
                         
-                        // Remove quotes if present
-                        if ((substr($value, 0, 1) === '"' && substr($value, -1) === '"') ||
-                            (substr($value, 0, 1) === "'" && substr($value, -1) === "'")) {
-                            $value = substr($value, 1, -1);
+                        if (count($parts) === 2) {
+                            $key = trim($parts[0]);
+                            $value = trim($parts[1]);
+                            
+                            // Skip if key is empty
+                            if (empty($key)) {
+                                continue;
+                            }
+                            
+                            // Handle quoted values (both single and double quotes)
+                            if ((substr($value, 0, 1) === '"' && substr($value, -1) === '"') ||
+                                (substr($value, 0, 1) === "'" && substr($value, -1) === "'")) {
+                                $value = substr($value, 1, -1);
+                            }
+                            
+                            // Store the value (even if empty, as empty string is valid)
+                            self::$config[$key] = $value;
                         }
-                        
-                        self::$config[$key] = $value;
                     }
                 }
             }
@@ -70,23 +83,37 @@ class EnvConfig {
      * Throws exception if required values are missing
      */
     public static function getDatabaseConfig() {
+        $envFile = __DIR__ . '/../.env';
+        
+        // Check if .env file exists
+        if (!file_exists($envFile)) {
+            throw new \Exception('.env file not found at: ' . $envFile . '. Please create the .env file with database configuration.');
+        }
+        
         $host = self::get('DB_HOST');
         $name = self::get('DB_NAME');
         $user = self::get('DB_USER');
         $password = self::get('DB_PASSWORD');
         
-        // Validate required database configuration values
+        // Collect missing keys for better error message
+        $missing = [];
         if (empty($host)) {
-            throw new \Exception('DB_HOST is not configured in config.env file');
+            $missing[] = 'DB_HOST';
         }
         if (empty($name)) {
-            throw new \Exception('DB_NAME is not configured in config.env file');
+            $missing[] = 'DB_NAME';
         }
         if (empty($user)) {
-            throw new \Exception('DB_USER is not configured in config.env file');
+            $missing[] = 'DB_USER';
         }
-        if ($password === null) {
-            throw new \Exception('DB_PASSWORD is not configured in config.env file');
+        if ($password === null || $password === '') {
+            $missing[] = 'DB_PASSWORD';
+        }
+        
+        // Throw detailed error if any keys are missing
+        if (!empty($missing)) {
+            $missingList = implode(', ', $missing);
+            throw new \Exception('Missing required database configuration in .env file: ' . $missingList . '. Please ensure these keys are set in: ' . $envFile);
         }
         
         return [

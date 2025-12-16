@@ -84,6 +84,10 @@ switch ($action) {
     case 'get_balances':
         getBalances($pdo);
         break;
+    
+    case 'get_monthly_stats':
+        getMonthlyStats($pdo);
+        break;
 
     default:
         echo json_encode(["status" => "error", "message" => "Invalid action"]);
@@ -135,7 +139,7 @@ function checkUser($pdo) {
             EmailAddress,
             Status
         FROM tblemployees 
-        WHERE MobileNumber LIKE ? 
+        WHERE MobileNumber LIKE ? AND Status = 'Active' 
         LIMIT 1
     ");
     
@@ -157,8 +161,8 @@ function checkUser($pdo) {
             "first_name" => $user['FirstName'],
             "last_name" => $user['LastName'],
             "phone_matched" => $user['MobileNumber'],
-            "email" => $user['EmailAddress'] ?? null,
-            "status" => $user['Status'] ?? 'Active'
+            "email" => $user['EmailAddress'] ?? null
+            // "status" => $user['Status'] ?? 'Active'
         ]);
     } else {
         echo json_encode([
@@ -289,5 +293,78 @@ function getBalances($pdo) {
             "total_commodity_repaid" => number_format($total_commodity_repaid, 2, '.', '')
         ]
     ]);
+}
+
+/**
+ * Get monthly statistics for a member
+ * 
+ * @param PDO $pdo Database connection
+ * @return void Outputs JSON response
+ */
+
+function getMonthlyStats($pdo) {
+    $memberId = $_GET['member_id'] ?? '';
+    $month = $_GET['month'] ?? ''; // Expecting "April", "January", etc.
+    $year = $_GET['year'] ?? '';   // Expecting "2024", "2023"
+
+    if (!$memberId || !$month || !$year) {
+        echo json_encode(["status" => "error", "message" => "Missing parameters"]);
+        return;
+    }
+
+    // 1. We need to match the Month/Year string to your database format.
+    // Assuming 'PhysicalMonth' in DB is stored like "January", "February" etc.
+    // If your DB uses numbers (1, 2), we might need to convert. 
+    // Based on your schema (varchar 20), I assume it stores text.
+
+    $sql = "SELECT 
+                COALESCE(SUM(t.savingsAmount), 0) as total_savings,
+                COALESCE(SUM(t.sharesAmount), 0) as total_shares,
+                COALESCE(SUM(t.loanRepayment), 0) as total_loan_repayment,
+                COALESCE(SUM(t.InterestPaid), 0) as total_interest_paid,
+                COALESCE(SUM(t.CommodityRepayment), 0) as total_commodity_repayment,
+                COALESCE(SUM(t.loan), 0) as total_loan_taken,
+                MAX(p.PayrollPeriod) as PayrollPeriod
+								FROM tbl_mastertransact t
+            JOIN tbpayrollperiods p ON t.TransactionPeriod = p.id
+            WHERE t.COOPID = ?
+            AND p.PhysicalMonth = ? 
+            AND p.PhysicalYear = ?
+            AND t.completed = 1";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$memberId, $month, $year]);
+    $result = $stmt->fetch();
+
+    if ($result && ($result['total_savings'] > 0 || $result['total_shares'] > 0 || $result['total_loan_repayment'] > 0 || $result['total_interest_paid'] > 0 || $result['total_commodity_repayment'] > 0 || $result['total_loan_taken'] > 0)) {
+        // Round all values to 2 decimal places
+        $total_savings = round(floatval($result['total_savings']), 2);
+        $total_shares = round(floatval($result['total_shares']), 2);
+        $total_loan_repayment = round(floatval($result['total_loan_repayment']), 2);
+        $total_interest_paid = round(floatval($result['total_interest_paid']), 2);
+        $total_commodity_repayment = round(floatval($result['total_commodity_repayment']), 2);
+        $total_loan_taken = round(floatval($result['total_loan_taken']), 2);
+        
+        echo json_encode([
+            "status" => "success",
+            "period" => $result['PayrollPeriod'],
+            "month" => $month,
+            "year" => $year,
+            "data" => [
+                "savings_contribution" => number_format($total_savings, 2, '.', ''),
+                "shares_contribution" => number_format($total_shares, 2, '.', ''),
+                "loan_repayment" => number_format($total_loan_repayment, 2, '.', ''),
+                "interest_paid" => number_format($total_interest_paid, 2, '.', ''),
+                "commodity_repayment" => number_format($total_commodity_repayment, 2, '.', ''),
+                "loan_taken" => number_format($total_loan_taken, 2, '.', ''),
+                "currency" => "NGN"
+            ]
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "not_found", 
+            "message" => "No records found for $month $year"
+        ]);
+    }
 }
 ?>
