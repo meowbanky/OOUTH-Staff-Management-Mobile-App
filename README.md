@@ -49,14 +49,9 @@ Access payslips, pension reports, and duty rosters on the go.
 
 ## 📸 App Screenshots
 
-> **Note**: Screenshots are being prepared. Check back soon for visual previews of the app!
-
-<!-- 
-Once screenshots are available, uncomment and update the paths below:
 | Dashboard | Payslip View | Pension Report | Duty Rota |
 |:---:|:---:|:---:|:---:|
-| <img src="playstore_screenshots/dashboard.png" width="200" /> | <img src="playstore_screenshots/payslip.png" width="200" /> | <img src="playstore_screenshots/pension.png" width="200" /> | <img src="playstore_screenshots/rota.png" width="200" /> |
--->
+| <img src="playstore_screenshots/home_screen.jpeg" width="200" /> | <img src="playstore_screenshots/payslip_screen.jpeg" width="200" /> | <img src="playstore_screenshots/pension_screen.jpeg" width="200" /> | <img src="playstore_screenshots/duty_roaster.jpeg" width="200" /> |
 
 ## 🛠️ Technical Stack
 
