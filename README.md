@@ -51,7 +51,7 @@ Access payslips, pension reports, and duty rosters on the go.
 
 | Dashboard | Payslip View | Pension Report | Duty Rota |
 |:---:|:---:|:---:|:---:|
-| <img src="playstore_screenshots/home_screen.jpeg" width="200" /> | <img src="playstore_screenshots/payslip_screen.jpeg" width="200" /> | <img src="playstore_screenshots/pension_screen.jpeg" width="200" /> | <img src="playstore_screenshots/duty_roaster.jpeg" width="200" /> |
+| <img src="playstore_screenshots/home_screen.jpeg" width="200" /> | <img src="playstore_screenshots/payslip_screen.jpeg" width="200" /> | <img src="playstore_screenshots/pension_screen.jpeg" width="200" /> | <img src="playstore_screenshots/duty_roster.jpeg" width="200" /> |
 
 ## 🛠️ Technical Stack
 
