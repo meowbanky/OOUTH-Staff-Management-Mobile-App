@@ -1,8 +1,20 @@
-# OOUTH Mobile App
+<div align="center">
 
-**OOUTH HR & Salary Information Management System - Mobile Application**
+# OOUTH Staff Management Mobile App
 
-A Flutter-based mobile application for OOUTH (Olubisi Onabanjo University Teaching Hospital) staff to access their salary information, payslips, pension reports, and other HR services on the go.
+[![Flutter](https://img.shields.io/badge/Flutter-3.32.1-%2302569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.5.4-%230175C2?logo=dart)](https://dart.dev)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-blue)](https://www.android.com)
+[![License](https://img.shields.io/badge/license-Proprietary-red)](./LICENSE)
+
+**A complete HR & Payroll solution for Olubisi Onabanjo University Teaching Hospital.**
+Access payslips, pension reports, and duty rosters on the go.
+
+[**Download APK**](https://oouthsalary.com.ng/download/oouth_mobile.apk) • [**Visit Website**](https://oouthsalary.com.ng/)
+
+</div>
+
+---
 
 ## 📱 Features
 
@@ -34,6 +46,17 @@ A Flutter-based mobile application for OOUTH (Olubisi Onabanjo University Teachi
   - Real-time notifications
   - Unread count badges
   - Push notifications support
+
+## 📸 App Screenshots
+
+> **Note**: Screenshots are being prepared. Check back soon for visual previews of the app!
+
+<!-- 
+Once screenshots are available, uncomment and update the paths below:
+| Dashboard | Payslip View | Pension Report | Duty Rota |
+|:---:|:---:|:---:|:---:|
+| <img src="playstore_screenshots/dashboard.png" width="200" /> | <img src="playstore_screenshots/payslip.png" width="200" /> | <img src="playstore_screenshots/pension.png" width="200" /> | <img src="playstore_screenshots/rota.png" width="200" /> |
+-->
 
 ## 🛠️ Technical Stack
 
