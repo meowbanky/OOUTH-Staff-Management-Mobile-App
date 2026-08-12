@@ -265,9 +265,10 @@ class _PayslipScreenState extends State<PayslipScreen> {
       // Save PDF to temporary file and share
       final bytes = await pdf.save();
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/OOUTH_Payslip_${_selectedPeriod!.description}.pdf');
+      final file = File(
+          '${tempDir.path}/OOUTH_Payslip_${_selectedPeriod!.description}.pdf');
       await file.writeAsBytes(bytes);
-      
+
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'OOUTH Payslip for ${_selectedPeriod!.description}',
@@ -297,7 +298,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
         _buildPdfInfoRow('Dept', employeeInfo['department'].toString()),
         _buildPdfInfoRow('Bank', employeeInfo['bank'].toString()),
         _buildPdfInfoRow('Acct No.', employeeInfo['accountno'].toString()),
-        _buildPdfInfoRow('Grade/Step', employeeInfo['grade_step'].toString()),
+        _buildPdfInfoRow(_gradeStepLabel(employeeInfo),
+            employeeInfo['grade_step'].toString()),
         _buildPdfInfoRow(
             'Salary Structure', employeeInfo['salarytype'].toString()),
       ],
@@ -397,6 +399,22 @@ class _PayslipScreenState extends State<PayslipScreen> {
         ),
       ],
     );
+  }
+
+  /// Label for the grade row, naming the salary structure the staff member is
+  /// on: 'CONHESS/Step' for non-clinical staff, 'CONMESS/Step' for doctors,
+  /// and likewise for the smaller LOCUM and CONTIPSOL scales.
+  ///
+  /// The structure is resolved by the API from tbl_salaryType rather than
+  /// being inferred here, because the grade string alone cannot distinguish
+  /// LOCUM or CONTIPSOL staff, and because a prorated step ('06P') would make
+  /// any client-side letter test misread a CONHESS payslip as CONMESS.
+  ///
+  /// Falls back to the original generic label when the API cannot determine
+  /// the structure, so an unknown scale is never labelled with a guess.
+  String _gradeStepLabel(dynamic employeeInfo) {
+    final scheme = (employeeInfo['grade_scheme'] ?? '').toString().trim();
+    return scheme.isEmpty ? 'Grade/Step' : '$scheme/Step';
   }
 
   pw.Widget _buildPdfInfoRow(String label, String value) {
@@ -989,7 +1007,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
             _buildInfoRow('Department', employeeInfo['department'].toString()),
             _buildInfoRow('Bank', employeeInfo['bank'].toString()),
             _buildInfoRow('Account No.', employeeInfo['accountno'].toString()),
-            _buildInfoRow('Grade/Step', employeeInfo['grade_step'].toString()),
+            _buildInfoRow(_gradeStepLabel(employeeInfo),
+                employeeInfo['grade_step'].toString()),
             const SizedBox(height: 20),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
