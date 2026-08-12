@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.emmaggi.oouth"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -32,21 +32,26 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        // Taken from pubspec.yaml (currently 1.1.0+2) rather than hardcoded.
+        // These were still the template's 1.0.0 / 1, so every build declared
+        // itself the original release no matter what it contained -- and an
+        // unchanged versionCode will not install over a copy already on a
+        // phone, which is exactly what an update needs to do.
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
                 def keystorePath = keystoreProperties['storeFile']
                 if (keystorePath) {
                     // Resolve keystore path relative to android/ directory
                     storeFile file("../$keystorePath")
                 }
-                storePassword keystoreProperties['storePassword']
+            storePassword keystoreProperties['storePassword']
             }
         }
     }
