@@ -10,6 +10,18 @@ import 'notifications_screen.dart';
 import 'duty_rota_screen.dart';
 import 'profile_screen.dart';
 import 'pension_report_screen.dart';
+import 'promotion_estimator_screen.dart';
+import 'settings_screen.dart';
+import 'annual_tax_summary_screen.dart';
+import 'salary_certificate_screen.dart';
+import 'earnings_history_screen.dart';
+import 'deductions_tracker_screen.dart';
+import 'payslip_comparison_screen.dart';
+import 'pay_calendar_screen.dart';
+import 'net_pay_trend_screen.dart';
+import 'payslip_bundle_screen.dart';
+import 'annual_income_statement_screen.dart';
+import '../widgets/pay_day_countdown_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -164,10 +176,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         break;
 
       case 'settings':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Settings coming soon!'),
-            behavior: SnackBarBehavior.floating,
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
           ),
         );
         break;
@@ -186,6 +198,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const PensionReportScreen(),
+          ),
+        );
+        break;
+
+      case 'promotion':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PromotionEstimatorScreen(),
+          ),
+        );
+        break;
+
+      case 'tax':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnnualTaxSummaryScreen(),
+          ),
+        );
+        break;
+
+      case 'certificate':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SalaryCertificateScreen(),
+          ),
+        );
+        break;
+
+      case 'earnings':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const EarningsHistoryScreen(),
+          ),
+        );
+        break;
+
+      case 'deductions':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DeductionsTrackerScreen(),
+          ),
+        );
+        break;
+
+      case 'compare':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PayslipComparisonScreen(),
+          ),
+        );
+        break;
+
+      case 'calendar':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PayCalendarScreen(),
+          ),
+        );
+        break;
+
+      case 'trend':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const NetPayTrendScreen(),
+          ),
+        );
+        break;
+
+      case 'bundle':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PayslipBundleScreen(),
+          ),
+        );
+        break;
+
+      case 'statement':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AnnualIncomeStatementScreen(),
           ),
         );
         break;
@@ -216,6 +318,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildWelcomeCard(user?.name ?? 'Staff Member'),
+                      const SizedBox(height: 16),
+                      const PayDayCountdownWidget(),
                       const SizedBox(height: 24),
                       Text(
                         'Quick Actions',
@@ -425,6 +529,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Icons.account_balance_wallet,
           AppTheme.primaryColor,
           () => _handleCardTap(context, 'pension'),
+        ),
+        _buildCard(
+          context,
+          'Promotion Estimator',
+          Icons.trending_up,
+          Colors.green[700]!,
+          () => _handleCardTap(context, 'promotion'),
+        ),
+        _buildCard(
+          context,
+          'Tax Summary',
+          Icons.receipt_long_outlined,
+          Colors.orange[700]!,
+          () => _handleCardTap(context, 'tax'),
+        ),
+        _buildCard(
+          context,
+          'Salary Certificate',
+          Icons.workspace_premium_outlined,
+          Colors.teal[700]!,
+          () => _handleCardTap(context, 'certificate'),
+        ),
+        _buildCard(
+          context,
+          'Earnings History',
+          Icons.show_chart,
+          Colors.indigo[600]!,
+          () => _handleCardTap(context, 'earnings'),
+        ),
+        _buildCard(
+          context,
+          'Deductions Tracker',
+          Icons.remove_circle_outline,
+          Colors.red[700]!,
+          () => _handleCardTap(context, 'deductions'),
+        ),
+        _buildCard(
+          context,
+          'Compare Payslips',
+          Icons.compare_arrows,
+          Colors.deepPurple[600]!,
+          () => _handleCardTap(context, 'compare'),
+        ),
+        _buildCard(
+          context,
+          'Pay Calendar',
+          Icons.calendar_month_outlined,
+          Colors.cyan[700]!,
+          () => _handleCardTap(context, 'calendar'),
+        ),
+        _buildCard(
+          context,
+          'Net Pay Trend',
+          Icons.timeline,
+          Colors.brown[600]!,
+          () => _handleCardTap(context, 'trend'),
+        ),
+        _buildCard(
+          context,
+          'Payslip Bundle',
+          Icons.picture_as_pdf_outlined,
+          Colors.green[800]!,
+          () => _handleCardTap(context, 'bundle'),
+        ),
+        _buildCard(
+          context,
+          'Income Statement',
+          Icons.receipt_outlined,
+          Colors.blueGrey[700]!,
+          () => _handleCardTap(context, 'statement'),
         ),
       ],
     );

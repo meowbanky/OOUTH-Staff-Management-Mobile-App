@@ -161,6 +161,7 @@ class NotificationService {
       if (data != null) {
         switch (data['type']) {
           case 'payslip':
+          case 'salary_ready':
             _navigateToPayslip(data['payslip_id']?.toString());
             break;
           case 'announcement':
