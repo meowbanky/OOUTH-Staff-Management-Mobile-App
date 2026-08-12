@@ -13,6 +13,7 @@ import '../services/payslip_service.dart';
 import '../models/period.dart';
 import '../utils/app_theme.dart';
 import '../utils/number_formatter.dart';
+import '../utils/salary_scheme.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class PayslipScreen extends StatefulWidget {
@@ -298,7 +299,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
         _buildPdfInfoRow('Dept', employeeInfo['department'].toString()),
         _buildPdfInfoRow('Bank', employeeInfo['bank'].toString()),
         _buildPdfInfoRow('Acct No.', employeeInfo['accountno'].toString()),
-        _buildPdfInfoRow(_gradeStepLabel(employeeInfo),
+        _buildPdfInfoRow(
+            gradeStepLabel(employeeInfo['grade_scheme']?.toString()),
             employeeInfo['grade_step'].toString()),
         _buildPdfInfoRow(
             'Salary Structure', employeeInfo['salarytype'].toString()),
@@ -399,22 +401,6 @@ class _PayslipScreenState extends State<PayslipScreen> {
         ),
       ],
     );
-  }
-
-  /// Label for the grade row, naming the salary structure the staff member is
-  /// on: 'CONHESS/Step' for non-clinical staff, 'CONMESS/Step' for doctors,
-  /// and likewise for the smaller LOCUM and CONTIPSOL scales.
-  ///
-  /// The structure is resolved by the API from tbl_salaryType rather than
-  /// being inferred here, because the grade string alone cannot distinguish
-  /// LOCUM or CONTIPSOL staff, and because a prorated step ('06P') would make
-  /// any client-side letter test misread a CONHESS payslip as CONMESS.
-  ///
-  /// Falls back to the original generic label when the API cannot determine
-  /// the structure, so an unknown scale is never labelled with a guess.
-  String _gradeStepLabel(dynamic employeeInfo) {
-    final scheme = (employeeInfo['grade_scheme'] ?? '').toString().trim();
-    return scheme.isEmpty ? 'Grade/Step' : '$scheme/Step';
   }
 
   pw.Widget _buildPdfInfoRow(String label, String value) {
@@ -1007,7 +993,8 @@ class _PayslipScreenState extends State<PayslipScreen> {
             _buildInfoRow('Department', employeeInfo['department'].toString()),
             _buildInfoRow('Bank', employeeInfo['bank'].toString()),
             _buildInfoRow('Account No.', employeeInfo['accountno'].toString()),
-            _buildInfoRow(_gradeStepLabel(employeeInfo),
+            _buildInfoRow(
+                gradeStepLabel(employeeInfo['grade_scheme']?.toString()),
                 employeeInfo['grade_step'].toString()),
             const SizedBox(height: 20),
             SingleChildScrollView(
